@@ -44,7 +44,4 @@ Allow: /agents.txt
 Allow: /
 
 Sitemap: https://agentstxt.dev/sitemap.xml
-# llms.txt: https://agentstxt.dev/llms.txt
-# agents.txt: https://agentstxt.dev/agents.txt
-Agents-Txt: https://agentstxt.dev/agents.txt
 Content-Signal: search=yes, ai-train=no, ai-input=no

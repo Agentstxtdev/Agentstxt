@@ -118,7 +118,7 @@ function validateAgentsJson(obj: unknown): ValidationResult {
   return { valid: errors.length === 0, errors, warnings };
 }
 
-export function registerValidate(server: McpServer) {
+export function registerValidateAgents(server: McpServer) {
   server.registerTool(
     'validate_agents_txt',
     {

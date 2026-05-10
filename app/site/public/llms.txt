@@ -2,9 +2,14 @@
 
 > The open specification for AI agent capability declarations. Layer 4 of the agent-readiness stack.
 
-This site supports agentic access via the [x402 payment protocol](https://x402.org). Agents may access protected content for 0.001 USDC per request on eip155:8453.
-Treasury: `0x0000000000000000000000000000000000000000`
-Discovery: https://agentstxt.dev/agents.txt
-
 ## Specification
-- [agents.txt Standard v0.5-draft](https://agentstxt.dev): The open specification for AI agent capability declarations. Covers file format, directives, discovery, payment protocols (x402, MPP), authorization (agent-auth), MCP endpoint declaration, and skills. Layer 4 of the agent-readiness stack.
+- [agents.txt Standard v1.0-draft](https://agentstxt.dev): The open specification for AI agent capability declarations. Covers file format, directives, discovery, payment protocols (x402, MPP), authorization (agent-auth), MCP endpoint declaration, and skills. Layer 4 of the agent-readiness stack.
+
+## Demos
+- [Demos index](https://agentstxt.dev/demo): Live demonstrations of every capability the spec advertises.
+- [Agent Auth demo](https://agentstxt.dev/demo/auth): 7-step Ed25519 + JWT handshake against the agent-auth Cloudflare Worker.
+- [MCP demo](https://agentstxt.dev/demo/mcp): Streamable HTTP MCP session: initialize, tools/list, get_spec, validators.
+- [Payments demo](https://agentstxt.dev/demo/payments): Live x402 v2 + MPP payment flow against the /donate endpoint.
+- [Skills demo](https://agentstxt.dev/demo/skills): agents.json skills index → MCP get_skill → installable skill package.
+- [Content declarations demo](https://agentstxt.dev/demo/llms): Renders /llms.txt and /llms-full.txt content live from this server.
+- [File Generator](https://agentstxt.dev/demo/generate): Browser-only configurator that emits agents.txt + agents.json from form input.

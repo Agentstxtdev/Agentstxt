@@ -4,8 +4,8 @@ import { Hono } from 'hono';
 import { registerGetSpec } from './tools/get_spec.js';
 import { registerGetSkill } from './tools/get_skill.js';
 import { registerParseAgentsTxt } from './tools/parse_agents_txt.js';
-import { registerValidate } from './tools/validate.js';
-import { registerCheckSite } from './tools/check_site.js';
+import { registerValidateAgents } from './tools/validate_agents.js';
+import { registerAuditSite } from './tools/audit_site.js';
 
 export type Env = { SITE_ORIGIN: string };
 
@@ -25,8 +25,8 @@ export class AgentsTxtMCP extends McpAgent<Env, State, Props> {
     registerGetSpec(this.server, this.env.SITE_ORIGIN);
     registerGetSkill(this.server, this.env.SITE_ORIGIN);
     registerParseAgentsTxt(this.server);
-    registerValidate(this.server);
-    registerCheckSite(this.server);
+    registerValidateAgents(this.server);
+    registerAuditSite(this.server);
   }
 }
 

@@ -99,13 +99,45 @@ If the user runs a server (Express, Hono, Next.js App Router, etc.) and wants th
 
 ---
 
+## Configure §4.5 serving headers
+
+Putting the file in `public/` is necessary but not sufficient. Spec §4.5 requires four response headers on `/agents.txt` and `/agents.json`:
+
+```
+/agents.txt   : Content-Type: text/plain; charset=utf-8 + Access-Control-Allow-Origin: * + Cache-Control: public, max-age=3600
+/agents.json  : Content-Type: application/json + Access-Control-Allow-Origin: * + Cache-Control: public, max-age=3600
+```
+
+Without `Access-Control-Allow-Origin: *`, browser-context agents (extensions, web playgrounds, in-app copilots) cannot read the files cross-origin and silently fail. Without `charset=utf-8`, browsers fall back to ISO-8859-1 and mojibake non-ASCII directive values.
+
+Most static-asset pipelines do **not** set these by default. Help the user wire them up:
+
+| User's hosting platform | What to do |
+|---|---|
+| **Cloudflare** Workers / Pages | Drop a `_headers` file in their `public/` (or `static/`) folder with the rules above. Cloudflare's static-assets pipeline applies it at the edge automatically. |
+| **Netlify** | Same `_headers` file at the publish root. Identical syntax to Cloudflare. |
+| **Vercel** | Add a `headers[]` array to `vercel.json` at the project root, with one entry per file. |
+| **Nginx** | `add_header` directives inside the matching `location` block. |
+| **Apache** | `Header set` in `.htaccess` or vhost config. |
+| **Caddy** | `header` directive in their Caddyfile. |
+| **AWS S3 + CloudFront** | Response Headers Policy on the distribution (or Lambda@Edge for finer control). |
+| **Express / Hono / Next.js handlers** | Set the headers in the route handler that serves the file. The `@agentify/web` middleware already does this if the user adopted via Path 2. |
+
+If the user is on Cloudflare, Netlify, or Vercel **and** they used `agentify` (Path 2), they can run `npx agentify generate --headers` and the CLI emits the right config based on its hosting-platform probe (or pass `--platform <name>` to override). For other hosts or hand-written sites, this step is manual.
+
+After the headers are wired, point the user at `audit_site` (Validate the result, below) to confirm.
+
+---
+
 ## Validate the result
 
 After the file is in place, validate it (regardless of path). Two ways:
 
 ### A. Use the public MCP server
 
-[`mcp.agentstxt.dev`](https://mcp.agentstxt.dev) exposes a `validate_agents_txt` (and `validate_agents_json`) tool over Model Context Protocol. Any MCP-aware agent (Claude Desktop, mcp-inspector, etc.) can call it. The site also exposes a one-shot `check_site` tool that fetches a live URL and scores compliance.
+[`mcp.agentstxt.dev`](https://mcp.agentstxt.dev) exposes `validate_agents_txt` and `validate_agents_json` tools over Model Context Protocol for offline content validation, and the comprehensive `audit_site` tool for end-to-end checks of a live URL. Any MCP-aware client (Claude Desktop, mcp-inspector, etc.) can call them.
+
+`audit_site` is what to run after deploy. It validates §4.5 serving headers (Content-Type, CORS, Cache-Control), runs the §3-§8 directive validators on `agents.txt`, schema-validates `agents.json` per §10, scans both for accidental treasury / secret leaks per §10.4 / §12, and cross-checks consistency between `agents.txt` and `agents.json`. Output includes a roll-up `summary` block with `compliant` (boolean) and `errorCount` so it reads as a single pass/fail signal.
 
 ### B. Manual checks
 

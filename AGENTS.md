@@ -35,7 +35,10 @@ agentstxt/
 │   │   ├── config.ts
 │   │   └── content.config.ts
 │   ├── public/                 — generated artifacts: agents.txt, agents.json,
-│   │                             llms.txt, llms-full.txt, robots.txt, sitemap.xml
+│   │                             llms.txt, llms-full.txt, robots.txt, sitemap.xml,
+│   │                             plus `_headers` (Cloudflare config that satisfies
+│   │                             spec §4.5: Content-Type charset, CORS, Cache-Control
+│   │                             on /agents.txt and /agents.json)
 │   ├── agentic.config.js       — config consumed by external generators
 │   ├── astro.config.mjs
 │   └── wrangler.json
@@ -43,7 +46,7 @@ agentstxt/
 ├── mcp/                        — mcp.agentstxt.dev (Cloudflare Worker)
 │   ├── src/                    — MCP server: get_spec, parse_agents_txt,
 │   │                             validate_agents_txt, validate_agents_json,
-│   │                             check_site, get_skill
+│   │                             audit_site, get_skill
 │   └── wrangler.json
 │
 ├── auth/                       — agent-auth (Cloudflare Worker)
@@ -92,7 +95,9 @@ The `/donate` handler in `worker.ts` is a **deliberate self-contained reference*
 
 ### MCP server: `mcp/`
 
-A Cloudflare Worker exposing the `agents.txt` spec to AI agents over Model Context Protocol. Tools: `get_spec`, `parse_agents_txt`, `validate_agents_txt`, `validate_agents_json`, `check_site`, `get_skill`. Built on `hono`, `@modelcontextprotocol/sdk`, `agents`. Deploys to `mcp.agentstxt.dev`.
+A Cloudflare Worker exposing the `agents.txt` spec to AI agents over Model Context Protocol. Tools: `get_spec`, `parse_agents_txt`, `validate_agents_txt`, `validate_agents_json`, `audit_site`, `get_skill`. Built on `hono`, `@modelcontextprotocol/sdk`, `agents`. Deploys to `mcp.agentstxt.dev`.
+
+`audit_site` does the heavy lifting: it fetches `/agents.txt`, `/agents.json`, and `/robots.txt`, validates the §4.5 serving headers (Content-Type, CORS, Cache-Control), runs the §3-§8 directive validators on `agents.txt`, schema-validates `agents.json` per §10, scans both files for accidental treasury / secret leaks per §10.4 / §12, and cross-checks that the two files declare consistent capabilities (payments / authorization / MCP / Skills). Out of scope: full RFC 9309 audit, sitemap.xml, llms.txt — those are governed by other specs.
 
 ### Agent-auth worker: `auth/`
 

@@ -181,15 +181,18 @@ Sites SHOULD include a `# JSON:` comment in the header of `agents.txt` to point 
 
 This is a comment and is silently ignored by parsers that do not understand it. It allows agents that prefer structured JSON to find `agents.json` from within `agents.txt` without a separate round-trip.
 
-### 4.3 `robots.txt` Hint (Optional)
+### 4.3 `robots.txt` Discovery
 
-Sites MAY include an `Agents-Txt:` directive in `robots.txt` as an optional hint, following the established pattern of the `Sitemap:` directive:
+`agents.txt` is discovered through the canonical path defined in §4.1 (`<origin>/agents.txt`). A `robots.txt` written for an agents-compliant site SHOULD include `Allow: /agents.txt` in its default `User-agent: *` block. This both grants explicit access and exposes the file's existence to any crawler reading `robots.txt`:
 
 ```
-Agents-Txt: https://example.com/agents.txt
+User-agent: *
+Allow: /llms.txt
+Allow: /agents.txt
+Allow: /
 ```
 
-This directive is a non-RFC extension and does not modify the robots.txt specification. It helps agents that parse `robots.txt` discover the agents.txt location without a separate request. Sites SHOULD emit this directive whenever `agents.txt` carries any capability declaration (payments, authorization, MCP, skills, or any future block).
+Implementations MUST NOT emit a separate `Agents-Txt:` directive in `robots.txt`. Earlier drafts of this specification defined such a directive parallel to `Sitemap:`, but because §4.1 fixes the file's location at the canonical path, the directive provided no information beyond what `Allow: /agents.txt` already conveys, and emitting both produces redundant cross-references. The `Sitemap:` directive remains necessary because `sitemap.xml` may legitimately live at any URL; `agents.txt` does not have that flexibility.
 
 ### 4.4 `Content-Signal:` in robots.txt (Optional)
 
@@ -383,7 +386,7 @@ If skill URLs require authentication, the `Authorization:` block (e.g. `Authoriz
 
 | Standard | Relationship |
 |----------|-------------|
-| robots.txt (RFC 9309) | Complementary. `robots.txt` controls crawler access; `agents.txt` declares agent capabilities. Sites SHOULD add `Agents-Txt:` as a non-breaking hint whenever `agents.txt` carries any capability. |
+| robots.txt (RFC 9309) | Complementary. `robots.txt` controls crawler access; `agents.txt` declares agent capabilities. Sites SHOULD include `Allow: /agents.txt` in the default wildcard block of `robots.txt` (§4.3); no separate discovery directive is needed since the file is at the canonical path. |
 | sitemap.xml (sitemaps.org) | Unrelated. `sitemap.xml` is a page index; `agents.txt` declares runtime capabilities. |
 | llms.txt (llmstxt.org) | Complementary. `llms.txt` curates content for LLM inference; `agents.txt` declares what agents can do on the site. |
 | x402 (x402.org) | `agents.txt` advertises x402 support. The protocol itself (payment details, verification) is defined by x402.org and the `@x402/*` packages. |

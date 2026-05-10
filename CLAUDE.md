@@ -153,6 +153,17 @@ Trigger `/adopt-agents-txt`. The skill walks them through reading the spec, choo
 3. Interactive demos that need server logic: extend `site/src/worker.ts` with a new pathname check; do not invent a separate worker for it.
 4. Re-generate `site/public/agents.txt` and `agents.json` if the demo declares a new capability the site formally supports.
 
+### …the user asks about §4.5 serving compliance for the site
+
+1. The site satisfies §4.5 via `site/public/_headers` (Cloudflare Workers Static Assets format). It declares `Content-Type: text/plain; charset=utf-8` for `/agents.txt`, `Content-Type: application/json` for `/agents.json`, `Access-Control-Allow-Origin: *` on both, and `Cache-Control: public, max-age=3600`.
+2. Astro copies `public/_headers` to `dist/client/_headers` at build; the adapter-generated `dist/server/wrangler.json` resolves `assets.directory` to `../client`, so wrangler picks it up at deploy.
+3. Verify after deploy by calling the MCP `audit_site` tool against `https://agentstxt.dev` (e.g. via `mcp.agentstxt.dev/mcp`); a clean run reports `corsAllOrigins: true`, the right `Content-Type`, and a present `Cache-Control` for both files.
+4. Localhost (`astro dev`) does NOT honor `_headers`. The §4.5 errors that appear when auditing `http://localhost:4321` are expected; the spec governs production, not dev preview.
+
+### …the user asks to add or change an MCP audit check
+
+The MCP `audit_site` tool lives at `mcp/src/tools/audit_site.ts` (function: `registerAuditSite`). Scope is intentionally limited to the agents.txt spec: §3-§8 directive validation, §10 schema validation, §4.5 serving headers, §10.4 / §12 secret-leak scan, and `agents.txt ↔ agents.json` cross-file consistency. A light-touch check on `robots.txt` confirms `Allow: /agents.txt` is present (the §4.3 discovery surface). RFC 9309, sitemap.xml, and llms.txt are out of scope; do not extend the tool to audit them.
+
 ### …the user mentions agentify
 
 Acknowledge it as a sibling project that helps adopt this spec. Mention it lives in a different folder (the user's local clone hierarchy will tell them where) and that it is not imported anywhere here. Do not run `npm install @agentify/web` or similar inside this repo. Do not assume the user is using agentify just because they're working in this repo.
