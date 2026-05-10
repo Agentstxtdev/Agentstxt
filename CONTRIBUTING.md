@@ -5,7 +5,7 @@ Thanks for taking the time to contribute. agentstxt is the `agents.txt` open sta
 - **The specification** at [`spec/AGENTS-TXT-STANDARD.md`](spec/AGENTS-TXT-STANDARD.md) is the load-bearing artifact for the entire ecosystem. Changes here can break every parser, generator, and validator in the wild.
 - **The reference deployment** (three Cloudflare Workers + a marketing landing page) is operational code. Changes here only affect agentstxt.dev and its sister deployments.
 
-This guide covers what's specific to this repository. For overall architectural rules and the orientation map, read [`AGENTS.md`](AGENTS.md) (codebase guide) and [`CLAUDE.md`](CLAUDE.md) (operating instructions for AI agents — humans benefit too).
+This guide covers what's specific to this repository. For overall architectural rules and the orientation map, read [`AGENTS.md`](AGENTS.md) (codebase guide) and [`CLAUDE.md`](CLAUDE.md) (operating instructions for AI agents; humans benefit too).
 
 ---
 
@@ -29,7 +29,7 @@ pnpm build       # builds site + mcp + auth via pnpm -r
 pnpm test        # auth's 55 Vitest tests
 ```
 
-If anything in that sequence fails on a clean clone, that's a bug — please file an issue with the failing output before trying to fix something else.
+If anything in that sequence fails on a clean clone, that's a bug. Please file an issue with the failing output before trying to fix something else.
 
 ---
 
@@ -59,7 +59,7 @@ pnpm auth:deploy / pnpm auth:deploy:prod
 
 | Change type | Location | Review bar |
 |---|---|---|
-| Spec wording, typos, examples | `spec/AGENTS-TXT-STANDARD.md` | Editorial — light review |
+| Spec wording, typos, examples | `spec/AGENTS-TXT-STANDARD.md` | Editorial, light review |
 | Spec semantics (new directives, schema fields) | `spec/AGENTS-TXT-STANDARD.md` | RFC discipline (see below) |
 | Astro site page or content | `site/src/pages/` or `site/src/content/` | Standard |
 | BFF / `/donate` payment proof | `site/src/worker.ts` | Standard, must stay self-contained (no `@agentify/*` imports) |
@@ -87,7 +87,7 @@ These are non-negotiable. Violations get sent back without further review.
 
 ---
 
-## Spec changes — RFC discipline
+## Spec changes: RFC discipline
 
 The specification at [`spec/AGENTS-TXT-STANDARD.md`](spec/AGENTS-TXT-STANDARD.md) is CC0 and load-bearing. Treat it accordingly.
 
@@ -99,10 +99,10 @@ Typos, clarifying examples, broken links, formatting, internal cross-references.
 
 New directives, schema fields, conformance requirements, version bumps, anything that changes how an implementer parses or validates. **Open the PR with an RFC-style description:**
 
-- **Why** — what problem does this solve? What real adoption pain motivates it?
-- **Compat** — does this break existing parsers? If so, what's the mitigation? If not, why not?
-- **Migration** — what does a site that already publishes `agents.txt` need to do?
-- **Reference impact** — list the files in `mcp/src/` (validators) and `site/public/` (generated examples) that must change in the same PR to stay consistent.
+- **Why**: what problem does this solve? What real adoption pain motivates it?
+- **Compat**: does this break existing parsers? If so, what's the mitigation? If not, why not?
+- **Migration**: what does a site that already publishes `agents.txt` need to do?
+- **Reference impact**: list the files in `mcp/src/` (validators) and `site/public/` (generated examples) that must change in the same PR to stay consistent.
 
 Then **bump the `Version:` line** at the top of the spec when semantics change.
 
@@ -118,7 +118,7 @@ If your spec change affects parsers in other languages (Python, Go, Rust, etc.),
 
 The reference site is the canonical *demonstration* of the spec. Some specifics:
 
-- `site/public/agents.txt` and `site/public/agents.json` must always validate against the latest published spec. If you change the spec, regenerate or hand-edit these files in the same PR — they're how implementers see the spec applied.
+- `site/public/agents.txt` and `site/public/agents.json` must always validate against the latest published spec. If you change the spec, regenerate or hand-edit these files in the same PR; they're how implementers see the spec applied.
 - `site/src/worker.ts` is the reference x402 v2 + MPP implementation. Keep it self-contained and readable. The whole `/donate` flow should fit comfortably on a single screen.
 - Astro pages in `site/src/pages/` are user-facing content. Push runtime logic into `worker.ts` or a sibling worker; pages stay declarative.
 - New demos go in `site/src/pages/demo/<name>.astro`. Static demos: pure Astro / HTML. Interactive demos that need server logic: extend `worker.ts` with a new pathname check.
@@ -144,7 +144,7 @@ pnpm mcp:dev
 
 ## Agent-auth worker changes
 
-Located in `auth/`. Cryptographic surface — extra discipline applies.
+Located in `auth/`. Cryptographic surface; extra discipline applies.
 
 - **Vitest tests are the contract.** `pnpm auth:test` must end at 55 or more passing tests, never fewer. New behavior → new tests. Changed behavior → updated tests with a comment explaining what changed.
 - **Use `@noble/*` for all crypto.** No hand-rolled curve math, hash functions, or signature verification. If a primitive isn't available in the libraries already in use, install a vetted one rather than implementing.
@@ -165,13 +165,13 @@ pnpm auth:dev
 
 The [PR template](.github/PULL_REQUEST_TEMPLATE.md) is required. Specifically:
 
-- **Thinking path** — five to eight steps, blockquote style, traces from "agentstxt is X" down to "this PR does Y."
-- **Type of change** — tick the right bucket. If a PR touches multiple buckets, split it.
-- **Verification** — concrete commands and expected output. For spec PRs, the live `agentstxt.dev` URLs that exercise the change. For worker PRs, `wrangler dev` exercise notes.
-- **Risks** — even if "Low risk."
-- **Spec impact** — required for structural spec changes. Backwards-compat / migration / version bump / mirrored validator updates.
-- **Model used** — be specific: provider, model ID/version, thinking mode if applicable. "Claude" is not enough; "claude-opus-4-7 in extended thinking mode" is.
-- **Checklist** — tick the boxes you've actually completed. Reviewers check.
+- **Thinking path**: five to eight steps, blockquote style, traces from "agentstxt is X" down to "this PR does Y."
+- **Type of change**: tick the right bucket. If a PR touches multiple buckets, split it.
+- **Verification**: concrete commands and expected output. For spec PRs, the live `agentstxt.dev` URLs that exercise the change. For worker PRs, `wrangler dev` exercise notes.
+- **Risks**: even if "Low risk."
+- **Spec impact**: required for structural spec changes. Backwards-compat / migration / version bump / mirrored validator updates.
+- **Model used**: be specific: provider, model ID/version, thinking mode if applicable. "Claude" is not enough; "claude-opus-4-7 in extended thinking mode" is.
+- **Checklist**: tick the boxes you've actually completed. Reviewers check.
 
 ### Commit messages
 

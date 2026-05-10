@@ -1,4 +1,4 @@
-# `adopt-agents-txt` — Reference
+# `adopt-agents-txt`: Reference
 
 Full directive list, `agents.json` schema, capability block examples, and hand-write templates per framework. Open this from SKILL.md when the user asks about a specific directive's syntax, an `agents.json` field, or the canonical layout for a capability block.
 
@@ -52,12 +52,12 @@ Site-URL: https://mysite.com
 Payments: x402, mpp
 ```
 
-The directive declares which payment protocols the site accepts. Order of values is hint-only. `agents.json` carries the structured details (chains, default pricing). Implementation is on the site's `402` response bodies — `agents.txt` never carries wallet addresses or amounts.
+The directive declares which payment protocols the site accepts. Order of values is hint-only. `agents.json` carries the structured details (chains, default pricing). Implementation is on the site's `402` response bodies; `agents.txt` never carries wallet addresses or amounts.
 
 Supported values:
 
-- `x402` — HTTP-native crypto micropayments (per-request, EIP-3009 / SVM). Spec: [x402.org](https://x402.org).
-- `mpp` — Machine Payments Protocol (session-based, fiat + USDC via Stripe SPT or Tempo). IETF draft: `draft-ryan-httpauth-payment`.
+- `x402`: HTTP-native crypto micropayments (per-request, EIP-3009 / SVM). Spec: [x402.org](https://x402.org).
+- `mpp`: Machine Payments Protocol (session-based, fiat + USDC via Stripe SPT or Tempo). IETF draft: `draft-ryan-httpauth-payment`.
 
 Future values can be added without spec bump as long as they're identifier strings.
 
@@ -70,7 +70,7 @@ Identity: required
 
 `Authorization:` declares the agent-identification protocol. Currently spec-recognized: `agent-auth`. Discovery endpoint is hardcoded at `/.well-known/agent-configuration` per the agent-auth protocol.
 
-`Identity: required` is a site-level policy — if present, agents MUST authenticate before any interaction (not just before capability execution). Useful for sites that gate all reads on agent identity.
+`Identity: required` is a site-level policy; if present, agents MUST authenticate before any interaction (not just before capability execution). Useful for sites that gate all reads on agent identity.
 
 ### MCP
 
@@ -87,13 +87,13 @@ URL(s) of MCP server(s). Transport is always Streamable HTTP per current MCP spe
 Skills: https://mysite.com/.well-known/skills.json
 ```
 
-URL of a skill manifest — a JSON file enumerating installable agent skills. `agents.json` references the same URL under `skills.url`. Skill manifest format is defined by the `agentskills.io` companion spec.
+URL of a skill manifest (a JSON file enumerating installable agent skills). `agents.json` references the same URL under `skills.url`. Skill manifest format is defined by the `agentskills.io` companion spec.
 
 ---
 
 ## `agents.json` schema
 
-Same information as `agents.txt`, in machine-friendly JSON. Sites SHOULD serve both — `agents.txt` for plain-text discovery, `agents.json` for structured pre-screening.
+Same information as `agents.txt`, in machine-friendly JSON. Sites SHOULD serve both: `agents.txt` for plain-text discovery, `agents.json` for structured pre-screening.
 
 ```json
 {
@@ -173,7 +173,7 @@ public/
 └── sitemap.xml         (optional)
 ```
 
-Build artefacts are passthrough — Astro/Next/Vite copy `public/` verbatim, Hugo/Jekyll copy `static/`. No code changes required.
+Build artefacts are passthrough: Astro/Next/Vite copy `public/` verbatim, Hugo/Jekyll copy `static/`. No code changes required.
 
 ### Express
 
@@ -302,11 +302,11 @@ If both files are present, confirm they declare the same capabilities. Mismatche
 
 ## Common questions to answer in-line
 
-- **"Do I need both `agents.txt` and `agents.json`?"** — Strictly, just `agents.txt`. The companion is recommended for any site with capability blocks because it lets agents pre-screen without parsing plain text. For a minimal site declaring only `Site-Name`/`Site-URL`, `agents.txt` alone is fine.
-- **"Can I add custom directives?"** — The spec is extensible (new capability blocks can be added without breaking parsers). Custom directives outside the spec must use `X-` prefix to signal non-standard. Better: open an RFC against the spec.
-- **"Where do wallet addresses go?"** — Never in discovery files. They appear in `402` response bodies via the protocol's own conventions (e.g. `accepts[].payTo` for x402 v2). Discovery files only signal *which protocols* are supported, not the wire details.
-- **"What if my site doesn't accept payments?"** — Drop `Payments:` and the `payments` block from `agents.json`. A site declaring no monetization is fully conformant.
-- **"How do I update the file when I change a capability?"** — Re-deploy. Cache headers should be ≤ 1 hour for `agents.*` files since they're discovery surfaces — agents will pick up changes within that window.
+- **"Do I need both `agents.txt` and `agents.json`?"** Strictly, just `agents.txt`. The companion is recommended for any site with capability blocks because it lets agents pre-screen without parsing plain text. For a minimal site declaring only `Site-Name`/`Site-URL`, `agents.txt` alone is fine.
+- **"Can I add custom directives?"** The spec is extensible (new capability blocks can be added without breaking parsers). Custom directives outside the spec must use `X-` prefix to signal non-standard. Better: open an RFC against the spec.
+- **"Where do wallet addresses go?"** Never in discovery files. They appear in `402` response bodies via the protocol's own conventions (e.g. `accepts[].payTo` for x402 v2). Discovery files only signal *which protocols* are supported, not the wire details.
+- **"What if my site doesn't accept payments?"** Drop `Payments:` and the `payments` block from `agents.json`. A site declaring no monetization is fully conformant.
+- **"How do I update the file when I change a capability?"** Re-deploy. Cache headers should be ≤ 1 hour for `agents.*` files since they're discovery surfaces; agents will pick up changes within that window.
 
 ---
 
@@ -317,4 +317,4 @@ Hand off to:
 - **Spec maintainers** for structural questions about the standard itself.
 - **Per-framework documentation** (Astro / Next.js / Hono / Express / Cloudflare Workers / Hugo / Jekyll) for their static-asset serving conventions.
 - **agentify's own setup skill** when the user picks the generator path and wants the CLI walkthrough.
-- **MCP / agent-auth / x402 / mppx documentation** for protocol-implementation depth — this skill stops at "declare the capability"; wiring the actual `402` handler or MCP server is the next conversation.
+- **MCP / agent-auth / x402 / mppx documentation** for protocol-implementation depth; this skill stops at "declare the capability". Wiring the actual `402` handler or MCP server is the next conversation.

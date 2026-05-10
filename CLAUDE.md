@@ -1,4 +1,4 @@
-# CLAUDE.md — agentstxt repository
+# CLAUDE.md: agentstxt repository
 
 **For Claude instances working on this codebase.** Read [AGENTS.md](AGENTS.md) first for the orientation map and editing rules; this file holds the Claude-specific operating instructions, skill pointers, and pitfalls.
 
@@ -33,10 +33,10 @@ Do **not** use it when:
 - The user is editing files inside `agentstxt/` itself (then follow `AGENTS.md` repo rules)
 - The user wants to publish or extend the spec (that's RFC-style PR work)
 
-The skill must stay neutral on tooling — it explains the spec first, then lists the adoption paths in increasing automation, with `agentify` mentioned as one option among hand-writing and writing a custom generator.
+The skill must stay neutral on tooling. It explains the spec first, then lists the adoption paths in increasing automation, with `agentify` mentioned as one option among hand-writing and writing a custom generator.
 
-- [adopt-agents-txt SKILL.md](skills/adopt-agents-txt/SKILL.md) — operating instructions
-- [adopt-agents-txt REFERENCE.md](skills/adopt-agents-txt/REFERENCE.md) — full spec quick-reference, validators, examples
+- [adopt-agents-txt SKILL.md](skills/adopt-agents-txt/SKILL.md): operating instructions
+- [adopt-agents-txt REFERENCE.md](skills/adopt-agents-txt/REFERENCE.md): full spec quick-reference, validators, examples
 
 ---
 
@@ -73,7 +73,7 @@ For workers, **before suggesting a deploy** confirm the user has `wrangler whoam
 
 ---
 
-## Hard rules — what NOT to do
+## Hard rules: what NOT to do
 
 These rules exist to keep the spec credible and the reference deployment self-contained.
 
@@ -105,7 +105,7 @@ There is no `turbo.json` in this repo and there should not be. The three workers
 
 ### Do not hand-roll cryptographic primitives
 
-Ed25519 verification in `auth/` uses `@noble/*` libraries. JWT parsing uses the same. If a primitive is missing, install a vetted package — never re-implement curve math, hashes, or signature verification.
+Ed25519 verification in `auth/` uses `@noble/*` libraries. JWT parsing uses the same. If a primitive is missing, install a vetted package; never re-implement curve math, hashes, or signature verification.
 
 ### Do not commit secrets, env files, or wallet keys
 
@@ -121,7 +121,7 @@ This includes `wrangler delete`, `wrangler kv:bulk delete`, force-pushes to a re
 
 ### …the user asks "how do I make my site readable by agents?"
 
-Trigger `/adopt-agents-txt`. The skill walks them through reading the spec, choosing an adoption path, and validating their output. Don't volunteer the agentify CLI as a default — present it as one of three adoption paths.
+Trigger `/adopt-agents-txt`. The skill walks them through reading the spec, choosing an adoption path, and validating their output. Don't volunteer the agentify CLI as a default; present it as one of three adoption paths.
 
 ### …the user asks to change a directive in the spec
 
@@ -137,14 +137,14 @@ Trigger `/adopt-agents-txt`. The skill walks them through reading the spec, choo
 2. Register it via the MCP SDK pattern already used in the file.
 3. Run `pnpm mcp:dev` and exercise it from a local MCP client (`@modelcontextprotocol/inspector` or similar).
 4. Update `mcp/README.md` if the tool changes the public surface.
-5. Do not mutate existing tool signatures — third-party clients depend on them.
+5. Do not mutate existing tool signatures; third-party clients depend on them.
 
 ### …the user wants to extend agent-auth capabilities
 
 1. Add the capability handler in `auth/src/`.
 2. Update `/.well-known/agent-configuration` to advertise it.
 3. Write Vitest cases that cover both the happy path and the unauthorized path.
-4. `pnpm auth:test` — must end at 55+ passing tests, never fewer.
+4. `pnpm auth:test`: must end at 55+ passing tests, never fewer.
 
 ### …the user wants to demo something on the site
 
@@ -171,7 +171,7 @@ Acknowledge it as a sibling project that helps adopt this spec. Mention it lives
 
 - **Edit existing files** rather than creating new ones unless the new file has a clear home (a new page, a new tool, a new test).
 - **No emojis** in code, commit messages, file names, or PR descriptions unless the user explicitly requests them.
-- **No "AI-assisted" preambles** in code comments — write the code, not the meta-narrative.
+- **No "AI-assisted" preambles** in code comments. Write the code, not the meta-narrative.
 - **Match existing style.** This repo doesn't run Prettier or Biome; match the indentation, quotes, semicolons of the file you're editing.
 - **Comments only when the why is non-obvious.** Code that's self-evident does not need narration. Reserve comments for invariants, gotchas, deliberate quirks.
 

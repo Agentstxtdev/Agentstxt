@@ -65,13 +65,14 @@ import { SPEC_VERSION } from '../../config';
       <p>
         <code>agents.txt</code> is the plain-text announcement layer: minimal directives that tell
         AI agents what capabilities this site supports. <code>agents.json</code> is its structured
-        companion — the same information in machine-readable JSON with richer metadata per field.
-        Both files are served from your site root and discovered automatically by compliant agents.
+        companion, the same information in machine-readable JSON with richer metadata per field.
+        Both files live in the public folder of your site so they are served at the root paths
+        <code>/agents.txt</code> and <code>/agents.json</code>, where compliant agents discover them automatically.
       </p>
       <p>
         Select the directives you want to declare, fill in the values for your site, then click
         <strong>Generate</strong>. The files are built entirely in your browser. Copy the output
-        directly into your project or use
+        directly into your project. Optionally, you can use
         <a href="https://github.com/agentstxt/agents.txt" target="_blank" rel="noopener noreferrer">
           the agentify CLI
         </a>
@@ -206,7 +207,7 @@ import { SPEC_VERSION } from '../../config';
                         class="font-mono text-xs px-2.5 py-1.5 border border-[#e5e5e5] focus:border-[#111] outline-none bg-white transition-colors w-full" />
                     </div>
                     <p class="text-[11px] text-[#999] leading-relaxed">
-                      Wallet addresses appear in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">402</code> responses only — never in the declaration files. Pricing is surfaced in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.json</code> as <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">pricing</code> so agents can pre-screen affordability.
+                      Wallet addresses appear in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">402</code> responses only, never in the declaration files. Pricing is surfaced in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.json</code> as <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">pricing</code> so agents can pre-screen affordability.
                     </p>
                   </div>
                 </div>
@@ -268,8 +269,8 @@ import { SPEC_VERSION } from '../../config';
                 <label class="flex items-center gap-3 cursor-pointer select-none">
                   <input type="checkbox" id="chk-identity" class="w-3.5 h-3.5 accent-[#111] shrink-0" />
                   <span class="text-xs text-[#555]">
-                    <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">Identity: required</code>
-                    — agents must authenticate before any interaction, not just capability execution
+                    <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">Identity: required</code>:
+                    agents must authenticate before any interaction, not just capability execution
                   </span>
                 </label>
               </div>
@@ -328,7 +329,7 @@ import { SPEC_VERSION } from '../../config';
                     class="font-mono text-xs px-2.5 py-1.5 border border-[#e5e5e5] focus:border-[#111] outline-none bg-white transition-colors w-full" />
                 </div>
                 <p class="text-[11px] text-[#999] leading-relaxed">
-                  Service-consumption skill packages teach agents how to use your API. Description appears in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.json</code> only. May be gated behind payment — agents handle <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">402</code> normally.
+                  Service-consumption skill packages teach agents how to use your API. Description appears in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.json</code> only. May be gated behind payment; agents handle <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">402</code> normally.
                 </p>
               </div>
             </div>
@@ -374,7 +375,7 @@ import { SPEC_VERSION } from '../../config';
       </div>
 
       <p class="text-xs text-[#999] mt-6 leading-relaxed">
-        Place <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agents.txt</code> and <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agents.json</code> at your site root. For ongoing sync, use the <a href="https://github.com/agentstxt/agents.txt" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">agentify CLI</a> — <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">npx agentify generate</code> regenerates both from <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agentic.config.js</code> on every build.
+        Place <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agents.txt</code> and <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agents.json</code> in the <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/public</code> folder of your site so they are automatically served. For ongoing sync you can optionally use the <a href="https://github.com/agentstxt/agents.txt" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">agentify CLI</a>, where <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">npx agentify generate</code> regenerates both from <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agentic.config.js</code> on demand.
       </p>
     </div>
 

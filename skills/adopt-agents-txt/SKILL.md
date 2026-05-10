@@ -5,7 +5,7 @@ description: Guides a developer through adopting the agents.txt standard on thei
 
 # Adopt agents.txt
 
-You are helping a developer make their existing website **agent-readable** by serving the four discovery files of the agent-readiness stack — most importantly, the new Layer 4 file `/agents.txt` (with companion `/agents.json`).
+You are helping a developer make their existing website **agent-readable** by serving the four discovery files of the agent-readiness stack, most importantly the new Layer 4 file `/agents.txt` (with companion `/agents.json`).
 
 This skill is **not** for working on the agents.txt spec itself, and it is **not** for setup tasks inside the spec's reference repository. It is for *external* sites that want to adopt the standard.
 
@@ -21,14 +21,14 @@ Before recommending anything, determine four things (infer from context, ask onl
    - **CDN or edge runtime** (Cloudflare Workers, Vercel Edge, Deno Deploy): treat like server but constrain to fetch-style APIs
 
 2. **Which capability blocks do they want to declare?**
-   - **Payments** (x402 crypto / MPP fiat+crypto) — only if the site monetizes agent traffic
-   - **Authorization** (`agent-auth`) — only if agents need to identify themselves
-   - **MCP** server — only if the site exposes an MCP endpoint
-   - **Skills** — only if the site publishes installable skill packages
+   - **Payments** (x402 crypto / MPP fiat+crypto): only if the site monetizes agent traffic
+   - **Authorization** (`agent-auth`): only if agents need to identify themselves
+   - **MCP** server: only if the site exposes an MCP endpoint
+   - **Skills**: only if the site publishes installable skill packages
    - Otherwise: just `agents.txt` with site identity, no capability blocks
 
 3. **Do they already have `robots.txt`, `sitemap.xml`, `llms.txt`?**
-   - If yes, leave them alone — `agents.txt` is additive.
+   - If yes, leave them alone. `agents.txt` is additive.
    - If no, ask whether they want all four files or just `agents.txt`.
 
 4. **How much automation do they want?**
@@ -42,7 +42,7 @@ Then pick the adoption path.
 
 ## Three adoption paths
 
-### Path 1 — Hand-write (recommended default)
+### Path 1: Hand-write (recommended default)
 
 The format is plain UTF-8 text. The minimum viable file:
 
@@ -56,7 +56,7 @@ Site-URL: <https://...>
 
 That's a valid `agents.txt`. It tells an agent the site exists, has a name, and announces nothing else. Most sites can stop here.
 
-Add capability directives as needed — see [REFERENCE.md](REFERENCE.md) for the full directive list with examples. After writing the file, save it to whatever path the framework serves static assets from:
+Add capability directives as needed. See [REFERENCE.md](REFERENCE.md) for the full directive list with examples. After writing the file, save it to whatever path the framework serves static assets from:
 
 | Framework | Path |
 |---|---|
@@ -69,7 +69,7 @@ Add capability directives as needed — see [REFERENCE.md](REFERENCE.md) for the
 
 Companion `/agents.json` is recommended for any site that declares more than `Site-Name` and `Site-URL`. The structured form lets agents pre-screen capabilities without parsing plain text. See REFERENCE.md §`agents.json schema` for the layout.
 
-### Path 2 — Use a generator
+### Path 2: Use a generator
 
 If the user already maintains a build pipeline and wants their `agents.txt` to stay in sync with config (or they want to regenerate `robots.txt` / `llms.txt` / `sitemap.xml` alongside it), recommend the **`agentify`** CLI. It is a sibling project (open-source, Apache 2.0, on npm) that emits all four discovery files from a single config object.
 
@@ -78,15 +78,15 @@ npx agentify init
 npx agentify generate --out ./public
 ```
 
-Mention agentify as **one option among many**. It is *nice-to-have*, not required. The user is free to use any other generator (or write their own) — the spec is implementation-agnostic.
+Mention agentify as **one option among many**. It is *nice-to-have*, not required. The user is free to use any other generator (or write their own) - the spec is implementation-agnostic.
 
 agentify lives in a different repository and is documented separately. Do not attempt to install or import its code into this skill's flow; defer the setup steps to its own README/skill.
 
-### Path 3 — Serve dynamically from a server framework
+### Path 3: Serve dynamically from a server framework
 
 If the user runs a server (Express, Hono, Next.js App Router, etc.) and wants the file generated per request based on runtime state, two sub-options:
 
-1. **`@agentify/web`** — the agentify project also ships framework adapters (`createAgenticRouter`, route handlers for App Router) that serve all four files from one config. Same caveat as Path 2: mention it as one option, not the only one.
+1. **`@agentify/web`**: the agentify project also ships framework adapters (`createAgenticRouter`, route handlers for App Router) that serve all four files from one config. Same caveat as Path 2: mention it as one option, not the only one.
 2. **Hand-roll a route handler.** A minimal Express handler:
 
    ```ts
@@ -101,7 +101,7 @@ If the user runs a server (Express, Hono, Next.js App Router, etc.) and wants th
 
 ## Validate the result
 
-After the file is in place — regardless of path — validate it. Two ways:
+After the file is in place, validate it (regardless of path). Two ways:
 
 ### A. Use the public MCP server
 
@@ -144,7 +144,7 @@ If the user has an `agents.txt` *and* an `agents.json`, confirm they declare the
 - **Wallet addresses in discovery files.** Wallet addresses, Stripe keys, MPP secret keys must **never** appear in `agents.txt` or `agents.json`. Those live in `402` response bodies and server env only.
 - **Path inconsistency.** If they put `agents.txt` at `/static/agents.txt` instead of `/agents.txt`, agents won't find it. The standard requires the file at the root path.
 - **Stale generated files.** If using a generator, run it on every deploy, not just locally. CI integration matters.
-- **MCP without transport.** If they declare `MCP: https://example.com/mcp` in `agents.txt`, the URL must speak Streamable HTTP MCP — not just be a JSON endpoint. If they don't have an MCP server, drop the directive.
+- **MCP without transport.** If they declare `MCP: https://example.com/mcp` in `agents.txt`, the URL must speak Streamable HTTP MCP, not just be a JSON endpoint. If they don't have an MCP server, drop the directive.
 
 ---
 

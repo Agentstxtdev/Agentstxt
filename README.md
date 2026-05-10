@@ -7,7 +7,7 @@
 [![Live: agentstxt.dev](https://img.shields.io/badge/live-agentstxt.dev-7c3aed?style=flat-square)](https://agentstxt.dev)
 [![GitHub stars](https://img.shields.io/github/stars/agentstxt/agents.txt?style=flat-square&logo=github&logoColor=white&color=181717)](https://github.com/agentstxt/agents.txt)
 
-`agents.txt` is the discovery file an AI agent reads to find out what your site supports — payments, authorization, MCP servers, agent skills — without needing to know the implementation details of any particular protocol.
+`agents.txt` is the discovery file an AI agent reads to find out what your site supports (payments, authorization, MCP servers, agent skills) without needing to know the implementation details of any particular protocol.
 
 It fills **Layer 4** of the agent-readiness stack:
 
@@ -18,14 +18,14 @@ Layer 3 — CONTENT BRIEFING    /llms.txt     (llmstxt.org)      "Here's what's 
 Layer 4 — AGENT CAPABILITIES  /agents.txt   (this spec)        "Here's what you can do here"
 ```
 
-Where the existing layers handle access policies, indexes, and content guidance, `agents.txt` declares **what an agent can do**: pay, authenticate, connect to an MCP server, fetch installable skills. The implementation always lives in the protocol's own layer (`402` response bodies, `/.well-known/agent-configuration`, MCP transport, etc.) — `agents.txt` is the announcement, never the duplicate.
+Where the existing layers handle access policies, indexes, and content guidance, `agents.txt` declares **what an agent can do**: pay, authenticate, connect to an MCP server, fetch installable skills. The implementation always lives in the protocol's own layer (`402` response bodies, `/.well-known/agent-configuration`, MCP transport, etc.); `agents.txt` is the announcement, never the duplicate.
 
 This repository contains:
 
-- **The spec** — [`spec/AGENTS-TXT-STANDARD.md`](spec/AGENTS-TXT-STANDARD.md) (CC0)
-- **A live reference deployment** at [agentstxt.dev](https://agentstxt.dev) — Astro site + Cloudflare Worker
-- **An MCP server** at [mcp.agentstxt.dev](https://mcp.agentstxt.dev) — exposes the spec to agents via Model Context Protocol
-- **An agent-auth Cloudflare Worker** — Ed25519 JWT verification, `/.well-known/agent-configuration`, capability execution
+- **The spec**: [`spec/AGENTS-TXT-STANDARD.md`](spec/AGENTS-TXT-STANDARD.md) (CC0)
+- **A live reference deployment** at [agentstxt.dev](https://agentstxt.dev): Astro site + Cloudflare Worker
+- **An MCP server** at [mcp.agentstxt.dev](https://mcp.agentstxt.dev): exposes the spec to agents via Model Context Protocol
+- **An agent-auth Cloudflare Worker**: Ed25519 JWT verification, `/.well-known/agent-configuration`, capability execution
 
 ---
 
@@ -46,7 +46,7 @@ Skills: https://mysite.com/.well-known/skills.json
 
 That's it. Six directives, plain UTF-8, served at `/agents.txt`. Each directive declares that the site *supports* a protocol; the protocol-specific details (pricing, scopes, transport, skill manifests) live in the protocol's own discovery surface.
 
-The structured companion **`agents.json`** carries the same information in machine-friendly JSON with richer per-block detail (chain identifiers, default pricing, capability descriptions). Sites SHOULD serve both — same relationship as `llms.txt` ↔ `llms-full.txt`.
+The structured companion **`agents.json`** carries the same information in machine-friendly JSON with richer per-block detail (chain identifiers, default pricing, capability descriptions). Sites SHOULD serve both, same relationship as `llms.txt` ↔ `llms-full.txt`.
 
 ---
 
@@ -67,7 +67,7 @@ npx agentify init
 npx agentify generate --out ./public
 ```
 
-agentify is **a nice-to-have, not a requirement**. The spec is implementation-agnostic — anyone can write a generator in any language. agentify exists because we needed a first-party adoption path; it shouldn't dictate yours.
+agentify is **a nice-to-have, not a requirement**. The spec is implementation-agnostic; anyone can write a generator in any language. agentify exists because we needed a first-party adoption path; it shouldn't dictate yours.
 
 ### 3. Look at the reference site
 
@@ -138,7 +138,7 @@ pnpm auth:deploy
 pnpm auth:deploy:prod
 ```
 
-Each sub-package owns its own toolchain — Astro for the site, Wrangler + `tsc --noEmit` for the workers. There is no Turbo at this level because the three workers have no shared dependency graph; they're three independent edge deployments to the same domain group.
+Each sub-package owns its own toolchain: Astro for the site, Wrangler + `tsc --noEmit` for the workers. There is no Turbo at this level because the three workers have no shared dependency graph; they're three independent edge deployments to the same domain group.
 
 ---
 
@@ -148,7 +148,7 @@ Each sub-package owns its own toolchain — Astro for the site, Wrangler + `tsc 
 
 **Reference deployment:** Live at [agentstxt.dev](https://agentstxt.dev). The MCP server is live at [mcp.agentstxt.dev](https://mcp.agentstxt.dev). The agent-auth worker runs as a separate service.
 
-**Adoption:** Open. The spec is CC0; anyone can implement it without restriction. The reference workers in this repo are Apache 2.0 — vendor in or fork freely.
+**Adoption:** Open. The spec is CC0; anyone can implement it without restriction. The reference workers in this repo are Apache 2.0; vendor in or fork freely.
 
 ---
 
@@ -156,10 +156,10 @@ Each sub-package owns its own toolchain — Astro for the site, Wrangler + `tsc 
 
 PRs welcome on:
 
-- **Spec** (`spec/AGENTS-TXT-STANDARD.md`) — RFC-style discussion in the PR description for any structural change. Editorial fixes can ship directly.
-- **Reference site** (`site/`) — bug fixes, new demo pages, content updates.
-- **MCP server** (`mcp/`) — new tools, validator improvements.
-- **Agent-auth worker** (`auth/`) — capability extensions, scope improvements.
+- **Spec** (`spec/AGENTS-TXT-STANDARD.md`): RFC-style discussion in the PR description for any structural change. Editorial fixes can ship directly.
+- **Reference site** (`site/`): bug fixes, new demo pages, content updates.
+- **MCP server** (`mcp/`): new tools, validator improvements.
+- **Agent-auth worker** (`auth/`): capability extensions, scope improvements.
 
 Issues and discussion: [github.com/agentstxt/agents.txt](https://github.com/agentstxt/agents.txt).
 

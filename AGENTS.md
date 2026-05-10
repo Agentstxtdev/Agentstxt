@@ -1,4 +1,4 @@
-# AGENTS.md — agentstxt repository
+# AGENTS.md: agentstxt repository
 
 **For AI agents (Claude Code, Codex, Cursor, etc.) working on this codebase.**
 
@@ -68,7 +68,7 @@ All three workers (`site`, `mcp`, `auth`) deploy to Cloudflare and have no share
 
 ## What lives where
 
-### Specification — `spec/AGENTS-TXT-STANDARD.md`
+### Specification: `spec/AGENTS-TXT-STANDARD.md`
 
 The single source of truth for the standard. Versioned (`v1.0-draft` at time of writing). Defines:
 
@@ -80,21 +80,21 @@ The single source of truth for the standard. Versioned (`v1.0-draft` at time of 
 
 Treat this file as **load-bearing**. Changes here can break every parser, generator, and validator in the ecosystem.
 
-### Reference site — `site/`
+### Reference site: `site/`
 
 Astro 6, Cloudflare Workers (`@astrojs/cloudflare`), Tailwind v4. The site does three things:
 
 1. **Hosts the spec text** at human-readable URLs (`/spec`, `/demo`, `/blog`).
 2. **Demonstrates the spec live** by serving its own `/agents.txt`, `/agents.json`, etc. from `public/`.
-3. **Acts as a Backend-for-Frontend (BFF)** via `src/worker.ts` — proxies `/mcp` to the MCP worker, `/.well-known/agent-configuration` and `/agent/*` to the auth worker, and self-serves `/donate` as a hand-rolled payment proof.
+3. **Acts as a Backend-for-Frontend (BFF)** via `src/worker.ts`: proxies `/mcp` to the MCP worker, `/.well-known/agent-configuration` and `/agent/*` to the auth worker, and self-serves `/donate` as a hand-rolled payment proof.
 
 The `/donate` handler in `worker.ts` is a **deliberate self-contained reference**. It re-implements x402 v2 + MPP from scratch (no `@agentify/web` import) to demonstrate that a working agentic site can be ~150 lines of TypeScript against the protocols. Do not factor this out into a shared library inside this repo.
 
-### MCP server — `mcp/`
+### MCP server: `mcp/`
 
 A Cloudflare Worker exposing the `agents.txt` spec to AI agents over Model Context Protocol. Tools: `get_spec`, `parse_agents_txt`, `validate_agents_txt`, `validate_agents_json`, `check_site`, `get_skill`. Built on `hono`, `@modelcontextprotocol/sdk`, `agents`. Deploys to `mcp.agentstxt.dev`.
 
-### Agent-auth worker — `auth/`
+### Agent-auth worker: `auth/`
 
 A Cloudflare Worker implementing the agent-auth protocol referenced by the spec. Endpoints: `/.well-known/agent-configuration`, `/agent/register`, `/capability/execute`. Uses Ed25519 JWTs and Workers KV for agent state. Has 55 Vitest tests; keep them green.
 
@@ -152,13 +152,13 @@ These constraints exist to keep the spec credible, the reference deployment work
 
 ### `site/`
 
-- The site is the canonical *demonstration* of the spec. Its `public/agents.txt` and `public/agents.json` should always be valid against the latest published spec — if you change the spec, regenerate or hand-edit those files in the same PR.
+- The site is the canonical *demonstration* of the spec. Its `public/agents.txt` and `public/agents.json` should always be valid against the latest published spec. If you change the spec, regenerate or hand-edit those files in the same PR.
 - `worker.ts` is the reference x402 v2 + MPP implementation. Keep it self-contained. Do not import from `@agentify/*`. Do not move payment logic into a shared internal module.
-- Astro pages serve user-facing content; do not put runtime logic in them — push it into `worker.ts` or sibling workers.
+- Astro pages serve user-facing content; do not put runtime logic in them. Push it into `worker.ts` or sibling workers.
 
 ### `mcp/`
 
-- New MCP tools should be additive. Do not break existing tool signatures (`get_spec`, `parse_agents_txt`, etc.) — third-party MCP clients may depend on them.
+- New MCP tools should be additive. Do not break existing tool signatures (`get_spec`, `parse_agents_txt`, etc.); third-party MCP clients may depend on them.
 - When the spec changes, update `validate_agents_txt` / `validate_agents_json` to match. Tests in `auth/` cover auth invariants but the validator quality is on you to assess by exercising it against `site/public/agents.txt` and `agents.json`.
 
 ### `auth/`
@@ -170,9 +170,9 @@ These constraints exist to keep the spec credible, the reference deployment work
 ### General
 
 - **Never commit** `.env`, `.dev.vars`, `wrangler-account.json`, secret keys, or wallet private keys.
-- **Run `pnpm build`** before opening a PR — catches type errors across all three workers.
+- **Run `pnpm build`** before opening a PR; it catches type errors across all three workers.
 - **Keep the three workers independent.** If two of them need the same code, write it twice; the duplication is intentional and small.
-- **Follow existing code style.** No Prettier/Biome config inside `agentstxt/` yet — match the formatting you see.
+- **Follow existing code style.** No Prettier/Biome config inside `agentstxt/` yet; match the formatting you see.
 
 ---
 
@@ -191,8 +191,8 @@ Use this skill when a user is working in *their own* repository and asks how to 
 ## Outside the repo boundary
 
 - **`agentify`** — an npm-published toolkit (CLI + framework adapters + payment middleware) that generates and serves the discovery files defined by this spec. It lives in a sibling folder, has its own README/AGENTS/CLAUDE, and is intentionally decoupled. Do not import its code into anything in this repo. Mention it to users only when they ask about automation.
-- **`mppx`** — third-party SDK for Machine Payments Protocol. Used by `site/src/worker.ts` directly via `mppx/server`. Treat as an external dependency.
-- **`@x402/*`** — Coinbase x402 v2 SDKs. **Not used by this repo.** `site/worker.ts` hand-rolls x402 v2 against the public facilitator at `https://x402.org/facilitator` instead, so the reference implementation can fit in one file.
+- **`mppx`**: third-party SDK for Machine Payments Protocol. Used by `site/src/worker.ts` directly via `mppx/server`. Treat as an external dependency.
+- **`@x402/*`**: Coinbase x402 v2 SDKs. **Not used by this repo.** `site/worker.ts` hand-rolls x402 v2 against the public facilitator at `https://x402.org/facilitator` instead, so the reference implementation can fit in one file.
 
 ---
 
