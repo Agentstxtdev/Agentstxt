@@ -5,7 +5,11 @@
   "compatibility_date": "2026-01-28",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
-    "TREASURY_TEMPO": ""
+    "SOLANA_ADDRESS": "",
+    "TREASURY_TEMPO": "",
+    "STRIPE_SECRET_KEY": "",
+    "STRIPE_NETWORK_ID": "",
+    "MPP_SECRET_KEY": ""
   },
   "assets": {
     "directory": "./dist",

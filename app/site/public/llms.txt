@@ -9,7 +9,9 @@
 - [Demos index](https://agentstxt.dev/demo): Live demonstrations of every capability the spec advertises.
 - [Agent Auth demo](https://agentstxt.dev/demo/auth): 7-step Ed25519 + JWT handshake against the agent-auth Cloudflare Worker.
 - [MCP demo](https://agentstxt.dev/demo/mcp): Streamable HTTP MCP session: initialize, tools/list, get_spec, validators.
-- [Payments demo](https://agentstxt.dev/demo/payments): Live x402 v2 + MPP payment flow against the /donate endpoint.
+- [Payments demo](https://agentstxt.dev/demo/payments): Announcement-then-wire walkthrough: reads agents.json, then fetches the synthetic /x402 gated route to show the payTo recipient in a real 402.
+- [MPP demo](https://agentstxt.dev/demo/mpp): Announcement-then-wire walkthrough: reads agents.json, then probes /mpp for a real 402 + WWW-Authenticate: Payment challenge composed by mppx. Tempo and/or Stripe methods activate per the credentials configured on the worker.
+- [A2A discovery demo](https://agentstxt.dev/demo/a2a): A2A AgentCard discovery flow: reads the A2A: directive from agents.txt and the a2a[] block from agents.json, fetches the declared AgentCard, parses its capabilities and skills, then confirms cross-file consistency via the MCP audit_site tool.
 - [Skills demo](https://agentstxt.dev/demo/skills): agents.json skills index → MCP get_skill → installable skill package.
 - [Content declarations demo](https://agentstxt.dev/demo/llms): Renders /llms.txt and /llms-full.txt content live from this server.
 - [File Generator](https://agentstxt.dev/demo/generate): Browser-only configurator that emits agents.txt + agents.json from form input.

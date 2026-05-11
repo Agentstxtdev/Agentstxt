@@ -31,7 +31,8 @@ agentstxt/
 │   │   ├── components/         — Astro components
 │   │   ├── layouts/            — page layouts
 │   │   ├── worker.ts           — BFF that proxies /mcp + /agent/* to sibling workers,
-│   │   │                          serves /donate as a hand-rolled x402 v2 + MPP proof
+│   │   │                          serves /x402 (x402 v2 on Solana) and /mpp (MPP via mppx)
+│   │   │                          as two independent synthetic gated routes
 │   │   ├── config.ts
 │   │   └── content.config.ts
 │   ├── public/                 — generated artifacts: agents.txt, agents.json,
@@ -90,9 +91,9 @@ Astro 6, Cloudflare Workers (`@astrojs/cloudflare`), Tailwind v4. The site does 
 
 1. **Hosts the spec text** at human-readable URLs (`/spec`, `/demo`, `/blog`).
 2. **Demonstrates the spec live** by serving its own `/agents.txt`, `/agents.json`, etc. from `public/`.
-3. **Acts as a Backend-for-Frontend (BFF)** via `src/worker.ts`: proxies `/mcp` to the MCP worker, `/.well-known/agent-configuration` and `/agent/*` to the auth worker, and self-serves `/donate` as a hand-rolled payment proof.
+3. **Acts as a Backend-for-Frontend (BFF)** via `src/worker.ts`: proxies `/mcp` to the MCP worker, `/.well-known/agent-configuration` and `/agent/*` to the auth worker, and self-serves two synthetic gated routes — `/x402` (x402 v2 on Solana) and `/mpp` (MPP via `mppx`).
 
-The `/donate` handler in `worker.ts` is a **deliberate self-contained reference**. It re-implements x402 v2 + MPP from scratch (no `@agentify/web` import) to demonstrate that a working agentic site can be ~150 lines of TypeScript against the protocols. Do not factor this out into a shared library inside this repo.
+The `/x402` and `/mpp` handlers in `worker.ts` are **deliberate self-contained references**. `/x402` hand-rolls a single x402 v2 402 response on Solana mainnet with `payTo` from `SOLANA_ADDRESS`, against the public facilitator at `https://x402.org/facilitator/settle`. `/mpp` runs `Mppx.compose(tempo, stripe)` per-request and emits a `WWW-Authenticate: Payment` challenge with the recipient base64-encoded inside the `request` parameter, gated on `TREASURY_TEMPO` (Tempo) and/or `STRIPE_SECRET_KEY`+`STRIPE_NETWORK_ID` (Stripe) and signed with `MPP_SECRET_KEY`. The two routes are kept independent on purpose so the demos read one protocol each; a production site with a real gated resource can emit both `accepts[]` and `WWW-Authenticate: Payment` from a single 402 if it wants. Do not factor either handler out into a shared library inside this repo.
 
 ### MCP server: `mcp/`
 
@@ -161,7 +162,7 @@ These constraints exist to keep the spec credible, the reference deployment work
 ### `site/`
 
 - The site is the canonical *demonstration* of the spec. Its `public/agents.txt` and `public/agents.json` should always be valid against the latest published spec. If you change the spec, regenerate or hand-edit those files in the same PR.
-- `worker.ts` is the reference x402 v2 + MPP implementation. Keep it self-contained. Do not import from `@agentify/*`. Do not move payment logic into a shared internal module.
+- `worker.ts` is the reference x402 v2 implementation at `/x402` and the reference MPP implementation at `/mpp`. Keep both self-contained. Do not import from `@agentify/*`. Do not move payment logic into a shared internal module.
 - Astro pages serve user-facing content; do not put runtime logic in them. Push it into `worker.ts` or sibling workers.
 
 ### `mcp/`
@@ -200,8 +201,8 @@ Use this skill when a user is working in *their own* repository and asks how to 
 ## Outside the repo boundary
 
 - **`agentify`** — an npm-published toolkit (CLI + framework adapters + payment middleware) that generates and serves the discovery files defined by this spec. It lives in a sibling folder, has its own README/AGENTS/CLAUDE, and is intentionally decoupled. Do not import its code into anything in this repo. Mention it to users only when they ask about automation.
-- **`mppx`**: third-party SDK for Machine Payments Protocol. Used by `site/src/worker.ts` directly via `mppx/server`. Treat as an external dependency.
-- **`@x402/*`**: Coinbase x402 v2 SDKs. **Not used by this repo.** `site/worker.ts` hand-rolls x402 v2 against the public facilitator at `https://x402.org/facilitator` instead, so the reference implementation can fit in one file.
+- **`mppx`**: third-party SDK for Machine Payments Protocol. Used by `site/src/worker.ts` directly via `mppx/server` for the `/mpp` route. Treat as an external dependency. Drop both `mppx` and `stripe` from `site/package.json` if MPP support is ever removed again.
+- **`@x402/*`**: Coinbase x402 v2 SDKs. **Not used by this repo.** `site/worker.ts` hand-rolls x402 v2 against the public facilitator at `https://x402.org/facilitator/settle` instead, so the reference implementation fits in one file.
 
 ---
 
@@ -212,7 +213,7 @@ Use this skill when a user is working in *their own* repository and asks how to 
 | Edit the spec | `spec/AGENTS-TXT-STANDARD.md` |
 | Add a new demo page | `site/src/pages/demo/<name>.astro` |
 | Change `/agents.txt` content served by the site | `site/public/agents.txt` (re-generate or hand-edit) |
-| Modify the BFF / `/donate` payment endpoint | `site/src/worker.ts` |
+| Modify the BFF / `/x402` or `/mpp` demo endpoint | `site/src/worker.ts` |
 | Add an MCP tool | `mcp/src/` |
 | Register a payment / auth protocol identifier | `mcp/src/protocols.ts` (single edit; validators and audit tool follow) |
 | Add a new block-opening directive | `mcp/src/protocols.ts` (`BLOCK_OPENERS`) + parser, validator, audit rules; see the A2A diff for a worked example |

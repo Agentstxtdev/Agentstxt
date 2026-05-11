@@ -9,9 +9,9 @@
     "deploy": "astro build && wrangler deploy"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "latest",
+    "@astrojs/cloudflare": "^13.5.0",
     "astro": "^6.3.1",
-    "mppx": "^0.6.16",
+    "mppx": "^0.6.19",
     "stripe": "^22.1.1"
   },
   "devDependencies": {

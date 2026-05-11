@@ -72,7 +72,7 @@ agentify is **a nice-to-have, not a requirement**. The spec is implementation-ag
 
 ### 3. Look at the reference site
 
-The live deployment at [agentstxt.dev](https://agentstxt.dev) is a working agentic site. Source: [`site/`](site/). It hand-rolls its `/donate` x402 + MPP endpoint inside [`site/src/worker.ts`](site/src/worker.ts) so you can read a real, dependency-free implementation of payment serving against the spec. Use it as a reference when building your own server.
+The live deployment at [agentstxt.dev](https://agentstxt.dev) is a working agentic site. Source: [`site/`](site/). It hand-rolls a synthetic gated route at `/x402` inside [`site/src/worker.ts`](site/src/worker.ts) so you can read a real, dependency-free implementation of an x402 v2 402 response on Solana. Use it as a reference when building your own server.
 
 ---
 
@@ -153,7 +153,7 @@ agentstxt/
 ├── site/                        — agentstxt.dev — Astro + Cloudflare Worker
 │   ├── src/
 │   │   ├── pages/               (homepage, /demo/*, /spec/*)
-│   │   ├── worker.ts            (BFF + /donate payment proof, hand-rolled x402 v2)
+│   │   ├── worker.ts            (BFF + /x402 demo route, hand-rolled x402 v2 on Solana)
 │   │   └── ...
 │   ├── public/                  (agents.txt, agents.json, llms.txt, llms-full.txt — generated artifacts)
 │   ├── agentic.config.js
@@ -207,6 +207,109 @@ pnpm auth:deploy:prod
 ```
 
 Each sub-package owns its own toolchain: Astro for the site, Wrangler + `tsc --noEmit` for the workers. There is no Turbo at this level because the three workers have no shared dependency graph; they're three independent edge deployments to the same domain group.
+
+---
+
+## Architecture
+
+The reference deployment is **three independent Cloudflare Workers** plus the static Astro build. They share no internal modules; coupling is limited to service-binding `fetch()` calls at the edge, and each worker can be redeployed without touching the others. The `site` worker is the Backend-For-Frontend at `agentstxt.dev`: it serves the static spec artifacts, proxies a fixed prefix list into the `mcp` and `auth` workers via Wrangler service bindings, and exposes two synthetic gated routes that demonstrate the wire shape of each payment protocol independently. `/x402` returns an x402 v2 `402` with `payTo` from `SOLANA_ADDRESS`. `/mpp` returns a `WWW-Authenticate: Payment` challenge composed by `mppx` from `TREASURY_TEMPO` (Tempo) and/or `STRIPE_SECRET_KEY`+`STRIPE_NETWORK_ID` (Stripe). Per spec §5.1 / §5.2 / §11.4 the recipient wallet appears only in the 402 response (in `accepts[].payTo` for x402, inside the base64-encoded `request` parameter of the `WWW-Authenticate` header for MPP) and never in `agents.json`.
+
+The site **self-validates** through a closed loop. The `audit_site` MCP tool fetches `agentstxt.dev`'s own `/agents.txt`, `/agents.json`, and `/robots.txt`, then runs them through the same `validate_agents_txt` and `validate_agents_json` validators that any third party would use. The shared source of truth for accepted directives lives in [`mcp/src/protocols.ts`](app/mcp/src/protocols.ts) (`BLOCK_OPENERS`, `PAYMENT_PROTOCOLS`, `AUTH_PROTOCOLS`); changing a registered identifier there immediately affects every parser, validator, and audit pass.
+
+```mermaid
+flowchart TB
+    Client(["AI Agent / Browser"])
+
+    subgraph SITE["site worker &nbsp;·&nbsp; agentstxt.dev"]
+        direction TB
+        SW["worker.ts &nbsp; default.fetch"]
+        SP["/x402 handler<br/>x402 v2 402 response<br/>payTo from SOLANA_ADDRESS env"]
+        SM["/mpp handler<br/>WWW-Authenticate: Payment via mppx<br/>methods from TREASURY_TEMPO and/or STRIPE_*"]
+        SA[["Static Assets (env.ASSETS)<br/>/agents.txt &nbsp; /agents.json<br/>/llms.txt &nbsp; /llms-full.txt<br/>/.well-known/agent-card.json<br/>public/_headers &nbsp;(§4.5 CORS + MIME)"]]
+        SW -- "pathname /x402" --> SP
+        SW -- "pathname /mpp"  --> SM
+        SW -- "everything else" --> SA
+    end
+
+    subgraph MCP["mcp worker &nbsp;·&nbsp; mcp.agentstxt.dev"]
+        direction TB
+        MX["server.ts &nbsp; McpAgent<br/>(Streamable HTTP + SSE)"]
+        MP["protocols.ts<br/>BLOCK_OPENERS<br/>PAYMENT_PROTOCOLS<br/>AUTH_PROTOCOLS"]
+        M1["get_spec"]
+        M2["parse_agents_txt"]
+        M3["validate_agents_txt"]
+        M4["validate_agents_json"]
+        M5["audit_site"]
+        M6["get_skill"]
+        MX --> M1
+        MX --> M2
+        MX --> M3
+        MX --> M4
+        MX --> M5
+        MX --> M6
+        M2 -.-> MP
+        M3 -.-> MP
+        M4 -.-> MP
+        M5 -. "delegates" .-> M3
+        M5 -. "delegates" .-> M4
+    end
+
+    subgraph AUTH["auth worker &nbsp;·&nbsp; agent-auth"]
+        direction TB
+        AX["index.ts &nbsp;(Hono router)"]
+        AD["routes/discovery.ts<br/>GET /.well-known/agent-configuration"]
+        AA["routes/agent.ts<br/>POST /agent/register<br/>GET&nbsp; /agent/status<br/>POST /agent/revoke"]
+        AC["routes/capability.ts<br/>GET&nbsp; /auth<br/>GET&nbsp; /capability/list<br/>GET&nbsp; /capability/describe<br/>POST /capability/execute"]
+        AJ["jwt.ts<br/>Ed25519 verify (@noble)<br/>jti replay guard"]
+        AKV[("AUTH_KV<br/>host:* &nbsp; jti:*")]
+        AX --> AD
+        AX --> AA
+        AX --> AC
+        AA --> AJ
+        AC --> AJ
+        AJ --> AKV
+        AA --> AKV
+    end
+
+    FAC["x402.org<br/>/facilitator/settle"]
+
+    Client -->|HTTPS| SW
+    SW -->|"env.MCP.fetch()<br/>/mcp &nbsp; /sse"| MX
+    SW -->|"env.AUTH.fetch()<br/>/.well-known/agent-configuration<br/>/agent/* &nbsp; /capability/* &nbsp; /auth"| AX
+    SP -->|"POST settle (x402 v2)"| FAC
+
+    M5 -. "fetch /agents.txt<br/>/agents.json &nbsp; /robots.txt" .-> SW
+    M5 -. "report: errors, warnings,<br/>§4.5 headers,<br/>cross-file consistency" .-> Client
+```
+
+### How the workers cooperate at request time
+
+| Path prefix (on `agentstxt.dev`) | Handled by | Entry point |
+|---|---|---|
+| `/agents.txt`, `/agents.json`, `/llms.txt`, `/.well-known/agent-card.json` | site → static assets | [`site/public/`](app/site/public/) + [`_headers`](app/site/public/_headers) |
+| `/x402` | site, inline | [`worker.ts`](app/site/src/worker.ts) (synthetic gated route, x402 v2 on Solana, `payTo` from `SOLANA_ADDRESS`) |
+| `/mpp`  | site, inline | [`worker.ts`](app/site/src/worker.ts) (synthetic gated route, MPP via `mppx`, methods from `TREASURY_TEMPO` and/or `STRIPE_SECRET_KEY`+`STRIPE_NETWORK_ID`, signed with `MPP_SECRET_KEY`) |
+| `/mcp`, `/sse` | site → mcp (service binding) | [`mcp/src/server.ts`](app/mcp/src/server.ts) |
+| `/.well-known/agent-configuration`, `/agent/*`, `/capability/*`, `/auth` | site → auth (service binding) | [`auth/src/index.ts`](app/auth/src/index.ts) |
+
+Prefix lists `MCP_PREFIXES` and `AUTH_PREFIXES` are declared at the top of [`worker.ts`](app/site/src/worker.ts) and matched with `proxyTo()`. Any path not matching a prefix and not equal to `/x402` or `/mpp` falls through to `env.ASSETS.fetch(request)`.
+
+### Self-validation: the audit loop
+
+The site, the spec, and the MCP validators form a triangle that the project keeps consistent in CI and at runtime:
+
+1. **Source of truth** — [`mcp/src/protocols.ts`](app/mcp/src/protocols.ts) lists every registered directive and identifier. Spec changes flow into this file in the same PR.
+2. **Validators** — [`validate_agents.ts`](app/mcp/src/tools/validate_agents.ts) exposes `validate_agents_txt` and `validate_agents_json` against `protocols.ts`. They run on raw user input and on the site's own artifacts.
+3. **Audit** — [`audit_site.ts`](app/mcp/src/tools/audit_site.ts) (`audit_site` tool) fetches a live origin's `/agents.txt`, `/agents.json`, and `/robots.txt`; calls `parseAgentsTxt` + `validateParsed`; checks §4.5 HTTP headers (`Content-Type`, `Access-Control-Allow-Origin: *`, `Cache-Control`); and enforces the cross-file consistency rule (the URL set in `agents.txt` MUST equal the URL set in `agents.json`).
+4. **Closed loop** — pointing `audit_site` at `https://agentstxt.dev` runs the site against its own spec through the `site → static assets` path and the `mcp → audit_site → site` path. A clean run is the production health check.
+
+### Where to read each piece end-to-end
+
+- **Astro → Cloudflare static serving + §4.5 headers** — [`site/public/_headers`](app/site/public/_headers), [`site/astro.config.mjs`](app/site/astro.config.mjs)
+- **x402 v2 wire shape** — [`site/src/worker.ts`](app/site/src/worker.ts), `/x402` handler, single Solana chain, no dependency indirection
+- **MPP wire shape** — [`site/src/worker.ts`](app/site/src/worker.ts), `/mpp` handler, `Mppx.compose(tempo, stripe)` via the `mppx` SDK, returns `WWW-Authenticate: Payment` with the recipient base64-encoded inside the `request` parameter
+- **MCP tool registration pattern** — [`mcp/src/server.ts`](app/mcp/src/server.ts) plus the six `registerXxx(server)` functions in [`mcp/src/tools/`](app/mcp/src/tools/)
+- **Ed25519 agent-auth handshake** — [`auth/src/jwt.ts`](app/auth/src/jwt.ts) verifies, [`routes/agent.ts`](app/auth/src/routes/agent.ts) registers + revokes, [`routes/capability.ts`](app/auth/src/routes/capability.ts) gates execution; KV holds `host:{thumbprint}` records and `jti:{id}` replay markers
 
 ---
 

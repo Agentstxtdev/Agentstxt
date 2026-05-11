@@ -69,7 +69,7 @@ pnpm mcp:deploy / :prod
 pnpm auth:deploy / :prod
 ```
 
-For workers, **before suggesting a deploy** confirm the user has `wrangler whoami` set up and the relevant secrets (`MPP_SECRET_KEY`, `STRIPE_SECRET_KEY`, treasury env vars) bound via `wrangler secret put`.
+For workers, **before suggesting a deploy** confirm the user has `wrangler whoami` set up and the relevant env vars bound via `wrangler secret put` or `vars` in `wrangler.json`. Site worker reads `SOLANA_ADDRESS` (for `/x402`); `TREASURY_TEMPO`, `STRIPE_SECRET_KEY`, `STRIPE_NETWORK_ID`, and `MPP_SECRET_KEY` (for `/mpp`). Each route independently returns 503 with an `endpoint_inactive` JSON body when its prerequisites are absent, so partial configurations are safe.
 
 ---
 
@@ -101,7 +101,7 @@ There is no `turbo.json` in this repo and there should not be. The three workers
 
 ### Do not log secrets
 
-`auth/` handles JWT bodies and KV values; `site/worker.ts` reads `STRIPE_SECRET_KEY`, `MPP_SECRET_KEY`. None of these may appear in `console.log` / `console.error` / Sentry breadcrumbs / response bodies. If you need a debug shortcut, add it behind `DEBUG === '1'` and gate it explicitly.
+`auth/` handles JWT bodies and KV values; `site/worker.ts` reads `SOLANA_ADDRESS`. None of these may appear in `console.log` / `console.error` / Sentry breadcrumbs / response bodies (the wallet address itself is public and may be logged, but JWTs and KV contents must not). If you need a debug shortcut, add it behind `DEBUG === '1'` and gate it explicitly.
 
 ### Do not hand-roll cryptographic primitives
 
@@ -234,6 +234,7 @@ Acknowledge it as a sibling project that helps adopt this spec. Mention it lives
 | What identifiers are registered? | `mcp/src/protocols.ts` (single source of truth) |
 | What MCP tools does the server expose? | `mcp/src/` (read the actual handlers) |
 | What's the agent-auth handshake? | `auth/src/` + `/.well-known/agent-configuration` response |
-| How does `/donate` settle x402 payments? | `site/src/worker.ts` (hand-rolled, ~150 lines) |
+| How does `/x402` serve a 402 and settle x402 v2 payments? | `site/src/worker.ts` (hand-rolled against `x402.org/facilitator/settle`) |
+| How does `/mpp` emit a `WWW-Authenticate: Payment` challenge? | `site/src/worker.ts` (`Mppx.compose(tempo, stripe)(request)` via the `mppx` SDK) |
 | Which Cloudflare bindings does each worker need? | each worker's `wrangler.json` |
 | What's the agentify CLI / middleware contract? | **Out of scope.** Go to the agentify repo. |

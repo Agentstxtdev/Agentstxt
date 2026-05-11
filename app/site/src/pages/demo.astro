@@ -247,15 +247,15 @@ import { SPEC_VERSION } from '../config';
                 </span>
               </div>
               <p class="text-sm text-[#555] mt-3 leading-relaxed">
-                Reads the declared payment configuration from <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agents.json</code>, then requests a gated endpoint without credentials. The server responds with a real <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">402</code> containing four <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">accepts[]</code> entries: Base, Ethereum, Avalanche (EIP-3009), and Solana (serialized SPL tx). Settlement on all chains is delegated to the public facilitator at x402.org. No API key or private key required.
+                Reads the declared x402 capability from <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agents.json</code>, then probes a synthetic gated route at <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/x402</code> without credentials. The server responds with a real <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">402</code> carrying the recipient wallet in <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">accepts[].payTo</code> on Solana mainnet. Settlement is delegated to the public facilitator at x402.org.
               </p>
             </div>
             <div class="px-6 py-4 bg-[#fafafa]">
               <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999] mb-3">Steps covered</p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-8">
                 {[
-                  ['0', 'Payment configuration: agents.json · payments{}'],
-                  ['1', 'Payment negotiation: GET /payment-test → real 402'],
+                  ['0', 'Announcement: GET /agents.json, payments.x402'],
+                  ['1', 'Wire: GET /x402 → real 402 carrying payTo'],
                 ].map(([num, label]) => (
                   <div class="flex items-baseline gap-2">
                     <span class="font-mono text-[10px] text-[#bbb] shrink-0 w-4">{num}</span>
@@ -274,22 +274,22 @@ import { SPEC_VERSION } from '../config';
               <div class="flex items-start justify-between gap-4">
                 <div>
                   <p class="text-sm font-semibold text-[#111]">MPP (Machine Payments Protocol)</p>
-                  <p class="font-mono text-[11px] text-[#999] mt-1">Stablecoin · Tempo USDC.e · Stripe (cards · EVM & Solana USDC) · Session-based</p>
+                  <p class="font-mono text-[11px] text-[#999] mt-1">Reference only · Session-based · Tempo USDC.e · Stripe SPT</p>
                 </div>
                 <span class="font-mono text-xs text-[#999] group-hover:text-[#111] transition-colors shrink-0 mt-0.5">
                   Run demo →
                 </span>
               </div>
               <p class="text-sm text-[#555] mt-3 leading-relaxed">
-                Demonstrates the session-based companion to x402. The same gated endpoint emits a <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">WWW-Authenticate: Payment</code> challenge advertising both methods registered with the <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">mppx</code> SDK: Tempo for USDC stablecoin transfers and Stripe for card networks plus Solana USDC via SPT. The agent picks one and authorizes through that path, then presents an <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">Authorization: Payment</code> credential for the duration of the session.
+                Reads the declared MPP capability from <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agents.json</code>, then probes the synthetic gated route at <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/mpp</code>. The server returns a real <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">402</code> with a <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">WWW-Authenticate: Payment</code> challenge composed by <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">mppx</code> from configured methods (Tempo and/or Stripe). The recipient is base64-encoded inside the challenge per spec §11.4.
               </p>
             </div>
             <div class="px-6 py-4 bg-[#fafafa]">
               <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999] mb-3">Steps covered</p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-8">
                 {[
-                  ['0', 'MPP capability declaration: agents.json · payments.mpp object present'],
-                  ['1', 'Challenge negotiation: GET /payment-test → 402 + WWW-Authenticate'],
+                  ['0', 'Declaration: agents.json · payments.mpp object'],
+                  ['1', 'Wire (reference): 402 + WWW-Authenticate: Payment'],
                 ].map(([num, label]) => (
                   <div class="flex items-baseline gap-2">
                     <span class="font-mono text-[10px] text-[#bbb] shrink-0 w-4">{num}</span>

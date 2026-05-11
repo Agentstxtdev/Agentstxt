@@ -27,6 +27,30 @@ import {
 
 const SPEC_URL = 'https://agentstxt.dev';
 const TREASURY_REGEX = /\b0x[a-fA-F0-9]{40}\b/;
+// Solana base58 wallet: standard alphabet (no 0OIl), address length range.
+// Applied to parsed JSON string values only, so CAIP-2 chain IDs like
+// "solana:5eyk..." never match (the colon excludes the whole-string match).
+const SOLANA_WALLET_REGEX = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+
+function findSolanaWalletInJson(value: unknown, path: string[] = []): { path: string; value: string } | null {
+  if (typeof value === 'string') {
+    return SOLANA_WALLET_REGEX.test(value) ? { path: path.join('.') || '<root>', value } : null;
+  }
+  if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      const hit = findSolanaWalletInJson(value[i], [...path, `[${i}]`]);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  if (value && typeof value === 'object') {
+    for (const [k, v] of Object.entries(value)) {
+      const hit = findSolanaWalletInJson(v, [...path, k]);
+      if (hit) return hit;
+    }
+  }
+  return null;
+}
 
 type ResponseHeaders = {
   contentType: string | null;
@@ -180,6 +204,14 @@ function auditAgentsJson(text: string, headers: ResponseHeaders, origin: string)
     parsed = JSON.parse(text) as Record<string, unknown>;
   } catch (err) {
     return { parsed: null, parseError: String(err), errors: [...errors, '§11: agents.json is not valid JSON'], warnings };
+  }
+
+  // §11.4 / §13: Solana wallet leak. Walks parsed values so CAIP-2 chain IDs
+  // (`solana:5eyk...`) are exempt by construction — the colon prevents a
+  // whole-string match against the base58 regex.
+  const solanaHit = findSolanaWalletInJson(parsed);
+  if (solanaHit) {
+    errors.push(`§11.4 / §13: agents.json contains what looks like a Solana wallet address "${solanaHit.value}" at ${solanaHit.path}; wallet addresses must only appear in 402 responses`);
   }
 
   // §11.2: required top-level fields

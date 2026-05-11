@@ -6,7 +6,7 @@ import { SPEC_VERSION } from '../../config';
 
 <BaseLayout
   title="Payments Demo · agents.txt"
-  description="Live demonstration of the x402 payment protocol on Base and Solana. The payment configuration is read from agents.json and a gated endpoint is requested without credentials, returning a real 402 with machine-readable payment requirements for both chains."
+  description="Live demonstration of the x402 payment protocol on Solana. The site declares x402 support in agents.json, then a synthetic gated route returns a real 402 Payment Required with the recipient wallet, as the spec requires."
   canonicalUrl="https://agentstxt.dev/demo/payments"
 >
   <!-- Nav -->
@@ -46,7 +46,7 @@ import { SPEC_VERSION } from '../../config';
         <h1 class="text-2xl font-bold tracking-tight text-[#111] mb-1">
           x402 Payment Protocol: Live Demonstration
         </h1>
-        <p class="text-sm text-[#777] font-mono mb-6">x402 v2 · USDC · EVM (any chain) + Solana · Public facilitator</p>
+        <p class="text-sm text-[#777] font-mono mb-6">x402 v2 · USDC on Solana · Public facilitator</p>
         <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
           <dt class="text-[#999] font-medium">Protocol</dt>
           <dd class="text-[#111]">
@@ -55,14 +55,16 @@ import { SPEC_VERSION } from '../../config';
               x402.org
             </a>
           </dd>
-          <dt class="text-[#999] font-medium">Networks</dt>
-          <dd class="font-mono text-[#111]">Base · Ethereum · Avalanche · Solana</dd>
+          <dt class="text-[#999] font-medium">Network</dt>
+          <dd class="font-mono text-[#111]">Solana mainnet (USDC)</dd>
+          <dt class="text-[#999] font-medium">Demo route</dt>
+          <dd class="font-mono text-[#111]">/x402</dd>
           <dt class="text-[#999] font-medium">Settlement</dt>
           <dd class="font-mono text-[#111]">x402.org/facilitator/settle</dd>
           <dt class="text-[#999] font-medium">Status</dt>
           <dd class="text-[#111]">
             <span class="inline-flex items-center border border-[#111] text-[10px] font-semibold tracking-[0.08em] uppercase px-1.5 py-0.5 leading-none mr-2">Live</span>
-            Real 402 and real settlement. Treasury address is a placeholder until replaced.
+            Real 402 response. The recipient address is read from a server-side env var and may be a placeholder in development.
           </dd>
         </dl>
       </div>
@@ -70,13 +72,13 @@ import { SPEC_VERSION } from '../../config';
       <!-- Introduction -->
       <div class="prose max-w-none mb-10">
         <p>
-          This page demonstrates the x402 v2 payment negotiation sequence. The payment configuration declared by this server in <code>agents.json</code> is read first, then a gated endpoint is requested without credentials. The server responds with a real <code>402 Payment Required</code> containing four <code>accepts[]</code> entries for Base, Ethereum, Avalanche (EVM), and Solana, giving an x402-capable agent the choice of network based on its available wallet.
+          This page demonstrates the boundary between the <em>announcement</em> layer and the <em>wire</em> layer of x402. The site advertises that it speaks x402 by declaring a <code>payments.x402</code> block in <code>agents.json</code>; that block names the supported chain and the default pricing, but never the recipient wallet. The recipient appears only when an agent hits a gated resource and receives the 402 response. The demo runs both steps so the boundary is visible.
         </p>
         <p>
-          On EVM chains, the agent constructs an EIP-3009 off-chain transfer authorization and does not broadcast any transaction itself. On Solana, the agent builds and signs a full SPL token transfer transaction and includes the serialized bytes. In both cases the agent sends the signed payload in the <code>Payment-Signature</code> header, and the public facilitator at <code>x402.org/facilitator/settle</code> handles on-chain submission. No API key or private key is required on the server.
+          The demo route at <code>/x402</code> is a synthetic gated resource that exists for this page only. A real site gates the resources it actually serves, and the 402 appears on first contact with that resource. <code>agents.json</code> never publishes a "pay here" path because the protocol does not have one; gating is per-resource and the agent learns the recipient at the moment it tries the resource.
         </p>
         <p class="text-xs text-[#777] border-l-2 border-[#e5e5e5] pl-3 italic">
-          Note: <code>agents.json</code> is the optional pre-screening layer. An agent may also call the gated endpoint directly without reading <code>agents.json</code> first; the spec does not mandate discovery before requests. The two steps below are independent. Production deployments declare what they serve and serve what they declare; demo deployments may diverge to expose the wire shape regardless.
+          Per x402 v2, agents.txt v1.0 §5.1, and §11.4: wallet addresses are returned in the 402 response body, never in <code>agents.json</code> or any other discovery file. The demo respects this rule.
         </p>
 
         <h2>Protocol flow</h2>
@@ -85,10 +87,10 @@ import { SPEC_VERSION } from '../../config';
             <tr><th>Step</th><th>Action</th><th>Result</th></tr>
           </thead>
           <tbody>
-            <tr><td class="font-mono">0</td><td>Read payment configuration from <code>agents.json</code></td><td class="text-[#999]">per-protocol blocks, chains, declared pricing</td></tr>
-            <tr><td class="font-mono">1</td><td>Request gated resource (no <code>Payment-Signature</code> header)</td><td>402 · four <code>accepts[]</code> entries (Base · ETH · Avax · Solana)</td></tr>
-            <tr><td class="font-mono text-[#ccc]">—</td><td class="text-[#999]">Agent selects a network, constructs and signs payment payload</td><td class="text-[#999]">off-chain · not executable in browser</td></tr>
-            <tr><td class="font-mono text-[#ccc]">—</td><td class="text-[#999]">Agent retries with <code>Payment-Signature</code> · public facilitator settles · responds 200</td><td class="text-[#999]">200 · <code>X-Payment-Response</code></td></tr>
+            <tr><td class="font-mono">0</td><td>Read declaration from <code>agents.json</code></td><td class="text-[#999]"><code>payments.x402.chains</code>, <code>payments.pricing</code></td></tr>
+            <tr><td class="font-mono">1</td><td>Request the gated route (no <code>Payment-Signature</code>)</td><td>402 with one <code>accepts[]</code> entry carrying <code>payTo</code></td></tr>
+            <tr><td class="font-mono text-[#ccc]">.</td><td class="text-[#999]">Agent constructs a signed SPL token transfer using the <code>payTo</code> from step 1</td><td class="text-[#999]">off-chain, not executable in a browser</td></tr>
+            <tr><td class="font-mono text-[#ccc]">.</td><td class="text-[#999]">Agent retries with <code>Payment-Signature</code>, public facilitator settles, server responds 200</td><td class="text-[#999]">200, <code>X-Payment-Response</code></td></tr>
           </tbody>
         </table>
       </div>
@@ -97,8 +99,8 @@ import { SPEC_VERSION } from '../../config';
       <div class="border border-[#e5e5e5]">
         <div class="flex items-center justify-between px-5 py-4 border-b border-[#e5e5e5]">
           <div>
-            <p class="text-sm font-semibold text-[#111]">Payment negotiation runner</p>
-            <p class="text-xs text-[#999] mt-0.5">Live requests · 402 served by this server · no payment executed</p>
+            <p class="text-sm font-semibold text-[#111]">Announcement and wire</p>
+            <p class="text-xs text-[#999] mt-0.5">Live requests, no payment executed</p>
           </div>
           <button
             id="run-btn"
@@ -110,8 +112,8 @@ import { SPEC_VERSION } from '../../config';
 
         <div id="steps" class="divide-y divide-[#e5e5e5]">
           {[
-            ['0', 'Payment configuration', 'GET /agents.json · payments{}'],
-            ['1', 'Payment negotiation',   'GET /payment-test  (no Payment-Signature) → expect 402'],
+            ['0', 'Announcement', 'GET /agents.json, read payments.x402'],
+            ['1', 'Wire',         'GET /x402  (no Payment-Signature) → expect 402 with payTo'],
           ].map(([num, label, hint]) => (
             <div class="step" data-step={num} data-state="idle">
               <div class="flex items-start justify-between gap-4 px-5 py-3">
@@ -131,89 +133,76 @@ import { SPEC_VERSION } from '../../config';
           ))}
         </div>
 
+        <div id="pay-cta" class="hidden px-5 py-4 border-t border-[#e5e5e5] bg-[#fafafa]">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-[#111]">Pay 0.01 USDC</p>
+              <p class="text-xs text-[#777] mt-1">
+                In production, an x402-capable agent would now construct a signed SPL token transfer to <span id="pay-to" class="font-mono text-[#111]">…</span>, base64-encode it into a <code>Payment-Signature</code> header, and retry the request. A browser cannot sign Solana transactions without an extension wallet, so the button below is a no-op call-to-action.
+              </p>
+            </div>
+            <button
+              disabled
+              title="Demonstration only. Pay flow runs inside an x402-capable agent, not in a browser."
+              class="shrink-0 border border-[#111] text-xs font-semibold tracking-[0.06em] uppercase px-4 py-2 opacity-40 cursor-not-allowed"
+            >
+              Pay
+            </button>
+          </div>
+        </div>
+
         <div id="result-banner" class="hidden px-5 py-4 border-t border-[#e5e5e5]">
           <p id="result-text" class="text-sm font-medium text-[#111]"></p>
-          <p class="text-xs text-[#999] mt-1">The 402 above is the actual response served by this server. To complete a payment, use an x402-capable agent or the <a href="https://github.com/coinbase/x402" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">x402 SDK</a>.</p>
+          <p class="text-xs text-[#999] mt-1">The 402 above is the actual response served by this server. To complete a payment, use an x402-capable agent or the <a href="https://github.com/x402-foundation/x402" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">x402 SDK</a>.</p>
         </div>
       </div>
 
-      <!-- Chain comparison -->
+      <!-- Protocol reference -->
       <div class="prose max-w-none mt-12">
-        <h2>EVM vs Solana: payment mechanism differences</h2>
-        <table>
-          <thead>
-            <tr><th></th><th>EVM (Base · ETH · Avax)</th><th>Solana</th></tr>
-          </thead>
-          <tbody>
-            <tr><td class="font-medium">Network string (CAIP-2)</td><td class="font-mono text-[11px]">eip155:8453 / eip155:1 / eip155:43114</td><td class="font-mono text-[11px]">solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp</td></tr>
-            <tr><td class="font-medium">Asset identifier</td><td>ERC-20 contract address (<code>0x…</code>)</td><td>SPL token mint address (base58)</td></tr>
-            <tr><td class="font-medium">Recipient field</td><td>EVM wallet address (<code>0x…</code>)</td><td>Associated Token Account (ATA) address</td></tr>
-            <tr><td class="font-medium">Payment primitive</td><td>EIP-3009 off-chain transfer authorization</td><td>Full signed SPL token transfer transaction</td></tr>
-            <tr><td class="font-medium">Who broadcasts</td><td>Public facilitator (x402.org/facilitator/settle)</td><td>Public facilitator (x402.org/facilitator/settle)</td></tr>
-            <tr><td class="font-medium">Agent signs</td><td>Authorization struct (no tx broadcast)</td><td>Full transaction including blockhash</td></tr>
-            <tr><td class="font-medium">Settlement</td><td>Public facilitator (x402.org/facilitator/settle)</td><td>Public facilitator (x402.org/facilitator/settle)</td></tr>
-            <tr><td class="font-medium">Payment-Signature payload</td><td class="font-mono text-[11px]">&#123; accepted: &#123; … &#125;, signature, authorization &#125;</td><td class="font-mono text-[11px]">&#123; accepted: &#123; … &#125;, serializedTransaction: "…" &#125;</td></tr>
-          </tbody>
-        </table>
-
         <h2>Protocol reference</h2>
 
-        <h3>EVM: <code>Payment-Signature</code> payload (EIP-3009)</h3>
+        <h3>The 402 response: <code>accepts[]</code> entry</h3>
         <p>
-          The agent constructs an EIP-3009 <code>transferWithAuthorization</code> struct (a signed off-chain USDC transfer approval) and does not broadcast any transaction itself. The signed payload is base64-encoded and sent in the <code>Payment-Signature</code> header. The public facilitator at <code>x402.org/facilitator/settle</code> submits the transfer on-chain after verifying the signature.
+          Each entry in <code>accepts[]</code> describes one acceptable payment option. For this demo there is a single entry, on Solana, paying USDC. The <code>payTo</code> field is the Associated Token Account (ATA) controlled by the site treasury. The agent uses these fields verbatim when constructing the payment.
         </p>
-        <pre><code>{`// Payment-Signature header value (base64-encoded JSON):
-{
+        <pre><code>{`{
   "x402Version": 2,
-  "scheme": "exact",
-  "network": "eip155:8453",
-  "accepted": {
-    "scheme":  "exact",
-    "network": "eip155:8453",
-    "amount":  "1000",
-    "asset":   "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    "payTo":   "0x<treasury-address>",
-    "maxTimeoutSeconds": 60
-  },
-  "signature": "0x2d6a7588…",
-  "authorization": {
-    "from":        "0x<payer-address>",
-    "to":          "0x<recipient-address>",
-    "value":       "1000",
-    "validAfter":  "<unix-timestamp>",
-    "validBefore": "<unix-timestamp>",
-    "nonce":       "0x<random-32-bytes>"
-  }
+  "error": "Payment required",
+  "resource": { "url": "https://agentstxt.dev/x402", "..." },
+  "accepts": [
+    {
+      "scheme":  "exact",
+      "network": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+      "amount":  "10000",
+      "asset":   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "payTo":   "<treasury-ATA>",
+      "maxTimeoutSeconds": 60,
+      "extra":   { "name": "USDC", "description": "..." }
+    }
+  ]
 }`}</code></pre>
 
-        <h3>Solana: <code>Payment-Signature</code> payload (serialized transaction)</h3>
+        <h3>The agent retry: <code>Payment-Signature</code> header</h3>
         <p>
-          The agent builds a full SPL token transfer transaction including the current blockhash, signs it with its wallet private key, and base64-encodes the serialized bytes. The blockhash requirement means the transaction has a limited validity window, typically around 90 seconds. The public facilitator handles RPC submission.
+          The agent builds a full SPL token transfer transaction including the current blockhash, signs it with its wallet private key, and base64-encodes the serialized bytes. The transaction's validity window is short, typically about 90 seconds. The public facilitator at <code>x402.org/facilitator/settle</code> handles RPC submission and settlement.
         </p>
         <pre><code>{`// Payment-Signature header value (base64-encoded JSON):
 {
   "x402Version": 2,
-  "scheme": "exact",
+  "scheme":  "exact",
   "network": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-  "accepted": {
-    "scheme":  "exact",
-    "network": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-    "amount":  "1000",
-    "asset":   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-    "payTo":   "<treasury-ATA-address>",
-    "maxTimeoutSeconds": 60
-  },
-  "serializedTransaction": "<base64-encoded-signed-transaction>"
+  "accepted": { /* same shape as accepts[0] above */ },
+  "serializedTransaction": "<base64-encoded-signed-tx>"
 }`}</code></pre>
 
-        <h3>Settlement response: <code>X-Payment-Response</code></h3>
+        <h3>The settlement response: <code>X-Payment-Response</code></h3>
         <p>
-          All chains return the same response envelope on success. The <code>transaction</code> field is the on-chain transaction hash: a hex string prefixed with <code>0x</code> on EVM chains, a base58 signature string on Solana.
+          On success the server returns 200 with the resource and an <code>X-Payment-Response</code> header carrying the on-chain proof. The <code>transaction</code> field is a base58 signature on Solana.
         </p>
         <pre><code>{`{
   "success":     true,
-  "transaction": "<on-chain-tx-hash-or-signature>",
-  "network":     "eip155:8453" | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+  "transaction": "<solana-tx-signature>",
+  "network":     "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
   "payer":       "<payer-address>"
 }`}</code></pre>
 
@@ -248,9 +237,9 @@ function setRunning(num: string) {
   el.querySelector<HTMLElement>('.step-indicator')!.textContent = '▸';
   el.querySelector<HTMLElement>('.step-label')!.classList.replace('text-[#bbb]', 'text-[#111]');
   el.querySelector<HTMLElement>('.step-hint')!.classList.replace('text-[#ccc]', 'text-[#777]');
-  el.querySelector<HTMLElement>('.step-badge')!.textContent = '···';
+  el.querySelector<HTMLElement>('.step-badge')!.textContent = '...';
   el.querySelector<HTMLElement>('.step-body')!.classList.remove('hidden');
-  el.querySelector<HTMLElement>('.step-output')!.textContent = 'Running…';
+  el.querySelector<HTMLElement>('.step-output')!.textContent = 'Running...';
 }
 
 function setDone(num: string, output: string, badge = '') {
@@ -279,11 +268,14 @@ async function run() {
   const btn = document.getElementById('run-btn')!;
   const label = document.getElementById('run-btn-label')!;
   const banner = document.getElementById('result-banner')!;
+  const cta = document.getElementById('pay-cta')!;
   const resultText = document.getElementById('result-text')!;
+  const payTo = document.getElementById('pay-to')!;
 
   btn.setAttribute('disabled', '');
-  label.textContent = 'Running…';
+  label.textContent = 'Running...';
   banner.classList.add('hidden');
+  cta.classList.add('hidden');
   resultText.className = 'text-sm font-medium text-[#111]';
 
   document.querySelectorAll<HTMLElement>('.step').forEach(el => {
@@ -301,98 +293,97 @@ async function run() {
   const origin = window.location.origin;
 
   try {
-    // ── Step 0: Payment configuration from agents.json ────────────────────────
-    // Informational only. agents.json is the optional pre-screening layer; an
-    // agent may also hit /payment-test directly. We always proceed to step 1.
+    // Step 0: announcement layer (agents.json)
     setRunning('0');
     const agentsRes = await fetch(`${origin}/agents.json`);
     const agentsJson = await agentsRes.json() as {
       payments?: {
-        x402?: { chains?: string[] };
-        mpp?: { methods?: string[] };
+        x402?:    { chains?: string[]; description?: string };
         required?: boolean;
         pricing?: { amount?: string; currency?: string };
       };
     };
     const payments = agentsJson.payments;
     const chains = payments?.x402?.chains ?? [];
-    const declaredProtocols = payments
-      ? (Object.keys(payments).filter((k) => k === 'x402' || k === 'mpp'))
-      : [];
-    const paymentsDeclared = declaredProtocols.length > 0;
-    const paymentSummary = paymentsDeclared
+    const pricing = payments?.pricing;
+    const x402Declared = chains.length > 0;
+    const declarationSummary = x402Declared
       ? [
-          `declared      yes`,
-          `protocols     ${declaredProtocols.join(', ')}`,
-          `chains        ${chains.join(', ') || '(none)'}`,
+          `protocol      x402`,
+          `chains        ${chains.join(', ')}`,
+          `pricing       ${pricing?.amount ?? '?'} ${pricing?.currency ?? ''}`,
+          ``,
+          `Note: payTo is intentionally absent. The spec forbids wallet addresses`,
+          `in agents.json; the recipient is returned in the 402 response only.`,
         ].join('\n')
       : [
-          `declared      no`,
+          `protocol      not declared`,
           ``,
-          `agents.json does not advertise payments on this deployment.`,
-          `An agent that pre-screens via discovery would skip a paid request.`,
-          `The demo proceeds anyway to show the wire shape that /payment-test`,
-          `serves regardless of declaration (placeholder treasury addresses in dev).`,
+          `agents.json does not advertise x402 on this deployment.`,
+          `The wire step will probe /x402 anyway to show its current behaviour.`,
         ].join('\n');
     setDone('0',
-      `GET /agents.json · payments{}\n\n${paymentSummary}\n\nFull response:\n${fmt(agentsJson)}`,
-      paymentsDeclared ? `${chains.length} chain${chains.length !== 1 ? 's' : ''}` : 'not declared',
+      `GET /agents.json, payments.x402\n\n${declarationSummary}\n\nFull response:\n${fmt(agentsJson)}`,
+      x402Declared ? 'declared' : 'not declared',
     );
 
-    // ── Step 1: Payment negotiation — hit /payment-test without Payment-Signature
-    // Always runs, even if Step 0 reported no declaration. The endpoint is the
-    // implementation layer; declaration is the advertisement layer; they agree
-    // in production and may diverge in dev/demo deployments.
+    // Step 1: wire layer (/x402)
     setRunning('1');
-    const paymentRes = await fetch(`${origin}/payment-test`);
+    const paymentRes = await fetch(`${origin}/x402`);
     const paymentBody = await paymentRes.json() as {
       x402Version?: number;
-      error?: string;
+      error?:       string;
+      message?:     string;
       accepts?: Array<{
+        scheme?:  string;
         network?: string;
-        amount?: string;
-        asset?: string;
-        payTo?: string;
-        description?: string;
-        scheme?: string;
+        amount?:  string;
+        asset?:   string;
+        payTo?:   string;
       }>;
     };
 
+    if (paymentRes.status === 503) {
+      setDone('1',
+        `GET /x402\n\nStatus  503 Service Unavailable\n\n${paymentBody.message ?? ''}\n\nThe demo route requires SOLANA_ADDRESS on the server. Without it, the route returns 503 instead of 402. The announcement step above still ran successfully.`,
+        '503 inactive',
+      );
+      resultText.textContent = 'The /x402 demo route is offline on this deployment (no SOLANA_ADDRESS configured). The announcement layer in step 0 is the spec-mandated declaration; the wire layer is the spec-mandated delivery, currently inactive.';
+      banner.classList.remove('hidden');
+      return;
+    }
     if (paymentRes.status !== 402) {
-      throw new Error(`Expected 402, got ${paymentRes.status}:\n${fmt(paymentBody)}`);
+      throw new Error(`Expected 402 or 503, got ${paymentRes.status}:\n${fmt(paymentBody)}`);
     }
 
-    const accepts = paymentBody.accepts ?? [];
-    const acceptsSummary = accepts.length > 0
-      ? accepts.map((a, i) => {
-          const amountUsdc = a.amount
-            ? (parseInt(a.amount, 10) / 1_000_000).toFixed(3)
-            : '?';
-          return [
-            `accepts[${i}]: ${a.network}`,
-            `  scheme   ${a.scheme}`,
-            `  amount   ${amountUsdc} USDC`,
-            `  asset    ${a.asset}`,
-            `  payTo    ${a.payTo}`,
-          ].join('\n');
-        }).join('\n\n')
-      : '(no accepts[] entries — endpoint emits a 402 without x402 negotiation)';
-
+    const accept = paymentBody.accepts?.[0];
+    const amountUsdc = accept?.amount
+      ? (parseInt(accept.amount, 10) / 1_000_000).toFixed(3)
+      : '?';
+    const wireSummary = accept
+      ? [
+          `network       ${accept.network}`,
+          `scheme        ${accept.scheme}`,
+          `amount        ${amountUsdc} USDC (${accept.amount} atomic)`,
+          `asset         ${accept.asset}`,
+          `payTo         ${accept.payTo}`,
+          ``,
+          `Note: payTo appears here, in the 402 response. This is the only`,
+          `place the spec and the x402 protocol expose the recipient address.`,
+        ].join('\n')
+      : '(no accepts[] entries returned)';
     setDone('1',
-      `GET /payment-test  (no Payment-Signature header)\n\n` +
-      `Status  ${paymentRes.status} Payment Required\n\n` +
-      `${acceptsSummary}\n\nFull 402 body:\n${fmt(paymentBody)}`,
-      `${paymentRes.status} · ${accepts.length} option${accepts.length !== 1 ? 's' : ''}`,
+      `GET /x402  (no Payment-Signature header)\n\nStatus  ${paymentRes.status} Payment Required\n\n${wireSummary}\n\nFull 402 body:\n${fmt(paymentBody)}`,
+      `${paymentRes.status} · 1 option`,
     );
 
-    const networks = accepts.map(a => a.network).filter(Boolean).join(' · ');
-    if (accepts.length > 0) {
-      resultText.textContent = paymentsDeclared
-        ? `Payment requirements received: ${accepts.length} network option${accepts.length !== 1 ? 's' : ''} (${networks}). An x402-capable agent selects one and constructs the appropriate payment payload.`
-        : `Endpoint returned a 402 with ${accepts.length} accepts[] option${accepts.length !== 1 ? 's' : ''} (${networks}) even though agents.json declares no payments. The endpoint serves placeholder treasury addresses in dev for wire-shape demonstration; production deployments should declare what they serve.`;
-    } else {
-      resultText.textContent = `Endpoint returned a 402 but no accepts[] were present. This deployment may have payments disabled at the worker level. The wire shape is still visible above.`;
+    if (accept?.payTo) {
+      payTo.textContent = `${accept.payTo.slice(0, 6)}…${accept.payTo.slice(-4)}`;
+      payTo.title = accept.payTo;
+      cta.classList.remove('hidden');
     }
+
+    resultText.textContent = 'Announcement and wire both ran. agents.json declared the protocol and pricing; the 402 carried the recipient. An x402-capable agent would now sign and submit the SPL transfer.';
     banner.classList.remove('hidden');
 
   } catch (err) {

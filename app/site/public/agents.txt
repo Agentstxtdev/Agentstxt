@@ -2,6 +2,8 @@
 # Standard: https://agentstxt.dev
 # JSON: https://agentstxt.dev/agents.json
 
+Protocols: x402, mpp
+
 Authorization: agent-auth
 
 MCP: https://agentstxt.dev/mcp

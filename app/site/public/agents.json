@@ -6,6 +6,24 @@
     "url": "https://agentstxt.dev",
     "description": "The open specification for AI agent capability declarations. Layer 4 of the agent-readiness stack."
   },
+  "payments": {
+    "x402": {
+      "chains": [
+        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      ],
+      "description": "Synthetic gated route /x402 demonstrating the x402 v2 wire shape on Solana mainnet. Demo charge only; the spec and docs remain free."
+    },
+    "mpp": {
+      "methods": [
+        "tempo"
+      ],
+      "description": "Synthetic gated route /mpp demonstrating the MPP wire shape via mppx. Tempo and (when wired) Stripe SPT. Demo charge only; the spec and docs remain free."
+    },
+    "pricing": {
+      "amount": "0.01",
+      "currency": "USDC"
+    }
+  },
   "authorization": {
     "protocols": [
       "agent-auth"

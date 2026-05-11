@@ -30,7 +30,7 @@
 
 - [ ] **Spec — editorial** (typos, clarifying examples, broken links, formatting). No semantics change.
 - [ ] **Spec — structural** (new directives, schema fields, conformance shifts, version bump). RFC discussion required in this PR's description.
-- [ ] **Site** (`agentstxt/site/`) — Astro pages, BFF / `/donate` worker, content updates, demo pages.
+- [ ] **Site** (`agentstxt/site/`) — Astro pages, BFF / `/x402` worker, content updates, demo pages.
 - [ ] **MCP** (`agentstxt/mcp/`) — new tool, validator improvement, transport fix.
 - [ ] **Auth** (`agentstxt/auth/`) — capability extension, scope improvement, key handling.
 - [ ] **Landingpage** (`agentstxt/landingpage/`).

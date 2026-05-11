@@ -18,6 +18,7 @@ out/
 .env.development
 .env.production
 .env.staging
+.dev.vars
 
 # ── Generated agentic files (commit if you want to pin them, ignore if generated at build time) ──
 # public/robots.txt

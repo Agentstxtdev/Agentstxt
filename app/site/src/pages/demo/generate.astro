@@ -174,17 +174,17 @@ import { SPEC_VERSION } from '../../config';
                   </label>
                   <div id="x402-sub" class="pl-5 flex flex-col gap-2.5">
                     <div class="grid grid-cols-[7rem_1fr] items-center gap-3">
-                      <label class="text-xs text-[#555]" for="evm-addr">EVM address</label>
-                      <input id="evm-addr" type="text" placeholder="0xYourEVMWalletAddress"
-                        class="font-mono text-xs px-2.5 py-1.5 border border-[#e5e5e5] focus:border-[#111] outline-none bg-white transition-colors w-full" />
-                    </div>
-                    <div class="grid grid-cols-[7rem_1fr] items-center gap-3">
-                      <label class="text-xs text-[#555]" for="sol-addr">
-                        Solana address
-                        <span class="text-[#bbb] font-normal">opt.</span>
-                      </label>
-                      <input id="sol-addr" type="text" placeholder="YourSolanaAddressBase58"
-                        class="font-mono text-xs px-2.5 py-1.5 border border-[#e5e5e5] focus:border-[#111] outline-none bg-white transition-colors w-full" />
+                      <span class="text-xs text-[#555]">Chains</span>
+                      <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+                        <label class="flex items-center gap-1.5 cursor-pointer" for="chk-evm">
+                          <input type="checkbox" id="chk-evm" class="w-3.5 h-3.5 accent-[#111] shrink-0" checked />
+                          <span class="text-xs text-[#111]">EVM <span class="text-[#999] font-mono text-[10px]">(eip155:8453, Base)</span></span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer" for="chk-solana">
+                          <input type="checkbox" id="chk-solana" class="w-3.5 h-3.5 accent-[#111] shrink-0" />
+                          <span class="text-xs text-[#111]">Solana <span class="text-[#999] font-mono text-[10px]">(solana:5eykt...vdp, mainnet)</span></span>
+                        </label>
+                      </div>
                     </div>
                     <div class="grid grid-cols-[7rem_1fr] items-center gap-3">
                       <label class="text-xs text-[#555]" for="x402-price">
@@ -207,7 +207,7 @@ import { SPEC_VERSION } from '../../config';
                         class="font-mono text-xs px-2.5 py-1.5 border border-[#e5e5e5] focus:border-[#111] outline-none bg-white transition-colors w-full" />
                     </div>
                     <p class="text-[11px] text-[#999] leading-relaxed">
-                      Wallet addresses appear in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">402</code> responses only, never in the declaration files. Pricing is surfaced in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.json</code> as <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">pricing</code>. Accepted chains as <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">payments.x402.chains</code>. The optional description (what the agent is paying for) is surfaced as <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">payments.x402.description</code> in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.json</code> only.
+                      No wallet address is requested here, by design: per spec §5.1 and §11.4, treasury addresses appear in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">402</code> responses only, never in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.txt</code> or <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.json</code>. The form just collects the *capability* declarations: chains under <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">payments.x402.chains</code>, optional <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">pricing</code> and <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">payments.x402.description</code>. Your wallet stays in your server's 402 handler.
                     </p>
                   </div>
                 </div>
@@ -221,6 +221,19 @@ import { SPEC_VERSION } from '../../config';
                   </label>
                   <div id="mpp-sub" class="hidden">
                     <div class="pl-5 flex flex-col gap-2.5">
+                      <div class="grid grid-cols-[7rem_1fr] items-center gap-3">
+                        <span class="text-xs text-[#555]">Methods</span>
+                        <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+                          <label class="flex items-center gap-1.5 cursor-pointer" for="chk-mpp-tempo">
+                            <input type="checkbox" id="chk-mpp-tempo" class="w-3.5 h-3.5 accent-[#111] shrink-0" checked />
+                            <span class="text-xs text-[#111]">Tempo <span class="text-[#999] font-mono text-[10px]">(USDC.e stablecoin)</span></span>
+                          </label>
+                          <label class="flex items-center gap-1.5 cursor-pointer" for="chk-mpp-stripe">
+                            <input type="checkbox" id="chk-mpp-stripe" class="w-3.5 h-3.5 accent-[#111] shrink-0" />
+                            <span class="text-xs text-[#111]">Stripe <span class="text-[#999] font-mono text-[10px]">(SPT: cards, Solana USDC)</span></span>
+                          </label>
+                        </div>
+                      </div>
                       <div class="grid grid-cols-[7rem_1fr] items-center gap-3">
                         <label class="text-xs text-[#555]" for="mpp-price">
                           Default price
@@ -242,7 +255,7 @@ import { SPEC_VERSION } from '../../config';
                           class="font-mono text-xs px-2.5 py-1.5 border border-[#e5e5e5] focus:border-[#111] outline-none bg-white transition-colors w-full" />
                       </div>
                       <p class="text-[11px] text-[#999] leading-relaxed">
-                        Default price appears in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.json</code> as <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">payments.pricing</code>. Configured methods as <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">payments.mpp.methods</code> (recognised values: <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">tempo</code>, <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">stripe</code>). The optional description (what the agent is paying for) is surfaced as <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">payments.mpp.description</code> in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.json</code> only. Per-method parameters remain in the MPP <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">402</code> challenge at request time.
+                        No recipient address is requested here, by design: per spec §5.2 and §11.4, the recipient (Tempo wallet or Stripe Business Network profile) appears inside the <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">WWW-Authenticate: Payment</code> challenge at request time, never in <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.txt</code> or <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">agents.json</code>. Selected methods are surfaced as <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">payments.mpp.methods</code>; optional pricing as <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">payments.pricing</code>; optional description as <code class="font-mono bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5 text-[10px]">payments.mpp.description</code>. Your credentials stay in your server's MPP handler.
                       </p>
                     </div>
                   </div>
@@ -418,12 +431,14 @@ import { SPEC_VERSION } from '../../config';
       description:      string
       payments:         boolean
       x402:             boolean
-      evmAddress:       string
-      solanaAddress:    string
+      evmChain:         boolean
+      solanaChain:      boolean
       x402Price:        string
       x402Token:        string
       x402Description:  string
       mpp:              boolean
+      mppTempo:         boolean
+      mppStripe:        boolean
       mppPrice:         string
       mppToken:         string
       mppDescription:   string
@@ -449,12 +464,14 @@ import { SPEC_VERSION } from '../../config';
         description:       v('site-desc'),
         payments:          c('chk-payments'),
         x402:              c('chk-x402'),
-        evmAddress:        v('evm-addr'),
-        solanaAddress:     v('sol-addr'),
+        evmChain:          c('chk-evm'),
+        solanaChain:       c('chk-solana'),
         x402Price:         v('x402-price'),
         x402Token:         v('x402-token'),
         x402Description:   v('x402-description'),
         mpp:               c('chk-mpp'),
+        mppTempo:          c('chk-mpp-tempo'),
+        mppStripe:         c('chk-mpp-stripe'),
         mppPrice:          v('mpp-price'),
         mppToken:          v('mpp-token'),
         mppDescription:    v('mpp-description'),
@@ -481,8 +498,8 @@ import { SPEC_VERSION } from '../../config';
 
       if (c.payments) {
         const protocols: string[] = []
-        if (c.x402 && (c.evmAddress || c.solanaAddress)) protocols.push('x402')
-        if (c.mpp)  protocols.push('mpp')
+        if (c.x402 && (c.evmChain || c.solanaChain)) protocols.push('x402')
+        if (c.mpp && (c.mppTempo || c.mppStripe)) protocols.push('mpp')
         if (protocols.length > 0) {
           lines.push('', `Protocols: ${protocols.join(', ')}`)
         }
@@ -520,24 +537,25 @@ import { SPEC_VERSION } from '../../config';
 
       if (c.payments) {
         const p: Record<string, unknown> = {}
-        const x402Active = c.x402 && (c.evmAddress || c.solanaAddress)
+        const x402Active = c.x402 && (c.evmChain || c.solanaChain)
 
         if (x402Active) {
           const chains: string[] = []
-          if (c.evmAddress)    chains.push('eip155:8453')
-          if (c.solanaAddress) chains.push(SOLANA_MAINNET_CHAIN)
+          if (c.evmChain)    chains.push('eip155:8453')
+          if (c.solanaChain) chains.push(SOLANA_MAINNET_CHAIN)
           p.x402 = {
             chains,
             ...(c.x402Description ? { description: c.x402Description } : {}),
           }
         }
 
-        if (c.mpp) {
-          // The configurator has no per-method UI; emit both recognised
-          // methods so the demo shows the field shape. Real deployments
-          // emit only methods whose credentials are actually wired up.
+        const mppActive = c.mpp && (c.mppTempo || c.mppStripe)
+        if (mppActive) {
+          const methods: string[] = []
+          if (c.mppTempo)  methods.push('tempo')
+          if (c.mppStripe) methods.push('stripe')
           p.mpp = {
-            methods: ['tempo', 'stripe'],
+            methods,
             ...(c.mppDescription ? { description: c.mppDescription } : {}),
           }
         }
@@ -545,12 +563,12 @@ import { SPEC_VERSION } from '../../config';
         const hasProtocolBlock = 'x402' in p || 'mpp' in p
         if (hasProtocolBlock) {
           // Pricing reads from x402 first, then mpp as fallback. Belongs at
-          // the payments level (not inside a per-protocol block) per spec §10.
+          // the payments level (not inside a per-protocol block) per spec §11.3.
           const priceAmount = (x402Active && c.x402Price) ? c.x402Price
-            : (c.mpp && c.mppPrice) ? c.mppPrice
+            : (mppActive && c.mppPrice) ? c.mppPrice
             : ''
           const priceToken  = (x402Active && c.x402Price) ? (c.x402Token || 'USDC')
-            : (c.mpp && c.mppPrice) ? (c.mppToken || 'USD')
+            : (mppActive && c.mppPrice) ? (c.mppToken || 'USD')
             : ''
           if (priceAmount) {
             p.pricing = {

@@ -68,7 +68,7 @@ importers:
         version: 6.3.1(@types/node@25.6.2)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.3)(yaml@2.8.4)
       mppx:
         specifier: ^0.6.16
-        version: 0.6.17(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.18)(typescript@6.0.3)(viem@2.48.11(typescript@6.0.3)(zod@4.4.3))
+        version: 0.6.19(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.18)(typescript@6.0.3)(viem@2.48.11(typescript@6.0.3)(zod@4.4.3))
       stripe:
         specifier: ^22.1.1
         version: 22.1.1(@types/node@25.6.2)
@@ -2251,8 +2251,8 @@ packages:
     engines: {node: '>=22.0.0'}
     hasBin: true
 
-  mppx@0.6.17:
-    resolution: {integrity: sha512-qGATWL6BFE0J1rsZj/pXWapKRKlqgZvZNui/2hGHeifVoftxYcBesHLs0NNplFF5mPfVSAOqbemoz358YOUlPQ==}
+  mppx@0.6.19:
+    resolution: {integrity: sha512-uBGZWjU+AFX6bVwWrubij+QtWgkvjT2b0Q1V9fiD0eI9Eu/QsVp+keWpPNB2c+HPc9gvCW9O7rV/umDM5OXjfQ==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
@@ -5299,7 +5299,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  mppx@0.6.17(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.18)(typescript@6.0.3)(viem@2.48.11(typescript@6.0.3)(zod@4.4.3)):
+  mppx@0.6.19(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.18)(typescript@6.0.3)(viem@2.48.11(typescript@6.0.3)(zod@4.4.3)):
     dependencies:
       incur: 0.4.5
       ox: 0.14.18(typescript@6.0.3)(zod@4.4.3)

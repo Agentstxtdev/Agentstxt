@@ -7,6 +7,18 @@ const hasMppTempo = !!process.env.TREASURY_TEMPO
 const hasMppStripe = !!(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_NETWORK_ID)
 const hasMpp = hasMppTempo || hasMppStripe
 
+// PoC simplification: single shared price applied to both x402 and mpp. The
+// agentify generator supports per-protocol pricing (X402Config.pricing and
+// MppConfig.pricing each take their own values); this reference deployment
+// chooses one value across both rails to keep the demo readable for visitors.
+// The on-chain x402 charge and the MPP test charge both clear at this amount.
+const DEMO_PRICING = {
+  amount: process.env.DEMO_PRICE_AMOUNT ?? '0.01',
+  token:  process.env.DEMO_PRICE_TOKEN  ?? 'USDC',
+}
+const X402_DESCRIPTION = 'Synthetic gated route /x402 demonstrating the x402 v2 wire shape on Solana mainnet. Demo charge only; the spec and docs remain free.'
+const MPP_DESCRIPTION  = 'Synthetic gated route /mpp demonstrating the MPP wire shape via mppx. Tempo and (when wired) Stripe SPT. Demo charge only; the spec and docs remain free.'
+
 /** @type {import('@agentify/core').AgenticConfig} */
 export default {
   site: {
@@ -32,12 +44,8 @@ export default {
             solanaNetwork: 'mainnet-beta',
           }),
         },
-        ...(process.env.X402_PRICE_AMOUNT && {
-          pricing: {
-            amount: process.env.X402_PRICE_AMOUNT,
-            ...(process.env.X402_PRICE_TOKEN && { token: process.env.X402_PRICE_TOKEN }),
-          },
-        }),
+        pricing: DEMO_PRICING,
+        description: X402_DESCRIPTION,
       },
     }),
     ...(hasMpp && {
@@ -48,12 +56,8 @@ export default {
           stripeNetworkId: process.env.STRIPE_NETWORK_ID,
         }),
         ...(process.env.MPP_SECRET_KEY && { secretKey: process.env.MPP_SECRET_KEY }),
-        ...(process.env.MPP_PRICE_AMOUNT && {
-          pricing: {
-            amount: process.env.MPP_PRICE_AMOUNT,
-            ...(process.env.MPP_PRICE_TOKEN && { token: process.env.MPP_PRICE_TOKEN }),
-          },
-        }),
+        pricing: DEMO_PRICING,
+        description: MPP_DESCRIPTION,
       },
     }),
   },
@@ -91,7 +95,9 @@ export default {
             { url: 'https://agentstxt.dev/demo',           title: 'Demos index',                description: 'Live demonstrations of every capability the spec advertises.' },
             { url: 'https://agentstxt.dev/demo/auth',      title: 'Agent Auth demo',            description: '7-step Ed25519 + JWT handshake against the agent-auth Cloudflare Worker.' },
             { url: 'https://agentstxt.dev/demo/mcp',       title: 'MCP demo',                   description: 'Streamable HTTP MCP session: initialize, tools/list, get_spec, validators.' },
-            { url: 'https://agentstxt.dev/demo/payments',  title: 'Payments demo',              description: 'Live x402 v2 + MPP payment flow against the /donate endpoint.' },
+            { url: 'https://agentstxt.dev/demo/payments',  title: 'Payments demo',              description: 'Announcement-then-wire walkthrough: reads agents.json, then fetches the synthetic /x402 gated route to show the payTo recipient in a real 402.' },
+            { url: 'https://agentstxt.dev/demo/mpp',       title: 'MPP demo',                   description: 'Announcement-then-wire walkthrough: reads agents.json, then probes /mpp for a real 402 + WWW-Authenticate: Payment challenge composed by mppx. Tempo and/or Stripe methods activate per the credentials configured on the worker.' },
+            { url: 'https://agentstxt.dev/demo/a2a',       title: 'A2A discovery demo',         description: 'A2A AgentCard discovery flow: reads the A2A: directive from agents.txt and the a2a[] block from agents.json, fetches the declared AgentCard, parses its capabilities and skills, then confirms cross-file consistency via the MCP audit_site tool.' },
             { url: 'https://agentstxt.dev/demo/skills',    title: 'Skills demo',                description: 'agents.json skills index → MCP get_skill → installable skill package.' },
             { url: 'https://agentstxt.dev/demo/llms',      title: 'Content declarations demo',  description: 'Renders /llms.txt and /llms-full.txt content live from this server.' },
             { url: 'https://agentstxt.dev/demo/generate',  title: 'File Generator',             description: 'Browser-only configurator that emits agents.txt + agents.json from form input.' },

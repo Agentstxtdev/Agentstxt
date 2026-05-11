@@ -6,7 +6,7 @@ import { SPEC_VERSION } from '../../config';
 
 <BaseLayout
   title="MPP Demo · agents.txt"
-  description="Live demonstration of the Machine Payments Protocol (MPP). The same gated endpoint that serves x402 also serves an MPP WWW-Authenticate challenge, letting an mppx-capable agent settle through Tempo (USDC stablecoin), Stripe (fiat card networks), or Stripe SPT (Solana USDC). Session-based, agent-to-agent, no per-request signature."
+  description="Live demonstration of the Machine Payments Protocol (MPP), the session-based companion to x402. The site declares mpp support in agents.json, then a synthetic gated route at /mpp returns a real 402 with a WWW-Authenticate: Payment challenge composed via mppx. The recipient is carried inside the challenge, as the spec requires."
   canonicalUrl="https://agentstxt.dev/demo/mpp"
 >
   <!-- Nav -->
@@ -44,9 +44,9 @@ import { SPEC_VERSION } from '../../config';
       <!-- Cover -->
       <div class="mb-10 pb-8 border-b border-[#e5e5e5]">
         <h1 class="text-2xl font-bold tracking-tight text-[#111] mb-1">
-          MPP (Machine Payments Protocol): Live Demonstration
+          MPP (Machine Payments Protocol): Reference
         </h1>
-        <p class="text-sm text-[#777] font-mono mb-6">Stablecoin · Tempo USDC.e · Stripe (cards · EVM & Solana USDC) · Session-based</p>
+        <p class="text-sm text-[#777] font-mono mb-6">Session-based · Tempo USDC.e · Stripe SPT (cards, Solana USDC)</p>
         <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
           <dt class="text-[#999] font-medium">Protocol</dt>
           <dd class="text-[#111]">
@@ -64,13 +64,13 @@ import { SPEC_VERSION } from '../../config';
             <span class="text-[#999]"> (TypeScript)</span>
           </dd>
           <dt class="text-[#999] font-medium">Methods</dt>
-          <dd class="font-mono text-[#111]">Tempo USDC.e · Stripe SPT (cards · EVM & Solana USDC)</dd>
+          <dd class="font-mono text-[#111]">Tempo USDC.e, Stripe SPT</dd>
           <dt class="text-[#999] font-medium">Auth scheme</dt>
           <dd class="font-mono text-[#111]">Authorization: Payment</dd>
           <dt class="text-[#999] font-medium">Status</dt>
           <dd class="text-[#111]">
             <span class="inline-flex items-center border border-[#111] text-[10px] font-semibold tracking-[0.08em] uppercase px-1.5 py-0.5 leading-none mr-2">Live</span>
-            Real WWW-Authenticate challenge served on the same endpoint as x402.
+            Real announcement read from agents.json. The wire layer probes the dedicated /mpp endpoint (Tempo and/or Stripe via mppx).
           </dd>
         </dl>
       </div>
@@ -78,16 +78,13 @@ import { SPEC_VERSION } from '../../config';
       <!-- Introduction -->
       <div class="prose max-w-none mb-10">
         <p>
-          This page demonstrates the Machine Payments Protocol (MPP), the IETF <code>draft-ryan-httpauth-payment</code> scheme co-authored by Stripe and Tempo. MPP is the session-based companion to x402: where x402 attaches a fresh on-chain signature to every request, MPP issues a credential the agent presents in a standard <code>Authorization: Payment</code> header for the duration of a session.
+          The Machine Payments Protocol is the IETF <code>draft-ryan-httpauth-payment</code> scheme co-authored by Stripe and Tempo. MPP is the session-based companion to x402: where x402 attaches a fresh on-chain signature to every request, MPP issues a credential the agent presents in a standard <code>Authorization: Payment</code> header for the duration of a session.
         </p>
         <p>
-          The agentstxt server runs MPP through the <code>mppx</code> SDK with two registered methods: Tempo (USDC.e stablecoin on the Tempo chain) and Stripe SPT (the Stripe Payments Token, which covers card networks plus Solana USDC). Both methods appear together in a single <code>WWW-Authenticate</code> challenge. The agent picks whichever it can satisfy and authorizes through that path; the server verifies through the same SDK on retry.
-        </p>
-        <p>
-          The same gated endpoint that serves the x402 demo (<code>/payment-test</code>) also emits the MPP challenge. A 402 response carries x402 <code>accepts[]</code> in the body and the MPP <code>WWW-Authenticate</code> in the headers at the same time; the agent picks the protocol it speaks. This page focuses on the MPP path.
+          A site running MPP through the <code>mppx</code> SDK can register two methods together: Tempo (USDC.e stablecoin on the Tempo chain) and Stripe SPT (the Stripe Payments Token, covering card networks plus Solana USDC). Both methods appear together in a single <code>WWW-Authenticate</code> challenge. The agent picks whichever it can satisfy and authorizes through that path; the server verifies through the same SDK on retry.
         </p>
         <p class="text-xs text-[#777] border-l-2 border-[#e5e5e5] pl-3 italic">
-          Note: <code>agents.json</code> is the optional pre-screening layer. The MPP path is "active" on a deployment only when Tempo or Stripe credentials are configured server-side; without them, the endpoint still emits a 402 (with x402 accepts[]) but no <code>WWW-Authenticate: Payment</code> header. The two steps below are independent.
+          As with x402, the recipient identifier (Tempo wallet, Stripe Business Network profile) is carried in the 402 challenge and never in <code>agents.json</code>. The mppx <code>Challenge.request.recipient</code> field is the canonical location; the same field reaches the agent as part of the <code>WWW-Authenticate: Payment</code> header value.
         </p>
 
         <h2>Protocol flow</h2>
@@ -96,10 +93,10 @@ import { SPEC_VERSION } from '../../config';
             <tr><th>Step</th><th>Action</th><th>Result</th></tr>
           </thead>
           <tbody>
-            <tr><td class="font-mono">0</td><td>Read MPP capability declaration from <code>agents.json</code></td><td class="text-[#999]"><code>payments.mpp</code> object present when configured</td></tr>
-            <tr><td class="font-mono">1</td><td>Request gated resource (no <code>Authorization</code> header)</td><td>402 with <code>WWW-Authenticate: Payment</code> challenge</td></tr>
-            <tr><td class="font-mono text-[#ccc]">.</td><td class="text-[#999]">Agent inspects challenge methods, picks Tempo or Stripe, authorizes through the chosen method</td><td class="text-[#999]">SDK-side · not executable in browser</td></tr>
-            <tr><td class="font-mono text-[#ccc]">.</td><td class="text-[#999]">Agent retries with <code>Authorization: Payment &lt;credential&gt;</code> · server verifies via mppx · responds 200</td><td class="text-[#999]">200 · <code>Payment-Receipt</code> header</td></tr>
+            <tr><td class="font-mono">0</td><td>Site declares MPP support in <code>agents.json</code></td><td class="text-[#999]"><code>payments.mpp.methods</code> array, no recipient</td></tr>
+            <tr><td class="font-mono">1</td><td>Agent requests a gated resource (no <code>Authorization</code>)</td><td>402 with <code>WWW-Authenticate: Payment</code> challenge carrying the recipient</td></tr>
+            <tr><td class="font-mono text-[#ccc]">.</td><td class="text-[#999]">Agent inspects challenge methods, picks Tempo or Stripe, authorizes through the chosen method</td><td class="text-[#999]">SDK-side, not executable in a browser</td></tr>
+            <tr><td class="font-mono text-[#ccc]">.</td><td class="text-[#999]">Agent retries with <code>Authorization: Payment &lt;credential&gt;</code>, server verifies via mppx, responds 200</td><td class="text-[#999]">200, <code>Payment-Receipt</code> header</td></tr>
           </tbody>
         </table>
       </div>
@@ -108,8 +105,8 @@ import { SPEC_VERSION } from '../../config';
       <div class="border border-[#e5e5e5]">
         <div class="flex items-center justify-between px-5 py-4 border-b border-[#e5e5e5]">
           <div>
-            <p class="text-sm font-semibold text-[#111]">MPP challenge runner</p>
-            <p class="text-xs text-[#999] mt-0.5">Live requests · 402 served by this server · no payment executed</p>
+            <p class="text-sm font-semibold text-[#111]">Announcement and wire</p>
+            <p class="text-xs text-[#999] mt-0.5">Live requests, no payment executed</p>
           </div>
           <button
             id="run-btn"
@@ -121,8 +118,8 @@ import { SPEC_VERSION } from '../../config';
 
         <div id="steps" class="divide-y divide-[#e5e5e5]">
           {[
-            ['0', 'MPP capability declaration', 'GET /agents.json · payments.mpp object present'],
-            ['1', 'Challenge negotiation',      'GET /payment-test  (no Authorization) → expect 402 + WWW-Authenticate: Payment'],
+            ['0', 'Announcement', 'GET /agents.json, read payments.mpp.methods'],
+            ['1', 'Wire',         'GET /mpp  (no Authorization header)  →  expect 402 + WWW-Authenticate: Payment'],
           ].map(([num, label, hint]) => (
             <div class="step" data-step={num} data-state="idle">
               <div class="flex items-start justify-between gap-4 px-5 py-3">
@@ -144,7 +141,7 @@ import { SPEC_VERSION } from '../../config';
 
         <div id="result-banner" class="hidden px-5 py-4 border-t border-[#e5e5e5]">
           <p id="result-text" class="text-sm font-medium text-[#111]"></p>
-          <p class="text-xs text-[#999] mt-1">The challenge above is the actual <code>WWW-Authenticate</code> header served by this server. To complete the flow, use an mppx-capable agent or the <a href="https://mpp.dev/sdk/typescript" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">mppx TypeScript SDK</a>.</p>
+          <p class="text-xs text-[#999] mt-1">To complete the flow, use an mppx-capable agent or the <a href="https://github.com/wevm/mppx" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">mppx TypeScript SDK</a>.</p>
         </div>
       </div>
 
@@ -153,14 +150,14 @@ import { SPEC_VERSION } from '../../config';
         <h2>Tempo vs Stripe: payment method differences</h2>
         <table>
           <thead>
-            <tr><th></th><th>Tempo (USDC stablecoin)</th><th>Stripe (cards · Solana USDC)</th></tr>
+            <tr><th></th><th>Tempo (USDC stablecoin)</th><th>Stripe (cards, Solana USDC)</th></tr>
           </thead>
           <tbody>
             <tr><td class="font-medium">Method identifier</td><td class="font-mono text-[11px]">tempo</td><td class="font-mono text-[11px]">stripe</td></tr>
             <tr><td class="font-medium">Settlement layer</td><td>Tempo chain (TIP-20 token transfer)</td><td>Stripe Payments Network (SPT)</td></tr>
-            <tr><td class="font-medium">Currency</td><td>USDC.e (Tempo mainnet)</td><td>Any Stripe-supported currency. Defaults to USD. SPT also covers Solana USDC.</td></tr>
-            <tr><td class="font-medium">Recipient field</td><td>Tempo wallet address (<code>0x.</code>)</td><td>Stripe Business Network profile ID</td></tr>
-            <tr><td class="font-medium">Agent authorization</td><td>Sign and send a TIP-20 transfer through the agent's Tempo wallet</td><td>Authorize a Stripe SPT through a payment method (card · Link · USDC)</td></tr>
+            <tr><td class="font-medium">Currency</td><td>USDC.e (Tempo mainnet)</td><td>Any Stripe-supported currency, defaults to USD. SPT also covers Solana USDC.</td></tr>
+            <tr><td class="font-medium">Recipient field</td><td>Tempo wallet address (<code>0x...</code>)</td><td>Stripe Business Network profile ID</td></tr>
+            <tr><td class="font-medium">Agent authorization</td><td>Sign and send a TIP-20 transfer through the agent's Tempo wallet</td><td>Authorize a Stripe SPT through a payment method (card, Link, USDC)</td></tr>
             <tr><td class="font-medium">Agent secret material</td><td>Tempo wallet private key (held by agent)</td><td>Stripe customer credential (held by agent)</td></tr>
             <tr><td class="font-medium">Server verification</td><td><code>mppx.tempo.charge()</code> verifies on-chain transfer</td><td><code>mppx.stripe.charge()</code> verifies SPT through Stripe API</td></tr>
             <tr><td class="font-medium">Receipt</td><td>Same wire shape: <code>Payment-Receipt</code> header on 200</td><td>Same wire shape: <code>Payment-Receipt</code> header on 200</td></tr>
@@ -171,7 +168,7 @@ import { SPEC_VERSION } from '../../config';
 
         <h3>The 402 challenge: <code>WWW-Authenticate: Payment</code></h3>
         <p>
-          When the agent has no <code>Authorization</code> header, the server responds with 402 and a <code>WWW-Authenticate: Payment</code> header containing both supported methods. The challenge value is opaque to the agent except for the method names and a server-assigned challenge identifier; the SDK parses it.
+          When the agent has no <code>Authorization</code> header, the server responds with 402 and a <code>WWW-Authenticate: Payment</code> header containing both supported methods. The challenge value is opaque to the agent except for the method names and a server-assigned challenge identifier; the SDK parses it. The recipient is encoded inside the challenge's <code>request</code> field.
         </p>
         <pre><code>{`HTTP/1.1 402 Payment Required
 WWW-Authenticate: Payment
@@ -180,11 +177,8 @@ WWW-Authenticate: Payment
   methods="tempo,stripe"
 
 {
-  "x402Version": 2,
-  "error":       "Payment required",
-  "resource":    { "url": "https://agentstxt.dev/payment-test", "..." },
-  "accepts":     [ /* x402 accepts[] alongside the MPP challenge */ ],
-  "mpp":         { "challenge": "<full-WWW-Authenticate-header-value>" }
+  "error":   "Payment required",
+  "mpp":     { "challenge": "<full-WWW-Authenticate-header-value>" }
 }`}</code></pre>
 
         <h3>Tempo authorization payload</h3>
@@ -224,14 +218,11 @@ WWW-Authenticate: Payment
 Payment-Receipt: <base64-encoded-signed-receipt>
 Content-Type: application/json
 
-{
-  "message":  "Payment-test verified. agents.txt is implemented end-to-end.",
-  "resource": "https://agentstxt.dev/payment-test"
-}`}</code></pre>
+{ "message": "Resource served. Session authorized." }`}</code></pre>
 
         <h2>Why MPP alongside x402</h2>
         <p>
-          The two protocols are complementary, not competitive. x402 is appropriate for fully autonomous agents that hold their own keys and want to settle each request independently on chain. MPP is appropriate for agents that have an existing payment relationship through a custodian (Stripe customer, Tempo wallet manager) and prefer session-based authorization to reduce per-request signing overhead. The agentstxt server presents both so neither agent class is excluded.
+          The two protocols are complementary, not competitive. x402 is appropriate for fully autonomous agents that hold their own keys and want to settle each request independently on chain. MPP is appropriate for agents that have an existing payment relationship through a custodian (Stripe customer, Tempo wallet manager) and prefer session-based authorization to reduce per-request signing overhead. A site that supports both presents one 402 carrying both an x402 <code>accepts[]</code> body and an MPP <code>WWW-Authenticate</code> header at the same time; the agent picks whichever it speaks.
         </p>
         <p>
           Within MPP, Tempo covers the on-chain stablecoin path while Stripe covers fiat plus Solana USDC. Together they reach the largest possible set of agent wallets and customer profiles without forcing any single chain or rail.
@@ -320,94 +311,109 @@ async function run() {
   const origin = window.location.origin;
 
   try {
-    // ── Step 0: MPP capability declaration from agents.json ────────────────────
+    // Step 0: announcement layer (agents.json, payments.mpp)
     setRunning('0');
     const agentsRes = await fetch(`${origin}/agents.json`);
     const agentsJson = await agentsRes.json() as {
       payments?: {
-        mpp?: { methods?: string[] };
+        mpp?:  { methods?: string[]; description?: string };
         x402?: { chains?: string[] };
       };
     };
-    const payments = agentsJson.payments;
-    const declaredProtocols = payments
-      ? Object.keys(payments).filter((k) => k === 'x402' || k === 'mpp')
-      : [];
-    const mppDeclared = declaredProtocols.includes('mpp');
-    const mppMethods = payments?.mpp?.methods ?? [];
+    const mppDeclared = !!agentsJson.payments?.mpp;
+    const methods = agentsJson.payments?.mpp?.methods ?? [];
 
     const summary = mppDeclared
       ? [
-          'MPP declared    yes',
-          `protocols       ${declaredProtocols.join(', ')}`,
-          'session         Authorization: Payment <credential>',
-          `methods         ${mppMethods.length > 0 ? mppMethods.join(', ') : '(none declared)'}`,
+          `MPP declared    yes`,
+          `methods         ${methods.length > 0 ? methods.join(', ') : '(none)'}`,
+          `session scheme  Authorization: Payment <credential>`,
+          ``,
+          `Note: the recipient identifier (Tempo wallet, Stripe profile)`,
+          `is not in agents.json. Per spec §11.4 it is carried in the`,
+          `WWW-Authenticate: Payment challenge on the gated route.`,
         ].join('\n')
       : [
-          'MPP declared    no',
-          `protocols       ${declaredProtocols.length ? declaredProtocols.join(', ') : '(none)'}`,
-          '',
-          'The MPP path is not currently advertised in agents.json.',
-          'The endpoint will still be probed in step 1; a 402 with a WWW-Authenticate',
-          'header indicates a live MPP method on the server even when not declared.',
+          `MPP declared    no`,
+          ``,
+          `agents.json does not advertise an MPP block on this deployment.`,
+          `Set TREASURY_TEMPO or STRIPE_SECRET_KEY + STRIPE_NETWORK_ID in`,
+          `.dev.vars (or environment), then run \`agentify generate --agents\``,
+          `to regenerate the announcement. The wire step still runs below.`,
         ].join('\n');
 
     setDone('0',
-      `GET /agents.json · payments{}\n\n${summary}\n\nFull response:\n${fmt(agentsJson)}`,
-      mppDeclared ? 'declared' : 'not declared',
+      `GET /agents.json, payments.mpp\n\n${summary}\n\nFull response:\n${fmt(agentsJson)}`,
+      mppDeclared ? `${methods.length} method${methods.length !== 1 ? 's' : ''}` : 'not declared',
     );
 
-    // ── Step 1: Challenge negotiation — hit /payment-test without Authorization
+    // Step 1: wire layer (probe /mpp for WWW-Authenticate: Payment)
     setRunning('1');
-    const paymentRes = await fetch(`${origin}/payment-test`);
-    const wwwAuth = paymentRes.headers.get('WWW-Authenticate');
-    const paymentBody = await paymentRes.json() as {
-      x402Version?: number;
-      mpp?: { challenge?: string };
-      error?: string;
-    };
+    const probeRes = await fetch(`${origin}/mpp`);
+    const wwwAuth = probeRes.headers.get('WWW-Authenticate');
+    let probeBody: unknown = null;
+    try { probeBody = await probeRes.json(); } catch { /* not JSON */ }
 
-    if (paymentRes.status !== 402) {
-      throw new Error(`Expected 402, got ${paymentRes.status}:\n${fmt(paymentBody)}`);
-    }
+    const mppHeader = wwwAuth && /^Payment\b/i.test(wwwAuth) ? wwwAuth : null;
+    const inactive = probeRes.status === 503;
 
-    const headerChallenge = wwwAuth ?? paymentBody.mpp?.challenge ?? null;
-    const mppActive = !!headerChallenge;
-
-    const stepOutput = mppActive
-      ? [
-          `GET /payment-test  (no Authorization header)`,
+    if (mppHeader) {
+      setDone('1',
+        [
+          `GET /mpp  (no Authorization header)`,
           ``,
-          `Status  ${paymentRes.status} Payment Required`,
+          `Status  ${probeRes.status} Payment Required`,
           ``,
           `WWW-Authenticate header:`,
-          `  ${headerChallenge}`,
+          `  ${mppHeader}`,
           ``,
-          `An mppx-capable agent parses the methods field, picks one it can satisfy,`,
-          `authorizes through that path, and retries the request with:`,
+          `An mppx-capable agent parses methods, picks one it can satisfy,`,
+          `authorizes through it, then retries with:`,
           `  Authorization: Payment <base64-credential>`,
           ``,
-          `Full 402 body (also carries x402 accepts[] alongside MPP):`,
-          fmt(paymentBody),
-        ].join('\n')
-      : [
-          `GET /payment-test  (no Authorization header)`,
-          ``,
-          `Status  ${paymentRes.status} Payment Required`,
-          ``,
-          `No WWW-Authenticate: Payment header was returned.`,
-          `MPP is not active on this server (no Tempo recipient or Stripe credentials configured).`,
-          `The body still contains the x402 accepts[] for chain-based payment.`,
-          ``,
           `Full 402 body:`,
-          fmt(paymentBody),
-        ].join('\n');
-
-    setDone('1', stepOutput, mppActive ? `${paymentRes.status} · WWW-Authenticate present` : `${paymentRes.status} · MPP inactive`);
-
-    resultText.textContent = mppActive
-      ? `MPP challenge received. The server advertises both Tempo and Stripe methods through a single WWW-Authenticate header. An mppx-capable agent picks one and authorizes through it.`
-      : `MPP path is not active on this deployment. The endpoint still serves the x402 chain-based path. Set TREASURY_TEMPO or Stripe environment variables to activate MPP.`;
+          fmt(probeBody),
+        ].join('\n'),
+        `${probeRes.status} · WWW-Authenticate present`,
+      );
+      resultText.textContent = mppDeclared
+        ? `MPP challenge received. The announcement (agents.json) and the wire (WWW-Authenticate header) agree. An mppx-capable agent would now authorize through one of the declared methods.`
+        : `MPP challenge present on the wire but no payments.mpp block in agents.json. Either declare it (regenerate after setting MPP credentials) or the wire layer is misconfigured.`;
+    } else if (inactive) {
+      setDone('1',
+        [
+          `GET /mpp`,
+          ``,
+          `Status  503 Service Unavailable`,
+          ``,
+          `The /mpp demo route is offline on this deployment.`,
+          `No MPP credentials configured on the worker.`,
+          ``,
+          `Set TREASURY_TEMPO (Tempo) and/or STRIPE_SECRET_KEY + STRIPE_NETWORK_ID (Stripe)`,
+          `in .dev.vars and restart dev. The agents.json mpp block reads the same env vars`,
+          `via agentify, so announcement and wire activate together.`,
+        ].join('\n'),
+        '503 inactive',
+      );
+      resultText.textContent = `MPP wire offline on this deployment. The announcement step is the spec-mandated declaration; the wire step needs MPP credentials in .dev.vars (TREASURY_TEMPO and/or Stripe pair).`;
+    } else {
+      setDone('1',
+        [
+          `GET /mpp  (no Authorization header)`,
+          ``,
+          `Status  ${probeRes.status} ${probeRes.statusText}`,
+          ``,
+          `No WWW-Authenticate: Payment header in the response.`,
+          `The /mpp route accepted the request but did not emit an MPP challenge.`,
+          `This usually means an mppx configuration issue; check the worker logs.`,
+          ``,
+          `Response body:`,
+          fmt(probeBody),
+        ].join('\n'),
+        `${probeRes.status} · no challenge`,
+      );
+      resultText.textContent = `Wire layer returned an unexpected response. Check worker logs.`;
+    }
     banner.classList.remove('hidden');
 
   } catch (err) {

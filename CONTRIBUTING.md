@@ -62,7 +62,7 @@ pnpm auth:deploy / pnpm auth:deploy:prod
 | Spec wording, typos, examples | `spec/AGENTS-TXT-STANDARD.md` | Editorial, light review |
 | Spec semantics (new directives, schema fields) | `spec/AGENTS-TXT-STANDARD.md` | RFC discipline (see below) |
 | Astro site page or content | `site/src/pages/` or `site/src/content/` | Standard |
-| BFF / `/donate` payment proof | `site/src/worker.ts` | Standard, must stay self-contained (no `@agentify/*` imports) |
+| BFF and `/x402` + `/mpp` demo routes | `site/src/worker.ts` | Standard, must stay self-contained (no `@agentify/*` imports) |
 | Generated discovery files served by site | `site/public/agents.txt`, `agents.json`, `llms.txt`, `llms-full.txt`, `robots.txt`, `sitemap.xml` | Must validate against the latest spec |
 | MCP tool | `mcp/src/` | Tool signatures must stay backward-compatible |
 | Agent-auth capability | `auth/src/` + Vitest case | Cryptographic primitives via `@noble/*`, not hand-rolled |
@@ -78,10 +78,10 @@ Detailed architecture and editing rules per surface: [`AGENTS.md`](AGENTS.md).
 These are non-negotiable. Violations get sent back without further review.
 
 1. **The three Cloudflare Workers stay independent.** `site/`, `mcp/`, `auth/` have no shared dependency graph and no shared internal modules. If two of them need the same helper, **write it twice**. Adding a `packages/` folder here defeats the "three independent edge deployments" property.
-2. **No `@agentify/*` imports anywhere in this repo.** `site/src/worker.ts` is a deliberate self-contained x402 v2 + MPP reference; do not factor it out into a shared library or replace it with `@agentify/web` calls.
+2. **No `@agentify/*` imports anywhere in this repo.** `site/src/worker.ts` is a deliberate self-contained x402 v2 reference at `/x402` and a deliberate self-contained MPP reference at `/mpp` (via `mppx/server`); do not factor either out into a shared library or replace them with `@agentify/web` calls.
 3. **No Turbo.** There is no `turbo.json` here and there should not be. Three workers don't form a build graph; `pnpm -r run build` is enough.
 4. **No hand-rolled cryptographic primitives.** Ed25519 verification, JWT parsing, signature checks: use `@noble/*` or another vetted library. If a primitive is missing, install one.
-5. **Never log secrets.** `auth/` handles JWTs and KV values; `site/worker.ts` reads `STRIPE_SECRET_KEY`, `MPP_SECRET_KEY`, treasury env vars. None of these may appear in `console.log` / `console.error` / response bodies. If you need a debug shortcut, gate it behind `DEBUG === '1'` and remove before merging.
+5. **Never log secrets.** `auth/` handles JWTs and KV values. JWTs and KV contents must not appear in `console.log` / `console.error` / response bodies. The site worker reads `SOLANA_ADDRESS`, a public wallet address that is allowed to be logged or returned in 402 responses (the spec requires it in the response). If you need a debug shortcut, gate it behind `DEBUG === '1'` and remove before merging.
 6. **No secrets in commits.** No `.env`, `.dev.vars`, `wrangler-account.json`, anything matching `*-secret*` or `*-private*.{json,pem,key}`.
 7. **The auth worker's 55 Vitest tests are a contract.** Don't break them. If you add behavior, add tests; if you change behavior, update the relevant test and explain in the PR.
 
@@ -119,7 +119,7 @@ If your spec change affects parsers in other languages (Python, Go, Rust, etc.),
 The reference site is the canonical *demonstration* of the spec. Some specifics:
 
 - `site/public/agents.txt` and `site/public/agents.json` must always validate against the latest published spec. If you change the spec, regenerate or hand-edit these files in the same PR; they're how implementers see the spec applied.
-- `site/src/worker.ts` is the reference x402 v2 + MPP implementation. Keep it self-contained and readable. The whole `/donate` flow should fit comfortably on a single screen.
+- `site/src/worker.ts` is the reference x402 v2 implementation at `/x402` and the reference MPP implementation at `/mpp`. Keep each handler self-contained and readable. The x402 handler fits on a single screen; the MPP handler is slightly larger because it owns the `mppx` lifecycle (`getMppx(env)` factory + `Mppx.compose(...)(request)` per request), but still belongs in this one file.
 - Astro pages in `site/src/pages/` are user-facing content. Push runtime logic into `worker.ts` or a sibling worker; pages stay declarative.
 - New demos go in `site/src/pages/demo/<name>.astro`. Static demos: pure Astro / HTML. Interactive demos that need server logic: extend `worker.ts` with a new pathname check.
 
