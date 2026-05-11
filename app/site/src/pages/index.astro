@@ -1,160 +1,246 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Toc from '../components/Toc.astro';
 import '../styles/global.css';
-import { getCollection, render } from 'astro:content';
 import { SPEC_VERSION } from '../config';
-
-const entries = await getCollection('spec');
-const entry = entries[0];
-const { Content, headings } = await render(entry);
-const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 ---
 
-<BaseLayout>
-  <!-- Top nav -->
+<BaseLayout
+  title="agents.txt Standard"
+  description="The open specification for AI agent capability declarations. Layer 4 of the agent-readiness stack. The reference deployment at agentstxt.dev serves the specification, the discovery files, the MCP endpoint, and live protocol demos."
+  canonicalUrl="https://agentstxt.dev"
+>
+  <!-- Nav -->
   <header class="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
     <div class="max-w-[1280px] mx-auto px-6 sm:px-10 h-14 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3 min-w-0">
-        <a
-          href="/"
-          class="font-mono text-sm font-semibold tracking-tight text-[#111] no-underline whitespace-nowrap"
-        >
+        <a href="/" class="font-mono text-sm font-semibold tracking-tight text-[#111] no-underline whitespace-nowrap">
           agents.txt
         </a>
         <span class="hidden sm:inline text-[#ccc] select-none">/</span>
         <span class="hidden sm:inline text-sm text-[#555] whitespace-nowrap">Standard</span>
-        <span
-          class="hidden sm:inline-flex items-center border border-[#111] text-[10px] font-semibold tracking-[0.08em] uppercase px-1.5 py-0.5 leading-none"
-        >
-          Draft
+        <span class="hidden sm:inline-flex items-center border border-[#111] text-[10px] font-semibold tracking-[0.08em] uppercase px-1.5 py-0.5 leading-none">
+          v{SPEC_VERSION}
         </span>
       </div>
-      <div class="flex items-center gap-5 shrink-0">
-        <a
-          href="/agents.txt"
-          class="font-mono text-xs text-[#555] hover:text-[#111] transition-colors no-underline"
-        >
-          agents.txt
-        </a>
-        <a
-          href="/agents.json"
-          class="font-mono text-xs text-[#555] hover:text-[#111] transition-colors no-underline"
-        >
-          agents.json
-        </a>
-        <a
-          href="/demo"
-          class="text-xs text-[#555] hover:text-[#111] transition-colors no-underline"
-        >
-          Demo
-        </a>
+      <div class="flex items-center gap-x-3 sm:gap-x-5 shrink-0">
+        <a href="/spec" class="text-xs text-[#555] hover:text-[#111] transition-colors no-underline">Spec</a>
+        <a href="/agents.txt" class="font-mono text-xs text-[#555] hover:text-[#111] transition-colors no-underline">agents.txt</a>
+        <a href="/agents.json" class="font-mono text-xs text-[#555] hover:text-[#111] transition-colors no-underline">agents.json</a>
+        <a href="/demo" class="text-xs text-[#555] hover:text-[#111] transition-colors no-underline">Demo</a>
         <span class="hidden sm:block text-[#ddd] select-none">|</span>
-        <a
-          href="https://github.com/agentstxt/agents.txt"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="flex text-xs text-[#555] hover:text-[#111] transition-colors no-underline items-center gap-1"
-          aria-label="View on GitHub"
-        >
+        <a href="https://github.com/agentstxt/agents.txt" target="_blank" rel="noopener noreferrer" aria-label="View on GitHub"
+          class="flex text-xs text-[#555] hover:text-[#111] transition-colors no-underline items-center gap-1">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
           </svg>
-          GitHub
         </a>
-
-        <!-- Hamburger — mobile only -->
-        <button
-          id="toc-toggle"
-          class="lg:hidden flex flex-col justify-center items-center w-8 h-8 gap-[5px] text-[#555] hover:text-[#111] transition-colors"
-          aria-label="Toggle table of contents"
-          aria-expanded="false"
-          aria-controls="mobile-toc"
-        >
-          <span class="hamburger-bar block w-5 h-px bg-current transition-all duration-200"></span>
-          <span class="hamburger-bar block w-5 h-px bg-current transition-all duration-200"></span>
-          <span class="hamburger-bar block w-5 h-px bg-current transition-all duration-200"></span>
-        </button>
       </div>
     </div>
   </header>
 
-  <!-- Mobile TOC panel — hidden by default, toggled by hamburger -->
-  <div
-    id="mobile-toc"
-    class="lg:hidden hidden sticky top-14 z-40 bg-white border-b border-[#e5e5e5] max-h-[60vh] overflow-y-auto"
-  >
-    <nav class="max-w-[1280px] mx-auto px-6 sm:px-10 py-4">
-      <p class="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#999] mb-3">
-        On this page
-      </p>
-      {tocHeadings.map((h) => (
-        <a
-          href={`#${h.slug}`}
-          data-mobile-toc-link
-          class:list={['toc-link', h.depth === 3 && 'toc-h3']}
-        >
-          {h.text}
-        </a>
-      ))}
-    </nav>
-  </div>
-
   <!-- Page body -->
-  <div class="max-w-[1280px] mx-auto px-6 sm:px-10 pt-12 pb-24">
-    <div class="lg:flex lg:gap-16 xl:gap-24">
+  <div class="max-w-[1280px] mx-auto px-6 sm:px-10 pt-16 pb-24">
 
-      <!-- Spec content -->
-      <main class="min-w-0 flex-1">
+    <!-- Hero -->
+    <section class="mb-14 pb-10 border-b border-[#e5e5e5]">
+      <p class="font-mono text-xs text-[#777] tracking-[0.1em] uppercase mb-4">
+        Layer 4 of the agent-readiness stack
+      </p>
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-[#111] mb-4 leading-tight">
+        The open standard for declaring what AI agents can do on a website.
+      </h1>
+      <p class="text-base text-[#555] leading-relaxed max-w-[68ch] mb-6">
+        <span class="font-mono text-[#111]">agents.txt</span> is a lightweight, protocol-agnostic capability declaration format. A site publishes one plain-text file at <span class="font-mono text-[#111]">/agents.txt</span> and one structured companion at <span class="font-mono text-[#111]">/agents.json</span>; agents read both to find out which payment protocols, authorization schemes, MCP servers, skill packages, and A2A AgentCards the site supports. Implementation details for every protocol stay in that protocol's own response surface, never in the discovery files.
+      </p>
+      <div class="flex flex-wrap items-center gap-3">
+        <a
+          href="/spec"
+          class="inline-flex items-center gap-2 border border-[#111] bg-[#111] text-white text-xs font-semibold tracking-[0.06em] uppercase px-4 py-2.5 no-underline hover:bg-white hover:text-[#111] transition-colors"
+        >
+          Read the spec
+        </a>
+        <a
+          href="/demo"
+          class="inline-flex items-center gap-2 border border-[#111] text-[#111] text-xs font-semibold tracking-[0.06em] uppercase px-4 py-2.5 no-underline hover:bg-[#111] hover:text-white transition-colors"
+        >
+          Run the demos
+        </a>
+        <a
+          href="https://github.com/agentstxt/agents.txt"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.06em] uppercase text-[#555] hover:text-[#111] transition-colors no-underline px-4 py-2.5"
+        >
+          GitHub →
+        </a>
+      </div>
+    </section>
 
-        <!-- Spec cover / metadata -->
-        <div class="mb-10 pb-8 border-b border-[#e5e5e5]">
-          <h1 class="text-2xl font-bold tracking-tight text-[#111] mb-1">
-            agents.txt Standard
-          </h1>
-          <p class="text-sm text-[#777] font-mono mb-6">v{SPEC_VERSION}</p>
-          <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-            <dt class="text-[#999] font-medium">Status</dt>
-            <dd class="text-[#111]">
-              <span class="inline-flex items-center border border-[#111] text-[10px] font-semibold tracking-[0.08em] uppercase px-1.5 py-0.5 leading-none mr-2">
-                Draft
-              </span>
-              This document is a work in progress and subject to change.
-            </dd>
-            <dt class="text-[#999] font-medium">Version</dt>
-            <dd class="font-mono text-[#111]">{SPEC_VERSION}</dd>
-            <dt class="text-[#999] font-medium">Authors</dt>
-            <dd class="text-[#111]">Open Agentic Web contributors</dd>
-            <dt class="text-[#999] font-medium">Repository</dt>
-            <dd>
-              <a
-                href="https://github.com/agentstxt/agents.txt"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="font-mono text-[#111] underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all"
-              >
-                github.com/agentstxt/agents.txt
+    <!-- Where this fits -->
+    <section class="mb-14">
+      <div class="mb-6">
+        <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#999] mb-2">Context</p>
+        <h2 class="text-xl font-bold tracking-tight text-[#111] mb-2">Where agents.txt fits</h2>
+        <p class="text-sm text-[#555] leading-relaxed max-w-[68ch]">
+          Four standards already cover the lower layers of how a website meets automated traffic. agents.txt is the fourth, sitting above content and adding the missing layer: agent-runtime capability declaration.
+        </p>
+      </div>
+
+      <div class="border border-[#e5e5e5]">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-[#fafafa] border-b border-[#e5e5e5]">
+              <th class="text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999] px-5 py-3 w-16">Layer</th>
+              <th class="text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999] px-5 py-3">Concern</th>
+              <th class="text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999] px-5 py-3">Standard</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#e5e5e5]">
+            <tr>
+              <td class="px-5 py-3 font-mono text-[#999] align-top">1</td>
+              <td class="px-5 py-3 text-[#555] align-top">Access control</td>
+              <td class="px-5 py-3 font-mono text-[#111] align-top">/robots.txt <span class="text-[#999] font-sans text-xs">(RFC 9309)</span></td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3 font-mono text-[#999] align-top">2</td>
+              <td class="px-5 py-3 text-[#555] align-top">Page inventory</td>
+              <td class="px-5 py-3 font-mono text-[#111] align-top">/sitemap.xml <span class="text-[#999] font-sans text-xs">(sitemaps.org)</span></td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3 font-mono text-[#999] align-top">3</td>
+              <td class="px-5 py-3 text-[#555] align-top">Content briefing</td>
+              <td class="px-5 py-3 font-mono text-[#111] align-top">/llms.txt <span class="text-[#999] font-sans text-xs">(llmstxt.org)</span></td>
+            </tr>
+            <tr class="bg-[#fafafa]">
+              <td class="px-5 py-3 font-mono text-[#111] font-semibold align-top">4</td>
+              <td class="px-5 py-3 text-[#111] font-semibold align-top">Agent capabilities</td>
+              <td class="px-5 py-3 font-mono text-[#111] align-top">/agents.txt + /agents.json <span class="text-[#999] font-sans text-xs">(this spec)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- What this site serves -->
+    <section class="mb-14">
+      <div class="mb-6">
+        <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#999] mb-2">Reference deployment</p>
+        <h2 class="text-xl font-bold tracking-tight text-[#111] mb-2">
+          What this site serves right now
+        </h2>
+        <p class="text-sm text-[#555] leading-relaxed max-w-[68ch]">
+          Every route on the left column is live against this deployment. The discovery files, the well-known endpoints, the MCP server, and the live demos all execute against real production endpoints. The same set of routes are described in spec §4.5 as the worked self-proof for the static vs dynamic serving mechanism.
+        </p>
+      </div>
+
+      <div class="border border-[#e5e5e5]">
+        <div class="grid grid-cols-[1fr_auto] gap-x-6 px-5 py-3 border-b border-[#e5e5e5] bg-[#fafafa] text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999]">
+          <span>Route</span>
+          <span class="text-right">Open</span>
+        </div>
+        <ul class="divide-y divide-[#e5e5e5] m-0 p-0 list-none">
+          {[
+            ['/agents.txt',                       'Plain-text capability declaration (spec §3). Site identity plus the active capability blocks.',                                                                                       '/agents.txt',                       'text/plain'],
+            ['/agents.json',                      'Structured companion to agents.txt (spec §11). Same information in JSON with richer per-block detail.',                                                                              '/agents.json',                      'application/json'],
+            ['/.well-known/agent-card.json',      'A2A AgentCard for this deployment (spec §9). Describes a reference meta-agent, declared skills, and the x402 payments extension.',                                                  '/.well-known/agent-card.json',      'application/json'],
+            ['/.well-known/agent-configuration',  'Agent Auth Protocol discovery (spec §6). Served by a dynamic handler; the only well-known route on this deployment whose headers are set in code.',                                  '/.well-known/agent-configuration',  'application/json'],
+            ['/mcp',                              'Model Context Protocol endpoint (spec §7). Exposes get_spec, parse_agents_txt, validate_agents_txt, validate_agents_json, audit_site, get_skill. Streamable HTTP transport.',         '/mcp',                              'application/json · streamable-http'],
+            ['/skills/adopt-agents-txt/SKILL.md', 'Service-consumption skill package (spec §8) that walks a developer through adopting agents.txt on their own site.',                                                                  '/skills/adopt-agents-txt/SKILL.md', 'text/plain'],
+            ['/llms.txt',                         'Curated link inventory for LLM-friendly site browsing. Layer 3 of the stack (llmstxt.org).',                                                                                          '/llms.txt',                         'text/plain'],
+            ['/llms-full.txt',                    'Expanded form of llms.txt with full markdown content inlined under each page heading.',                                                                                              '/llms-full.txt',                    'text/plain'],
+          ].map(([path, description, href, contentType]) => (
+            <li class="grid grid-cols-[1fr_auto] gap-x-6 px-5 py-4 items-start hover:bg-[#fcfcfc] transition-colors">
+              <div class="min-w-0">
+                <p class="font-mono text-sm text-[#111] mb-1 break-all">{path}</p>
+                <p class="text-xs text-[#777] leading-relaxed mb-1">{description}</p>
+                <p class="font-mono text-[10px] text-[#999] tracking-[0.04em]">{contentType}</p>
+              </div>
+              <a href={href} class="font-mono text-xs text-[#555] hover:text-[#111] transition-colors no-underline shrink-0 mt-0.5">
+                Open →
               </a>
-            </dd>
-            <dt class="text-[#999] font-medium">License</dt>
-            <dd class="text-[#111]">CC0 (spec) · Apache 2.0 (reference implementation)</dd>
-          </dl>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <p class="text-xs text-[#999] mt-4 leading-relaxed max-w-[68ch]">
+        The mechanism by which each route emits its response headers is documented in <a href="/spec#45-serving-requirements" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">spec §4.5</a>. Static files share a single <span class="font-mono">_headers</span> configuration; dynamic handlers set their headers in code. The MCP server lives at <a href="https://mcp.agentstxt.dev" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">mcp.agentstxt.dev</a> and is proxied through this origin so cross-origin clients see a single host.
+      </p>
+    </section>
+
+    <!-- Capability blocks at a glance -->
+    <section class="mb-14">
+      <div class="mb-6">
+        <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#999] mb-2">Spec at a glance</p>
+        <h2 class="text-xl font-bold tracking-tight text-[#111] mb-2">Five capability blocks</h2>
+        <p class="text-sm text-[#555] leading-relaxed max-w-[68ch]">
+          Each block is independent and optional. A site emits only the blocks that apply to it; old parsers ignore any block they do not recognise. New protocols can be advertised with the <span class="font-mono">x-</span> prefix until they land in a future spec version.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {[
+          ['Payments',      '§5',  'Protocols:',        'x402, mpp',                                       'Per-request crypto micropayments and session-based fiat / stablecoin payments. Block opens with Protocols:; site-level policy hint Payments: required is optional.'],
+          ['Authorization', '§6',  'Authorization:',    'agent-auth',                                      'Agent identity and capability grants. Discovery at /.well-known/agent-configuration. Identity: required is the optional site-level policy hint.'],
+          ['MCP',           '§7',  'MCP:',              'Streamable HTTP',                                 'Model Context Protocol server endpoint discovery. The directive is repeatable; one line per MCP server.'],
+          ['Skills',        '§8',  'Skills:',           'agentskills.io',                                  'Service-consumption skill packages. Each Skills: line points to a SKILL.md at the root of an agentskills.io-canonical folder.'],
+          ['A2A',           '§9',  'A2A:',              'a2a-protocol.org',                                'A2A AgentCard URLs. Complements the canonical well-known path for multi-agent sites and non-canonical AgentCard locations.'],
+        ].map(([name, section, directive, value, description]) => (
+          <div class="border border-[#e5e5e5] px-5 py-4">
+            <div class="flex items-baseline justify-between gap-3 mb-2">
+              <p class="text-sm font-semibold text-[#111]">{name}</p>
+              <p class="font-mono text-[10px] text-[#999]">spec {section}</p>
+            </div>
+            <p class="font-mono text-[11px] text-[#555] mb-2">
+              <span class="text-[#111] font-semibold">{directive}</span> {value}
+            </p>
+            <p class="text-xs text-[#777] leading-relaxed">{description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Adopt -->
+    <section class="mb-14">
+      <div class="mb-6">
+        <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#999] mb-2">Adopt</p>
+        <h2 class="text-xl font-bold tracking-tight text-[#111] mb-2">Three ways to ship agents.txt on your own site</h2>
+        <p class="text-sm text-[#555] leading-relaxed max-w-[68ch]">
+          The format is plain UTF-8 text and the JSON companion is small. Most sites can hand-write both in five minutes; the other paths exist for projects that want regeneration on every build, dynamic discovery files, or framework-level payment middleware.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="border border-[#e5e5e5] px-5 py-4">
+          <p class="font-mono text-[10px] text-[#999] uppercase tracking-[0.08em] mb-2">Path 1</p>
+          <p class="text-sm font-semibold text-[#111] mb-2">Hand-write</p>
+          <p class="text-xs text-[#777] leading-relaxed">Copy the directives that apply to your site, save the file as <span class="font-mono">/agents.txt</span>, mirror the structure in <span class="font-mono">/agents.json</span>. Read <a href="/spec" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">the spec</a> for the directive reference.</p>
         </div>
-
-        <!-- Rendered spec -->
-        <article class="prose max-w-none spec-content">
-          <Content />
-        </article>
-      </main>
-
-      <!-- Sticky TOC (desktop) -->
-      <aside class="hidden lg:block w-60 xl:w-64 shrink-0">
-        <div class="sticky top-[4.5rem] max-h-[calc(100vh-5.5rem)] overflow-y-auto pb-8 scrollbar-thin">
-          <Toc headings={headings} />
+        <div class="border border-[#e5e5e5] px-5 py-4">
+          <p class="font-mono text-[10px] text-[#999] uppercase tracking-[0.08em] mb-2">Path 2</p>
+          <p class="text-sm font-semibold text-[#111] mb-2">Use a generator</p>
+          <p class="text-xs text-[#777] leading-relaxed">A sibling project on npm emits agents.txt, agents.json, robots.txt, llms.txt, and sitemap.xml from a single config. Useful if you also want the lower layers regenerated alongside.</p>
         </div>
-      </aside>
+        <div class="border border-[#e5e5e5] px-5 py-4">
+          <p class="font-mono text-[10px] text-[#999] uppercase tracking-[0.08em] mb-2">Path 3</p>
+          <p class="text-sm font-semibold text-[#111] mb-2">Read this deployment</p>
+          <p class="text-xs text-[#777] leading-relaxed">The source for every route on this site is on <a href="https://github.com/agentstxt/agents.txt" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">GitHub</a>. The reference workers (site, MCP, agent-auth) are Apache 2.0; vendor in or fork freely.</p>
+        </div>
+      </div>
+    </section>
 
-    </div>
+    <!-- Status -->
+    <section>
+      <div class="border border-[#e5e5e5] px-6 py-5 bg-[#fafafa] grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-x-8 gap-y-2">
+        <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999]">Status</p>
+        <p class="text-sm text-[#111]">v{SPEC_VERSION}. Format and schema are stable. Patches accepted via PR; structural changes ship as RFCs against the spec.</p>
+        <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999]">Spec license</p>
+        <p class="text-sm text-[#111]">CC0 (public domain). Anyone may implement the standard without restriction.</p>
+        <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999]">Reference code</p>
+        <p class="text-sm text-[#111]">Apache 2.0. The workers in this repository are reference implementations only; production deployments may diverge.</p>
+      </div>
+    </section>
+
   </div>
 
   <!-- Footer -->
@@ -163,61 +249,11 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
       <div class="text-xs text-[#999]">
         <span class="font-mono font-semibold text-[#555]">agents.txt</span>
         {' '}Standard v{SPEC_VERSION} ·{' '}
-        <a
-          href="https://github.com/agentstxt/agents.txt/blob/main/app/site/src/content/spec/AGENTS-TXT-STANDARD.md"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all"
-        >
-          View source
-        </a>
+        <a href="/spec" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">Spec</a>
+        {' '}·{' '}
+        <a href="/demo" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">Demos</a>
       </div>
       <p class="text-xs text-[#bbb]">CC0 (spec) · Apache 2.0 (code). Anyone may implement the standard without restriction.</p>
     </div>
   </footer>
 </BaseLayout>
-
-<style>
-  /* Hide the H1 from rendered markdown — shown in cover section above */
-  .spec-content :global(h1:first-child) { display: none; }
-  .spec-content :global(h1:first-child + p) { display: none; }
-  .spec-content :global(h1:first-child + p + hr) { display: none; }
-
-  /* Scrollbar */
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: #e5e5e5 transparent;
-  }
-
-  /* Hamburger → X animation when open */
-  #toc-toggle.is-open .hamburger-bar:nth-child(1) {
-    transform: translateY(6px) rotate(45deg);
-  }
-  #toc-toggle.is-open .hamburger-bar:nth-child(2) {
-    opacity: 0;
-  }
-  #toc-toggle.is-open .hamburger-bar:nth-child(3) {
-    transform: translateY(-6px) rotate(-45deg);
-  }
-</style>
-
-<script>
-  const toggle = document.getElementById('toc-toggle');
-  const panel = document.getElementById('mobile-toc');
-
-  toggle?.addEventListener('click', () => {
-    const isOpen = !panel?.classList.contains('hidden');
-    panel?.classList.toggle('hidden', isOpen);
-    toggle.classList.toggle('is-open', !isOpen);
-    toggle.setAttribute('aria-expanded', String(!isOpen));
-  });
-
-  // Close panel when a TOC link is tapped
-  document.querySelectorAll('[data-mobile-toc-link]').forEach((link) => {
-    link.addEventListener('click', () => {
-      panel?.classList.add('hidden');
-      toggle?.classList.remove('is-open');
-      toggle?.setAttribute('aria-expanded', 'false');
-    });
-  });
-</script>

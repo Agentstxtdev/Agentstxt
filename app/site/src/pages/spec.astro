@@ -1,0 +1,232 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Toc from '../components/Toc.astro';
+import '../styles/global.css';
+import { getCollection, render } from 'astro:content';
+import { SPEC_VERSION } from '../config';
+
+const entries = await getCollection('spec');
+const entry = entries[0];
+const { Content, headings } = await render(entry);
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+<BaseLayout
+  title="Specification · agents.txt Standard"
+  description="The full text of the agents.txt v1.0 specification. Five capability blocks (Payments, Authorization, MCP, Skills, A2A), the agents.json companion schema, §4.5 serving requirements, and the reference deployment's header configuration."
+  canonicalUrl="https://agentstxt.dev/spec"
+>
+  <!-- Top nav -->
+  <header class="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
+    <div class="max-w-[1280px] mx-auto px-6 sm:px-10 h-14 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <a
+          href="/"
+          class="font-mono text-sm font-semibold tracking-tight text-[#111] no-underline whitespace-nowrap"
+        >
+          agents.txt
+        </a>
+        <span class="hidden sm:inline text-[#ccc] select-none">/</span>
+        <span class="hidden sm:inline text-sm text-[#555] whitespace-nowrap">Standard</span>
+        <span
+          class="hidden sm:inline-flex items-center border border-[#111] text-[10px] font-semibold tracking-[0.08em] uppercase px-1.5 py-0.5 leading-none"
+        >
+          Draft
+        </span>
+      </div>
+      <div class="flex items-center gap-x-3 sm:gap-x-5 shrink-0">
+        <a
+          href="/spec"
+          class="text-xs font-medium text-[#111] no-underline border-b border-[#111]"
+        >
+          Spec
+        </a>
+        <a
+          href="/agents.txt"
+          class="font-mono text-xs text-[#555] hover:text-[#111] transition-colors no-underline"
+        >
+          agents.txt
+        </a>
+        <a
+          href="/agents.json"
+          class="font-mono text-xs text-[#555] hover:text-[#111] transition-colors no-underline"
+        >
+          agents.json
+        </a>
+        <a
+          href="/demo"
+          class="text-xs text-[#555] hover:text-[#111] transition-colors no-underline"
+        >
+          Demo
+        </a>
+        <span class="hidden sm:block text-[#ddd] select-none">|</span>
+        <a
+          href="https://github.com/agentstxt/agents.txt"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex text-xs text-[#555] hover:text-[#111] transition-colors no-underline items-center gap-1"
+          aria-label="View on GitHub"
+        >
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+          </svg>
+        </a>
+
+        <!-- Hamburger — mobile only -->
+        <button
+          id="toc-toggle"
+          class="lg:hidden flex flex-col justify-center items-center w-8 h-8 gap-[5px] text-[#555] hover:text-[#111] transition-colors"
+          aria-label="Toggle table of contents"
+          aria-expanded="false"
+          aria-controls="mobile-toc"
+        >
+          <span class="hamburger-bar block w-5 h-px bg-current transition-all duration-200"></span>
+          <span class="hamburger-bar block w-5 h-px bg-current transition-all duration-200"></span>
+          <span class="hamburger-bar block w-5 h-px bg-current transition-all duration-200"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile TOC panel — hidden by default, toggled by hamburger -->
+  <div
+    id="mobile-toc"
+    class="lg:hidden hidden sticky top-14 z-40 bg-white border-b border-[#e5e5e5] max-h-[60vh] overflow-y-auto"
+  >
+    <nav class="max-w-[1280px] mx-auto px-6 sm:px-10 py-4">
+      <p class="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#999] mb-3">
+        On this page
+      </p>
+      {tocHeadings.map((h) => (
+        <a
+          href={`#${h.slug}`}
+          data-mobile-toc-link
+          class:list={['toc-link', h.depth === 3 && 'toc-h3']}
+        >
+          {h.text}
+        </a>
+      ))}
+    </nav>
+  </div>
+
+  <!-- Page body -->
+  <div class="max-w-[1280px] mx-auto px-6 sm:px-10 pt-12 pb-24">
+    <div class="lg:flex lg:gap-16 xl:gap-24">
+
+      <!-- Spec content -->
+      <main class="min-w-0 flex-1">
+
+        <!-- Spec cover / metadata -->
+        <div class="mb-10 pb-8 border-b border-[#e5e5e5]">
+          <h1 class="text-2xl font-bold tracking-tight text-[#111] mb-1">
+            agents.txt Standard
+          </h1>
+          <p class="text-sm text-[#777] font-mono mb-6">v{SPEC_VERSION}</p>
+          <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+            <dt class="text-[#999] font-medium">Status</dt>
+            <dd class="text-[#111]">
+              <span class="inline-flex items-center border border-[#111] text-[10px] font-semibold tracking-[0.08em] uppercase px-1.5 py-0.5 leading-none mr-2">
+                Draft
+              </span>
+              This document is a work in progress and subject to change.
+            </dd>
+            <dt class="text-[#999] font-medium">Version</dt>
+            <dd class="font-mono text-[#111]">{SPEC_VERSION}</dd>
+            <dt class="text-[#999] font-medium">Authors</dt>
+            <dd class="text-[#111]">Open Agentic Web contributors</dd>
+            <dt class="text-[#999] font-medium">Repository</dt>
+            <dd>
+              <a
+                href="https://github.com/agentstxt/agents.txt"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="font-mono text-[#111] underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all"
+              >
+                github.com/agentstxt/agents.txt
+              </a>
+            </dd>
+            <dt class="text-[#999] font-medium">License</dt>
+            <dd class="text-[#111]">CC0 (spec) · Apache 2.0 (reference implementation)</dd>
+          </dl>
+        </div>
+
+        <!-- Rendered spec -->
+        <article class="prose max-w-none spec-content">
+          <Content />
+        </article>
+      </main>
+
+      <!-- Sticky TOC (desktop) -->
+      <aside class="hidden lg:block w-60 xl:w-64 shrink-0">
+        <div class="sticky top-[4.5rem] max-h-[calc(100vh-5.5rem)] overflow-y-auto pb-8 scrollbar-thin">
+          <Toc headings={headings} />
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-[#e5e5e5] mt-4">
+    <div class="max-w-[1280px] mx-auto px-6 sm:px-10 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="text-xs text-[#999]">
+        <span class="font-mono font-semibold text-[#555]">agents.txt</span>
+        {' '}Standard v{SPEC_VERSION} ·{' '}
+        <a
+          href="https://github.com/agentstxt/agents.txt/blob/main/app/site/src/content/spec/AGENTS-TXT-STANDARD.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all"
+        >
+          View source
+        </a>
+      </div>
+      <p class="text-xs text-[#bbb]">CC0 (spec) · Apache 2.0 (code). Anyone may implement the standard without restriction.</p>
+    </div>
+  </footer>
+</BaseLayout>
+
+<style>
+  /* Hide the H1 from rendered markdown — shown in cover section above */
+  .spec-content :global(h1:first-child) { display: none; }
+  .spec-content :global(h1:first-child + p) { display: none; }
+  .spec-content :global(h1:first-child + p + hr) { display: none; }
+
+  /* Scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #e5e5e5 transparent;
+  }
+
+  /* Hamburger → X animation when open */
+  #toc-toggle.is-open .hamburger-bar:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+  #toc-toggle.is-open .hamburger-bar:nth-child(2) {
+    opacity: 0;
+  }
+  #toc-toggle.is-open .hamburger-bar:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById('toc-toggle');
+  const panel = document.getElementById('mobile-toc');
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = !panel?.classList.contains('hidden');
+    panel?.classList.toggle('hidden', isOpen);
+    toggle.classList.toggle('is-open', !isOpen);
+    toggle.setAttribute('aria-expanded', String(!isOpen));
+  });
+
+  // Close panel when a TOC link is tapped
+  document.querySelectorAll('[data-mobile-toc-link]').forEach((link) => {
+    link.addEventListener('click', () => {
+      panel?.classList.add('hidden');
+      toggle?.classList.remove('is-open');
+      toggle?.setAttribute('aria-expanded', 'false');
+    });
+  });
+</script>
