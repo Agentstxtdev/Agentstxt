@@ -133,7 +133,7 @@ Same information as `agents.txt`, in machine-friendly JSON. Sites SHOULD serve b
 
 | Field | Required | Notes |
 |---|---|---|
-| `version` | yes | Always `"1.0"` for v1.0-draft compliance |
+| `version` | yes | Always `"1.0"` for v1.0 compliance |
 | `site.name`, `site.url` | yes | Mirror the `Site-Name` / `Site-URL` directives |
 | `site.description` | no | Plain text, ≤ 200 chars |
 | `payments.x402` (object) | when x402 declared | Presence of this key is the x402 support signal. Carries `chains` and any future x402-specific fields. |
@@ -368,7 +368,7 @@ The reference MCP server at `mcp.agentstxt.dev` exposes:
 
 | Tool | Input | What it returns |
 |---|---|---|
-| `validate_agents_txt` | `{ content: string }` | Compliance report against the v1.0-draft spec |
+| `validate_agents_txt` | `{ content: string }` | Compliance report against the v1.0 spec |
 | `validate_agents_json` | `{ content: string }` | JSON schema check |
 | `audit_site` | `{ url: string }` | End-to-end live audit: §4.5 serving headers, §3-§8 directive validation, §10 schema validation, §10.4/§12 secret-leak scan, and `agents.txt ↔ agents.json` cross-file consistency. Returns a `summary` block with `compliant: boolean` for one-line pass/fail. |
 | `parse_agents_txt` | `{ content: string }` | Returns the parsed directive map |

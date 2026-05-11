@@ -3,7 +3,7 @@
 > The open specification for AI agent capability declarations. Layer 4 of the agent-readiness stack.
 
 ## Specification
-- [agents.txt Standard v1.0-draft](https://agentstxt.dev): The open specification for AI agent capability declarations. Covers file format, directives, discovery, payment protocols (x402, MPP), authorization (agent-auth), MCP endpoint declaration, and skills. Layer 4 of the agent-readiness stack.
+- [agents.txt Standard v1.0](https://agentstxt.dev): The open specification for AI agent capability declarations. Covers file format, directives, discovery, payment protocols (x402, MPP), authorization (agent-auth), MCP endpoint declaration, and skills. Layer 4 of the agent-readiness stack.
 
 ## Demos
 - [Demos index](https://agentstxt.dev/demo): Live demonstrations of every capability the spec advertises.

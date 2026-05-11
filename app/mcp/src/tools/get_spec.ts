@@ -63,7 +63,7 @@ export function registerGetSpec(server: McpServer, siteOrigin: string) {
     'get_spec',
     {
       description:
-        'Get the agents.txt standard spec (v1.0-draft) from the live site. ' +
+        'Get the agents.txt standard spec (v1.0) from the live site. ' +
         'Use "all" for the full spec or a section name to filter: ' +
         'overview, format, discovery, payments, authorization, mcp, skills, json, examples, versioning, security.',
       inputSchema: {

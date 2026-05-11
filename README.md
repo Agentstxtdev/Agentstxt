@@ -2,7 +2,7 @@
 
 **An open standard for AI agent capability declarations on the web.**
 
-[![Spec: v1.0-draft](https://img.shields.io/badge/spec-v1.0--draft-111?style=flat-square)](spec/AGENTS-TXT-STANDARD.md)
+[![Spec: v1.0](https://img.shields.io/badge/spec-v1.0-111?style=flat-square)](spec/AGENTS-TXT-STANDARD.md)
 [![License: CC0](https://img.shields.io/badge/license-CC0-lightgrey?style=flat-square)](spec/AGENTS-TXT-STANDARD.md)
 [![Live: agentstxt.dev](https://img.shields.io/badge/live-agentstxt.dev-7c3aed?style=flat-square)](https://agentstxt.dev)
 [![GitHub stars](https://img.shields.io/github/stars/agentstxt/agents.txt?style=flat-square&logo=github&logoColor=white&color=181717)](https://github.com/agentstxt/agents.txt)
@@ -144,7 +144,7 @@ Each sub-package owns its own toolchain: Astro for the site, Wrangler + `tsc --n
 
 ## Status
 
-**Spec:** v1.0-draft. Format and schema are stable. Major capability blocks (Payments, Authorization, MCP, Skills) are settled. Patches accepted via PR; structural changes will be RFCs against [`spec/AGENTS-TXT-STANDARD.md`](spec/AGENTS-TXT-STANDARD.md).
+**Spec:** v1.0. Format and schema are stable. Major capability blocks (Payments, Authorization, MCP, Skills) are settled. Patches accepted via PR; structural changes will be RFCs against [`spec/AGENTS-TXT-STANDARD.md`](spec/AGENTS-TXT-STANDARD.md).
 
 **Reference deployment:** Live at [agentstxt.dev](https://agentstxt.dev). The MCP server is live at [mcp.agentstxt.dev](https://mcp.agentstxt.dev). The agent-auth worker runs as a separate service.
 

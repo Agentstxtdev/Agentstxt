@@ -80,7 +80,7 @@ export default {
           pages: [
             {
               url: 'https://agentstxt.dev',
-              title: 'agents.txt Standard v1.0-draft',
+              title: 'agents.txt Standard v1.0',
               description: 'The open specification for AI agent capability declarations. Covers file format, directives, discovery, payment protocols (x402, MPP), authorization (agent-auth), MCP endpoint declaration, and skills. Layer 4 of the agent-readiness stack.',
             },
           ],

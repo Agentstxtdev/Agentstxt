@@ -73,7 +73,7 @@ All three workers (`site`, `mcp`, `auth`) deploy to Cloudflare and have no share
 
 ### Specification: `spec/AGENTS-TXT-STANDARD.md`
 
-The single source of truth for the standard. Versioned (`v1.0-draft` at time of writing). Defines:
+The single source of truth for the standard. Versioned (`v1.0` at time of writing). Defines:
 
 - Wire format (UTF-8 plain text, RFC 3629)
 - Required and optional directives

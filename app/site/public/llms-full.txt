@@ -4,9 +4,9 @@
 
 ## Specification
 
-### [agents.txt Standard v1.0-draft](https://agentstxt.dev)
+### [agents.txt Standard v1.0](https://agentstxt.dev)
 
-# agents.txt Standard — v1.0-draft
+# agents.txt Standard — v1.0
 
 **Status:** Draft  
 **Version:** 0.5-draft  
@@ -469,7 +469,7 @@ The same rules as `agents.txt` apply:
 
 ## 11. Versioning and Extensibility
 
-This spec follows semver. The current version is `v1.0-draft`.
+This spec follows semver. The current version is `v1.0`.
 
 **Backwards compatibility:** Files written against v0.5 are fully readable by any prior parser — unknown directives (`Authorization:`, `Identity:`, `MCP:`, `Skills:`) are silently ignored. `agents.json` is a strongly recommended companion; its absence has no effect on agents.txt parsers. `agents.json` uses a `version` field matching the spec version so agents can identify the schema generation.
 

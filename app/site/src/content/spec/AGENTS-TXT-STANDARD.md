@@ -1,4 +1,4 @@
-# agents.txt Standard — v1.0-draft
+# agents.txt Standard — v1.0
 
 **Status:** Draft  
 **Version:** 1.0-draft  
@@ -506,7 +506,7 @@ The same rules as `agents.txt` apply:
 
 ## 11. Versioning and Extensibility
 
-This spec follows semver. The current version is `v1.0-draft`, the first published release.
+This spec follows semver. The current version is `v1.0`, the first published release.
 
 **Stability commitment:** The file format, directive names, and `agents.json` schema defined in v1.0 are stable. Breaking changes — removal of a directive, schema field rename, semantics change — require a v2.0. Additive changes (new directives, new protocol identifiers, new `agents.json` fields) are introduced in minor versions and remain backwards-compatible by design.
 
