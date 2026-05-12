@@ -15,6 +15,10 @@ export function parseJwt(token: string): { header: Record<string, unknown>; payl
   const [h, p, s] = parts as [string, string, string];
   try {
     const header = JSON.parse(new TextDecoder().decode(base64urlToUint8Array(h))) as Record<string, unknown>;
+    // Verification is hard-pinned to Ed25519, so a non-EdDSA alg cannot forge a
+    // valid signature. Rejecting at parse time is defense-in-depth and means
+    // we surface a clean "wrong alg" error instead of a confusing sig failure.
+    if (header['alg'] !== 'EdDSA') return null;
     const payload = JSON.parse(new TextDecoder().decode(base64urlToUint8Array(p))) as JwtPayload;
     return { header, payload, signedData: `${h}.${p}`, signature: base64urlToUint8Array(s) };
   } catch {
@@ -41,9 +45,16 @@ export async function jwkThumbprint(jwk: JsonWebKey): Promise<string> {
   return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-export function assertClaims(payload: JwtPayload): string | null {
+export function assertClaims(payload: JwtPayload, expectedAudience?: string): string | null {
   const now = Math.floor(Date.now() / 1000);
   if (payload.exp !== undefined && payload.exp < now) return 'token expired';
   if (payload.iat !== undefined && payload.iat > now + 30) return 'token not yet valid';
+  if (expectedAudience !== undefined) {
+    const aud = payload.aud;
+    const matches = typeof aud === 'string'
+      ? aud === expectedAudience
+      : Array.isArray(aud) && aud.includes(expectedAudience);
+    if (!matches) return 'audience mismatch';
+  }
   return null;
 }

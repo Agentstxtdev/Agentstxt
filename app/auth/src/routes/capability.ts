@@ -6,7 +6,7 @@ function err(c: any, status: number, code: string, message: string) {
   return c.json({ error: code, message }, status);
 }
 
-async function verifyAgentJwt(authHeader: string | undefined, kv: KVNamespace): Promise<
+async function verifyAgentJwt(authHeader: string | undefined, kv: KVNamespace, expectedAudience: string): Promise<
   | { ok: true; agentId: string; hostThumbprint: string }
   | { ok: false; status: number; code: string; message: string }
 > {
@@ -19,7 +19,7 @@ async function verifyAgentJwt(authHeader: string | undefined, kv: KVNamespace): 
   if (!parsed) return { ok: false, status: 401, code: 'invalid_jwt', message: 'Malformed JWT' };
   if (parsed.header['typ'] !== 'agent+jwt') return { ok: false, status: 401, code: 'invalid_jwt', message: 'Expected agent+jwt' };
 
-  const claimErr = assertClaims(parsed.payload);
+  const claimErr = assertClaims(parsed.payload, expectedAudience);
   if (claimErr) return { ok: false, status: 401, code: 'invalid_jwt', message: claimErr };
 
   const jti = parsed.payload.jti;
@@ -61,7 +61,7 @@ export function mountProtectedRoutes(app: Hono<{ Bindings: Env }>) {
       }, 401);
     }
 
-    const result = await verifyAgentJwt(authHeader, c.env.AUTH_KV);
+    const result = await verifyAgentJwt(authHeader, c.env.AUTH_KV, new URL(c.req.url).toString().split('?')[0]!);
     if (!result.ok) return err(c, result.status, result.code, result.message);
 
     return c.json({
@@ -102,7 +102,7 @@ export function mountCapabilityRoutes(app: Hono<{ Bindings: Env }>) {
   });
 
   app.post('/capability/execute', async (c) => {
-    const result = await verifyAgentJwt(c.req.header('Authorization'), c.env.AUTH_KV);
+    const result = await verifyAgentJwt(c.req.header('Authorization'), c.env.AUTH_KV, new URL(c.req.url).toString().split('?')[0]!);
     if (!result.ok) return err(c, result.status, result.code, result.message);
 
     const body = await c.req.json().catch(() => ({})) as { capability?: string };

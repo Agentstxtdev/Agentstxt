@@ -53,6 +53,9 @@ const TEST_DESCRIPTION = 'agents.txt x402 demo charge (0.01 USDC).';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Payment, Payment-Signature',
+  'Access-Control-Max-Age': '86400',
   'Access-Control-Expose-Headers': 'X-Payment-Response, Payment-Receipt, WWW-Authenticate',
 };
 
@@ -100,18 +103,17 @@ type MppxStatus =
   | { ok: true; mppx: ReturnType<typeof Mppx.create> }
   | { ok: false; reason: string };
 
-let mppxStatus: MppxStatus | null = null;
-
+// Not cached at module scope. Cloudflare reuses isolates across requests, so a
+// 503 captured before secrets propagated would stick until the isolate cycled.
+// Mppx.create is cheap; re-run on each gated request.
 function getMppx(env: Env): MppxStatus {
-  if (mppxStatus) return mppxStatus;
-
   const tempoRecipient = env.TREASURY_TEMPO;
   const hasStripe = !!(env.STRIPE_SECRET_KEY && env.STRIPE_NETWORK_ID);
   if (!tempoRecipient && !hasStripe) {
-    return mppxStatus = { ok: false, reason: 'No MPP method credentials configured. Set TREASURY_TEMPO (Tempo) and/or STRIPE_SECRET_KEY + STRIPE_NETWORK_ID (Stripe), then restart dev.' };
+    return { ok: false, reason: 'No MPP method credentials configured. Set TREASURY_TEMPO (Tempo) and/or STRIPE_SECRET_KEY + STRIPE_NETWORK_ID (Stripe), then restart dev.' };
   }
   if (!env.MPP_SECRET_KEY) {
-    return mppxStatus = { ok: false, reason: 'MPP_SECRET_KEY is required by mppx to sign receipts. Set it in .dev.vars (any random string for dev), then restart dev.' };
+    return { ok: false, reason: 'MPP_SECRET_KEY is required by mppx to sign receipts. Set it in .dev.vars (any random string for dev), then restart dev.' };
   }
 
   const methods: Parameters<typeof Mppx.create>[0]['methods'] = [];
@@ -129,10 +131,10 @@ function getMppx(env: Env): MppxStatus {
 
   try {
     const mppx = Mppx.create({ methods, secretKey: env.MPP_SECRET_KEY, realm: 'agents.txt' });
-    return mppxStatus = { ok: true, mppx };
+    return { ok: true, mppx };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return mppxStatus = { ok: false, reason: `mppx initialization failed: ${msg}` };
+    return { ok: false, reason: `mppx initialization failed: ${msg}` };
   }
 }
 
