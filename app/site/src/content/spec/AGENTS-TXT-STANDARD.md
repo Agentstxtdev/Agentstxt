@@ -2,8 +2,10 @@
 
 **Status:** Draft  
 **Version:** 1.0  
-**Authors:** agents.txt contributors  
-**Repository:** https://github.com/agentstxt/agents.txt  
+**Authors:** agents.txt contributors
+**Contact:** contact@agentstxt.dev
+**Published:** 2025-10-13  
+**Repository:** https://github.com/agentstxtdev/agents.txt  
 **License:** CC0 (spec), Apache 2.0 (reference implementation)
 
 ---

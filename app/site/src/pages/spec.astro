@@ -9,6 +9,27 @@ const entries = await getCollection('spec');
 const entry = entries[0];
 const { Content, headings } = await render(entry);
 const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+// Parse the leading **Label:** value lines out of the markdown body so the
+// page header dl stays in sync with the spec source instead of being
+// hardcoded. Stops at the first blank line after the contiguous metadata
+// block so unrelated bold-prefixed paragraphs further down are not picked up.
+type SpecMetaItem = { label: string; value: string };
+const specMeta: SpecMetaItem[] = [];
+{
+  let inBlock = false;
+  for (const rawLine of entry.body.split('\n')) {
+    const line = rawLine.trim();
+    const m = line.match(/^\*\*([^:*]+):\*\*\s*(.+?)$/);
+    if (m) {
+      inBlock = true;
+      specMeta.push({ label: m[1].trim(), value: m[2].trim() });
+    } else if (inBlock && line === '') {
+      break;
+    }
+  }
+}
+const stripScheme = (url: string) => url.replace(/^https?:\/\//, '');
 ---
 
 <BaseLayout
@@ -123,30 +144,45 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
           </h1>
           <p class="text-sm text-[#777] font-mono mb-6">v{SPEC_VERSION}</p>
           <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-            <dt class="text-[#999] font-medium">Status</dt>
-            <dd class="text-[#111]">
-              <span class="inline-flex items-center border border-[#111] text-[10px] font-semibold tracking-[0.08em] uppercase px-1.5 py-0.5 leading-none mr-2">
-                Draft
-              </span>
-              This document is a work in progress and subject to change.
-            </dd>
-            <dt class="text-[#999] font-medium">Version</dt>
-            <dd class="font-mono text-[#111]">{SPEC_VERSION}</dd>
-            <dt class="text-[#999] font-medium">Authors</dt>
-            <dd class="text-[#111]">Open Agentic Web contributors</dd>
-            <dt class="text-[#999] font-medium">Repository</dt>
-            <dd>
-              <a
-                href="https://github.com/agentstxt/agents.txt"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="font-mono text-[#111] underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all"
-              >
-                github.com/agentstxt/agents.txt
-              </a>
-            </dd>
-            <dt class="text-[#999] font-medium">License</dt>
-            <dd class="text-[#111]">CC0 (spec) · Apache 2.0 (reference implementation)</dd>
+            {specMeta.map((item) => (
+              <>
+                <dt class="text-[#999] font-medium">{item.label}</dt>
+                {item.label === 'Status' ? (
+                  <dd class="text-[#111]">
+                    <span class="inline-flex items-center border border-[#111] text-[10px] font-semibold tracking-[0.08em] uppercase px-1.5 py-0.5 leading-none mr-2">
+                      {item.value}
+                    </span>
+                    This document is a work in progress and subject to change.
+                  </dd>
+                ) : item.label === 'Version' ? (
+                  <dd class="font-mono text-[#111]">{item.value}</dd>
+                ) : item.label === 'Repository' ? (
+                  <dd>
+                    <a
+                      href={item.value}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="font-mono text-[#111] underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all"
+                    >
+                      {stripScheme(item.value)}
+                    </a>
+                  </dd>
+                ) : item.label === 'Contact' && item.value.includes('@') && !item.value.startsWith('http') ? (
+                  <dd>
+                    <a
+                      href={`mailto:${item.value}`}
+                      class="font-mono text-[#111] underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all"
+                    >
+                      {item.value}
+                    </a>
+                  </dd>
+                ) : item.label === 'Published' ? (
+                  <dd class="font-mono text-[#111]">{item.value}</dd>
+                ) : (
+                  <dd class="text-[#111]">{item.value}</dd>
+                )}
+              </>
+            ))}
           </dl>
         </div>
 

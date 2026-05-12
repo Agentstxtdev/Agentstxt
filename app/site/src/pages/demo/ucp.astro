@@ -248,22 +248,31 @@ import { SPEC_VERSION } from '../../config';
           </thead>
           <tbody>
             <tr><td>agents.txt</td><td><a href="/agents.txt">/agents.txt</a></td><td><code>Protocols: x402, mpp, ap2</code></td></tr>
-            <tr><td>agents.json</td><td><a href="/agents.json">/agents.json</a></td><td><code>{"payments.ap2 { presentations, spec, description }"}</code></td></tr>
+            <tr><td>agents.json</td><td><a href="/agents.json">/agents.json</a></td><td><code>payments.ap2 &#123; presentations, spec, description &#125;</code></td></tr>
             <tr><td>A2A AgentCard</td><td><a href="/.well-known/agent-card.json">/.well-known/agent-card.json</a></td><td><code>capabilities.extensions[].uri = "https://github.com/google-agentic-commerce/AP2"</code></td></tr>
             <tr><td>UCP profile</td><td><a href="/.well-known/ucp">/.well-known/ucp</a></td><td><code>capabilities["dev.ucp.shopping.ap2_mandate"]</code></td></tr>
           </tbody>
         </table>
 
-        <h3>Status on this deployment</h3>
-        <p>
-          No AP2 mandate exchange runs on this site. The mandate flow (server signs a <code>checkoutSignature</code> on the cart, the agent obtains user consent through a Trusted Surface, both the CheckoutMandate and PaymentMandate are presented at the merchant's complete endpoint, the merchant and PSP verify them independently) happens at checkout time per the AP2 specification, not at discovery time. This deployment is a discovery-layer demonstration: it announces AP2 across all four surfaces correctly, but the runtime mandate exchange requires a real shopping flow with a real cart, a Trusted Surface for consent, a Credential Provider, and a payment processor wired against the AP2 SDK. See the <a href="https://github.com/google-agentic-commerce/AP2/tree/main/code/samples/python/scenarios" target="_blank" rel="noopener noreferrer">AP2 sample scenarios</a> for end-to-end runnable examples.
+      </div>
+
+      <!-- Status + Further reading: kept outside the AP2-reference prose
+           wrapper so the styling here is set explicitly. The first paragraph
+           is a note (italic, left-bordered) matching the convention used in
+           /demo/payments and /demo/mpp; the Further reading block mirrors the
+           h3 + ul rhythm of the prose sections above without inheriting the
+           typography plugin's pseudo-element decoration on <code>. -->
+      <div class="mt-10">
+        <p class="text-xs text-[#777] border-l-2 border-[#e5e5e5] pl-3 italic leading-relaxed">
+          Status on this deployment. No AP2 mandate exchange runs on this site. The mandate flow (server signs a <span class="not-italic font-mono text-[#555]">checkoutSignature</span> on the cart, the agent obtains user consent through a Trusted Surface, both the CheckoutMandate and PaymentMandate are presented at the merchant's complete endpoint, the merchant and PSP verify them independently) happens at checkout time per the AP2 specification, not at discovery time. This deployment is a discovery-layer demonstration: it announces AP2 across all four surfaces correctly, but the runtime mandate exchange requires a real shopping flow with a real cart, a Trusted Surface for consent, a Credential Provider, and a payment processor wired against the AP2 SDK. See the <a href="https://github.com/google-agentic-commerce/AP2/tree/main/code/samples/python/scenarios" target="_blank" rel="noopener noreferrer" class="not-italic underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">AP2 sample scenarios</a> for end-to-end runnable examples.
         </p>
-        <h3>Further reading</h3>
-        <ul>
-          <li><a href="https://ap2-protocol.org" target="_blank" rel="noopener noreferrer">AP2 protocol homepage</a></li>
-          <li><a href="https://github.com/google-agentic-commerce/AP2" target="_blank" rel="noopener noreferrer">AP2 specification and reference SDK</a></li>
-          <li><a href="https://ucp.dev/documentation/ucp-and-ap2/" target="_blank" rel="noopener noreferrer">UCP and AP2 integration guide</a></li>
-          <li><a href="https://github.com/google-agentic-commerce/a2a-x402" target="_blank" rel="noopener noreferrer">a2a-x402 extension</a> (the rail-side companion to AP2 inside A2A)</li>
+
+        <h3 class="text-base font-semibold text-[#000] mt-8 mb-2">Further reading</h3>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-[#222] leading-relaxed marker:text-[#999]">
+          <li><a href="https://ap2-protocol.org" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">AP2 protocol homepage</a></li>
+          <li><a href="https://github.com/google-agentic-commerce/AP2" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">AP2 specification and reference SDK</a></li>
+          <li><a href="https://ucp.dev/documentation/ucp-and-ap2/" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">UCP and AP2 integration guide</a></li>
+          <li><a href="https://github.com/google-agentic-commerce/a2a-x402" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">a2a-x402 extension</a> (the rail-side companion to AP2 inside A2A)</li>
         </ul>
       </div>
 
