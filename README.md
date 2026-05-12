@@ -151,19 +151,19 @@ agentstxt/
 ├── spec/
 │   └── AGENTS-TXT-STANDARD.md   — the formal specification (CC0)
 │
-├── site/                        — agentstxt.dev — Astro + Cloudflare Worker
+├── site/                        — agentstxt.dev, Astro + Cloudflare Worker
 │   ├── src/
 │   │   ├── pages/               (homepage, /demo/*, /spec/*)
 │   │   ├── worker.ts            (BFF + /x402 demo route, hand-rolled x402 v2 on Solana)
 │   │   └── ...
-│   ├── public/                  (agents.txt, agents.json, llms.txt, llms-full.txt — generated artifacts)
+│   ├── public/                  (agents.txt, agents.json, llms.txt, llms-full.txt: generated artifacts)
 │   ├── agentsjson.config.js
 │   └── wrangler.json
 │
-├── mcp/                         — mcp.agentstxt.dev — Cloudflare Worker
+├── mcp/                         — mcp.agentstxt.dev, Cloudflare Worker
 │   └── src/                     (MCP server: get_spec, parse_agents_txt, validate_*, get_skill, check_site)
 │
-├── auth/                        — agent-auth — Cloudflare Worker
+├── auth/                        — agent-auth, Cloudflare Worker
 │   └── src/                     (Ed25519 JWT, KV agent state, /.well-known/agent-configuration,
 │                                 /agent/register, /capability/execute)
 │
@@ -299,18 +299,18 @@ Prefix lists `MCP_PREFIXES` and `AUTH_PREFIXES` are declared at the top of [`wor
 
 The site, the spec, and the MCP validators form a triangle that the project keeps consistent in CI and at runtime:
 
-1. **Source of truth** — [`mcp/src/protocols.ts`](app/mcp/src/protocols.ts) lists every registered directive and identifier. Spec changes flow into this file in the same PR.
-2. **Validators** — [`validate_agents.ts`](app/mcp/src/tools/validate_agents.ts) exposes `validate_agents_txt` and `validate_agents_json` against `protocols.ts`. They run on raw user input and on the site's own artifacts.
-3. **Audit** — [`audit_site.ts`](app/mcp/src/tools/audit_site.ts) (`audit_site` tool) fetches a live origin's `/agents.txt`, `/agents.json`, and `/robots.txt`; calls `parseAgentsTxt` + `validateParsed`; checks §4.5 HTTP headers (`Content-Type`, `Access-Control-Allow-Origin: *`, `Cache-Control`); and enforces the cross-file consistency rule (the URL set in `agents.txt` MUST equal the URL set in `agents.json`).
-4. **Closed loop** — pointing `audit_site` at `https://agentstxt.dev` runs the site against its own spec through the `site → static assets` path and the `mcp → audit_site → site` path. A clean run is the production health check.
+1. **Source of truth.** [`mcp/src/protocols.ts`](app/mcp/src/protocols.ts) lists every registered directive and identifier. Spec changes flow into this file in the same PR.
+2. **Validators.** [`validate_agents.ts`](app/mcp/src/tools/validate_agents.ts) exposes `validate_agents_txt` and `validate_agents_json` against `protocols.ts`. They run on raw user input and on the site's own artifacts.
+3. **Audit.** [`audit_site.ts`](app/mcp/src/tools/audit_site.ts) (`audit_site` tool) fetches a live origin's `/agents.txt`, `/agents.json`, and `/robots.txt`; calls `parseAgentsTxt` + `validateParsed`; checks §4.5 HTTP headers (`Content-Type`, `Access-Control-Allow-Origin: *`, `Cache-Control`); and enforces the cross-file consistency rule (the URL set in `agents.txt` MUST equal the URL set in `agents.json`).
+4. **Closed loop.** Pointing `audit_site` at `https://agentstxt.dev` runs the site against its own spec through the `site → static assets` path and the `mcp → audit_site → site` path. A clean run is the production health check.
 
 ### Where to read each piece end-to-end
 
-- **Astro → Cloudflare static serving + §4.5 headers** — [`site/public/_headers`](app/site/public/_headers), [`site/astro.config.mjs`](app/site/astro.config.mjs)
-- **x402 v2 wire shape** — [`site/src/worker.ts`](app/site/src/worker.ts), `/x402` handler, single Solana chain, no dependency indirection
-- **MPP wire shape** — [`site/src/worker.ts`](app/site/src/worker.ts), `/mpp` handler, `Mppx.compose(tempo, stripe)` via the `mppx` SDK, returns `WWW-Authenticate: Payment` with the recipient base64-encoded inside the `request` parameter
-- **MCP tool registration pattern** — [`mcp/src/server.ts`](app/mcp/src/server.ts) plus the six `registerXxx(server)` functions in [`mcp/src/tools/`](app/mcp/src/tools/)
-- **Ed25519 agent-auth handshake** — [`auth/src/jwt.ts`](app/auth/src/jwt.ts) verifies, [`routes/agent.ts`](app/auth/src/routes/agent.ts) registers + revokes, [`routes/capability.ts`](app/auth/src/routes/capability.ts) gates execution; KV holds `host:{thumbprint}` records and `jti:{id}` replay markers
+- **Astro → Cloudflare static serving + §4.5 headers.** [`site/public/_headers`](app/site/public/_headers), [`site/astro.config.mjs`](app/site/astro.config.mjs)
+- **x402 v2 wire shape.** [`site/src/worker.ts`](app/site/src/worker.ts), `/x402` handler, single Solana chain, no dependency indirection
+- **MPP wire shape.** [`site/src/worker.ts`](app/site/src/worker.ts), `/mpp` handler, `Mppx.compose(tempo, stripe)` via the `mppx` SDK, returns `WWW-Authenticate: Payment` with the recipient base64-encoded inside the `request` parameter
+- **MCP tool registration pattern.** [`mcp/src/server.ts`](app/mcp/src/server.ts) plus the six `registerXxx(server)` functions in [`mcp/src/tools/`](app/mcp/src/tools/)
+- **Ed25519 agent-auth handshake.** [`auth/src/jwt.ts`](app/auth/src/jwt.ts) verifies, [`routes/agent.ts`](app/auth/src/routes/agent.ts) registers + revokes, [`routes/capability.ts`](app/auth/src/routes/capability.ts) gates execution; KV holds `host:{thumbprint}` records and `jti:{id}` replay markers
 
 ---
 
@@ -326,16 +326,16 @@ The site, the spec, and the MCP validators form a triangle that the project keep
 
 ## Contributing
 
-PRs welcome on:
+Contributions are welcome across the repo:
 
-- **Spec** (`spec/AGENTS-TXT-STANDARD.md`): RFC-style discussion in the PR description for any structural change. Editorial fixes can ship directly.
-- **Reference site** (`site/`): bug fixes, new demo pages, content updates.
-- **MCP server** (`mcp/`): new tools, validator improvements.
-- **Agent-auth worker** (`auth/`): capability extensions, scope improvements.
+- **Spec** ([`spec/AGENTS-TXT-STANDARD.md`](spec/AGENTS-TXT-STANDARD.md)). Editorial fixes (typos, clarifying examples, broken links) can ship directly. Structural changes (new or modified directives, schema fields, semantics) require an RFC-style note in the PR description: what changes, why, and the migration impact for existing implementations.
+- **Reference site** (`site/`). Bug fixes, additional demos, and content improvements.
+- **MCP server** (`mcp/`). New audit checks, validator improvements, and additional tools.
+- **Agent-auth worker** (`auth/`). Capability extensions and scope refinements.
 
-Issues and discussion: [github.com/agentstxt/agents.txt](https://github.com/agentstxt/agents.txt).
+Downstream implementations (parsers, generators, validators, middleware, CMS plugins) in any language or framework: open a PR to add yours to the implementations list in the spec.
 
-If you build a parser, generator, validator, or middleware for `agents.txt` in another language or framework — open a PR adding it to the implementations list (TBD section in the spec).
+Issues, questions, and proposals: [github.com/agentstxt/agents.txt](https://github.com/agentstxt/agents.txt).
 
 ---
 
