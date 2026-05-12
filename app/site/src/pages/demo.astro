@@ -89,29 +89,32 @@ import { SPEC_VERSION } from '../config';
           </div>
         </a>
 
-        <!-- LLMs demo -->
+        <!-- Discovery & Content Layers demo -->
         <a href="/demo/llms" class="block group no-underline h-full">
           <div class="border border-[#e5e5e5] group-hover:border-[#111] transition-colors h-full flex flex-col">
             <div class="px-6 py-5 border-b border-[#e5e5e5] flex-1">
               <div class="flex items-start justify-between gap-4">
                 <div>
-                  <p class="text-sm font-semibold text-[#111]">Content Declarations</p>
-                  <p class="font-mono text-[11px] text-[#999] mt-1">llmstxt.org · llms.txt · llms-full.txt · Layer 3</p>
+                  <p class="text-sm font-semibold text-[#111]">Discovery & Content Layers</p>
+                  <p class="font-mono text-[11px] text-[#999] mt-1">Layers 1, 2, 3 · robots.txt · sitemap.xml · llms.txt · §4.5 headers</p>
                 </div>
                 <span class="font-mono text-xs text-[#999] group-hover:text-[#111] transition-colors shrink-0 mt-0.5">
                   Run demo →
                 </span>
               </div>
               <p class="text-sm text-[#555] mt-3 leading-relaxed">
-                Fetches both content declaration files served by this server and displays their raw content. <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/llms.txt</code> is the curated link inventory; <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/llms-full.txt</code> is the expanded form with the markdown content of each page inlined under its heading.
+                Fetches every discovery and content file served by this site and shows what each layer carries. <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/robots.txt</code> for crawler policy (Layer 1, RFC 9309), <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/sitemap.xml</code> for the page inventory (Layer 2), <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/llms.txt</code> and <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/llms-full.txt</code> for the curated reading list (Layer 3), plus a §4.5 headers check that confirms <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/agents.txt</code> and <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/agents.json</code> serve with the right Content-Type, CORS, and Cache-Control.
               </p>
             </div>
             <div class="px-6 py-4 bg-[#fafafa]">
               <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999] mb-3">Steps covered</p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-8">
                 {[
-                  ['0', 'Link inventory: GET /llms.txt'],
-                  ['1', 'Expanded content: GET /llms-full.txt'],
+                  ['0', 'Crawler policy: GET /robots.txt'],
+                  ['1', 'Page inventory: GET /sitemap.xml'],
+                  ['2', 'Link inventory: GET /llms.txt'],
+                  ['3', 'Expanded content: GET /llms-full.txt'],
+                  ['4', '§4.5 headers: HEAD /agents.txt + /agents.json'],
                 ].map(([num, label]) => (
                   <div class="flex items-baseline gap-2">
                     <span class="font-mono text-[10px] text-[#bbb] shrink-0 w-4">{num}</span>

@@ -5,8 +5,8 @@ import { SPEC_VERSION } from '../../config';
 ---
 
 <BaseLayout
-  title="LLMs Demo · agents.txt"
-  description="Live demonstration of the llmstxt.org content declaration standard. Both /llms.txt and /llms-full.txt are fetched from this server and displayed. No installation required."
+  title="Discovery & Content Layers Demo · agents.txt"
+  description="Live demonstration of the discovery and content layers that sit beneath agents.txt: robots.txt (Layer 1), sitemap.xml (Layer 2), llms.txt + llms-full.txt (Layer 3), and the §4.5 serving headers cross-cut. Every file is fetched from this server in real time."
   canonicalUrl="https://agentstxt.dev/demo/llms"
 >
   <!-- Nav -->
@@ -19,7 +19,7 @@ import { SPEC_VERSION } from '../../config';
         <span class="text-[#ccc] select-none">/</span>
         <a href="/demo" class="text-sm text-[#555] hover:text-[#111] transition-colors no-underline whitespace-nowrap">Demos</a>
         <span class="text-[#ccc] select-none">/</span>
-        <span class="text-sm text-[#111] whitespace-nowrap">LLMs</span>
+        <span class="text-sm text-[#111] whitespace-nowrap">Discovery</span>
       </div>
       <div class="flex items-center gap-x-3 sm:gap-x-5 shrink-0">
         <a href="/spec" class="text-xs text-[#555] hover:text-[#111] transition-colors no-underline">Spec</a>
@@ -44,19 +44,22 @@ import { SPEC_VERSION } from '../../config';
       <!-- Cover -->
       <div class="mb-10 pb-8 border-b border-[#e5e5e5]">
         <h1 class="text-2xl font-bold tracking-tight text-[#111] mb-1">
-          Content Declarations: Live Demonstration
+          Discovery & Content Layers: Live Demonstration
         </h1>
-        <p class="text-sm text-[#777] font-mono mb-6">llmstxt.org · llms.txt + llms-full.txt · Layer 3</p>
+        <p class="text-sm text-[#777] font-mono mb-6">Layers 1, 2, 3 · robots.txt · sitemap.xml · llms.txt · §4.5 headers</p>
         <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-          <dt class="text-[#999] font-medium">Standard</dt>
+          <dt class="text-[#999] font-medium">Standards</dt>
           <dd class="text-[#111]">
-            <a href="https://llmstxt.org" target="_blank" rel="noopener noreferrer"
-              class="font-mono underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">
-              llmstxt.org
-            </a>
+            <a href="https://www.rfc-editor.org/rfc/rfc9309" target="_blank" rel="noopener noreferrer" class="font-mono underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">RFC 9309</a>
+            ·
+            <a href="https://www.sitemaps.org/protocol.html" target="_blank" rel="noopener noreferrer" class="font-mono underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">sitemaps.org 0.9</a>
+            ·
+            <a href="https://llmstxt.org" target="_blank" rel="noopener noreferrer" class="font-mono underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">llmstxt.org</a>
+            ·
+            <a href="/spec#45-serving-requirements" class="font-mono underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">agents.txt §4.5</a>
           </dd>
           <dt class="text-[#999] font-medium">Files</dt>
-          <dd class="font-mono text-[#111]">/llms.txt · /llms-full.txt</dd>
+          <dd class="font-mono text-[#111]">/robots.txt · /sitemap.xml · /llms.txt · /llms-full.txt</dd>
           <dt class="text-[#999] font-medium">Transport</dt>
           <dd class="text-[#111]">HTTPS · Cloudflare CDN · static</dd>
           <dt class="text-[#999] font-medium">Status</dt>
@@ -70,11 +73,22 @@ import { SPEC_VERSION } from '../../config';
       <!-- Introduction -->
       <div class="prose max-w-none mb-10">
         <p>
-          This page fetches both content declaration files served by this server and displays their raw content. <code>/llms.txt</code> is the link inventory: a curated, section-organized list of pages an LLM should read to understand this site. <code>/llms-full.txt</code> is the expanded form: the same structure, but with the markdown content of each linked page inlined under its heading.
+          <code>agents.txt</code> is Layer 4 of the agent-readiness stack. The three layers beneath it govern crawler access policy, page inventory, and curated content for LLMs. None of those four files replaces another; together they form the discovery and content surface a compliant agent reads when it first encounters a site. This page fetches each file live from this server and shows what it carries, plus a fifth check covering the cross-cutting §4.5 serving headers.
         </p>
-        <p>
-          Both files are generated from the same <code>AgenticConfig</code> object that drives <code>agents.txt</code> and the payment middleware. The content driver (<code>sitemap</code>, <code>firecrawl</code>, <code>static</code>, or <code>manual</code>) determines how pages are discovered. <code>llms-full.txt</code> additionally scrapes each page's markdown content when a Firecrawl driver is configured.
-        </p>
+
+        <h2>The stack at a glance</h2>
+        <table>
+          <thead>
+            <tr><th>Layer</th><th>File</th><th>Spec</th><th>What it carries</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="font-mono">1</td><td><code>/robots.txt</code></td><td>RFC 9309</td><td>Crawler access policy. Who is allowed and disallowed.</td></tr>
+            <tr><td class="font-mono">2</td><td><code>/sitemap.xml</code></td><td>sitemaps.org 0.9</td><td>Page inventory. Every URL the site wants indexed.</td></tr>
+            <tr><td class="font-mono">3</td><td><code>/llms.txt</code></td><td>llmstxt.org</td><td>Curated reading list for LLM inference, organised by section.</td></tr>
+            <tr><td class="font-mono">3</td><td><code>/llms-full.txt</code></td><td>llmstxt.org</td><td>Expanded companion. Same structure, page content inlined.</td></tr>
+            <tr><td class="font-mono">4</td><td><code>/agents.txt</code></td><td>agents.txt v{SPEC_VERSION}</td><td>Agent capability declaration. See the other demos.</td></tr>
+          </tbody>
+        </table>
 
         <h2>Retrieval flow</h2>
         <table>
@@ -82,8 +96,11 @@ import { SPEC_VERSION } from '../../config';
             <tr><th>Step</th><th>File</th><th>Purpose</th></tr>
           </thead>
           <tbody>
-            <tr><td class="font-mono">0</td><td><code>/llms.txt</code></td><td>Link inventory: curated page list with descriptions</td></tr>
-            <tr><td class="font-mono">1</td><td><code>/llms-full.txt</code></td><td>Expanded form: page content inlined under each heading</td></tr>
+            <tr><td class="font-mono">0</td><td><code>/robots.txt</code></td><td>Crawler policy and the spec §4.3 <code>Allow: /agents.txt</code> discovery hint</td></tr>
+            <tr><td class="font-mono">1</td><td><code>/sitemap.xml</code></td><td>Page inventory; URL count and root element shape</td></tr>
+            <tr><td class="font-mono">2</td><td><code>/llms.txt</code></td><td>Link inventory: curated page list with descriptions</td></tr>
+            <tr><td class="font-mono">3</td><td><code>/llms-full.txt</code></td><td>Expanded form: page content inlined under each heading</td></tr>
+            <tr><td class="font-mono">4</td><td>§4.5 headers</td><td>HEAD on <code>/agents.txt</code> and <code>/agents.json</code> to verify Content-Type, CORS, Cache-Control</td></tr>
           </tbody>
         </table>
       </div>
@@ -92,7 +109,7 @@ import { SPEC_VERSION } from '../../config';
       <div class="border border-[#e5e5e5]">
         <div class="flex items-center justify-between px-5 py-4 border-b border-[#e5e5e5]">
           <div>
-            <p class="text-sm font-semibold text-[#111]">Content declaration runner</p>
+            <p class="text-sm font-semibold text-[#111]">Discovery & content runner</p>
             <p class="text-xs text-[#999] mt-0.5">Static files · fetched live from this server</p>
           </div>
           <button
@@ -105,8 +122,11 @@ import { SPEC_VERSION } from '../../config';
 
         <div id="steps" class="divide-y divide-[#e5e5e5]">
           {[
-            ['0', 'Link inventory',   'GET /llms.txt'],
-            ['1', 'Expanded content', 'GET /llms-full.txt'],
+            ['0', 'Crawler policy',     'GET /robots.txt'],
+            ['1', 'Page inventory',     'GET /sitemap.xml'],
+            ['2', 'Link inventory',     'GET /llms.txt'],
+            ['3', 'Expanded content',   'GET /llms-full.txt'],
+            ['4', '§4.5 headers check', 'HEAD /agents.txt · HEAD /agents.json'],
           ].map(([num, label, hint]) => (
             <div class="step" data-step={num} data-state="idle">
               <div class="flex items-start justify-between gap-4 px-5 py-3">
@@ -128,28 +148,52 @@ import { SPEC_VERSION } from '../../config';
 
         <div id="result-banner" class="hidden px-5 py-4 border-t border-[#e5e5e5]">
           <p id="result-text" class="text-sm font-medium text-[#111]"></p>
-          <p class="text-xs text-[#999] mt-1">Both files are served statically and regenerated from <code>agentic.config.js</code> on each deploy.</p>
+          <p class="text-xs text-[#999] mt-1">Every file is served statically and regenerated from <code>agentic.config.js</code> on each deploy. The §4.5 headers come from <code>public/_headers</code>, also herald-managed.</p>
         </div>
       </div>
 
       <!-- Technical notes -->
       <div class="prose max-w-none mt-12">
         <h2>Technical notes</h2>
-        <h3>Layer 3 of the agent-readiness stack</h3>
+
+        <h3>Layer 1: robots.txt (RFC 9309)</h3>
         <p>
-          The llmstxt.org spec defines <code>/llms.txt</code> as Layer 3 of agent readiness, sitting between the page inventory (<code>/sitemap.xml</code>, Layer 2) and agent capability declarations (<code>/agents.txt</code>, Layer 4). Where a sitemap enumerates every URL for crawlers, <code>llms.txt</code> is editorially curated. It surfaces the pages most useful for an LLM to read first.
+          <code>robots.txt</code> is the oldest piece of this stack. It tells crawlers which paths they may visit. agents.txt v{SPEC_VERSION} §4.3 piggy-backs on it: a compliant site SHOULD include <code>Allow: /agents.txt</code> in its default <code>User-agent: *</code> block, both to grant explicit access and to expose the file's existence to any crawler that reads <code>robots.txt</code>. No separate discovery directive (<code>Agents-Txt:</code>) is emitted because <code>agents.txt</code> always lives at the canonical path.
         </p>
-        <h3>Content drivers</h3>
         <p>
-          The <code>content.driver</code> field in <code>AgenticConfig</code> controls how pages are discovered. <code>sitemap</code> fetches <code>/sitemap.xml</code> and groups pages by path prefix. <code>firecrawl</code> crawls the site via the Firecrawl API, producing richer titles and natural groupings. <code>static</code> accepts a hardcoded page list, useful for Jamstack sites with no runtime sitemap. <code>manual</code> accepts a pre-built sections array for full editorial control.
+          A site MAY also include a <code>Content-Signal:</code> directive (IETF AIPREF draft, CC0) to declare AI training and indexing preferences. That signal is distinct from agent <em>interaction</em> capabilities and is independent of <code>agents.txt</code>.
         </p>
-        <h3>llms-full.txt: content scraping</h3>
+
+        <h3>Layer 2: sitemap.xml (sitemaps.org 0.9)</h3>
         <p>
-          When a Firecrawl driver is configured under <code>content.fullTxt</code>, <code>generateLlmsFullTxt</code> scrapes each page's markdown via <code>POST https://api.firecrawl.dev/v2/scrape</code> with <code>onlyMainContent: true</code>. Pages are batched five at a time to respect rate limits. Without Firecrawl, the expanded file falls back to the same link-list format as <code>llms.txt</code>. No body content is inlined.
+          A flat XML inventory of every URL the site wants indexed. <code>&lt;urlset&gt;</code> root for a single sitemap, <code>&lt;sitemapindex&gt;</code> root for an index that points at multiple sitemaps. Per the protocol, a single sitemap may carry at most 50 000 URLs and 50 MB uncompressed; larger sites split into an index. Each <code>&lt;url&gt;</code> element MUST contain a <code>&lt;loc&gt;</code>; the optional <code>&lt;lastmod&gt;</code>, <code>&lt;changefreq&gt;</code>, and <code>&lt;priority&gt;</code> fields carry update hints. Out of scope for an agents.txt demo; herald's <code>validateSitemapXml</code> covers the full protocol if you need to audit your own.
         </p>
-        <h3>Separate source for llms-full.txt</h3>
+
+        <h3>Layer 3: llms.txt and llms-full.txt (llmstxt.org)</h3>
         <p>
-          The <code>content.fullTxt.driver</code> field accepts an independent driver. This lets a site point <code>llms.txt</code> at the marketing site (<code>sitemap</code> driver) and <code>llms-full.txt</code> at a docs subdomain (Firecrawl driver); the two files can cover completely different URL spaces and still be generated from the same config object.
+          <code>/llms.txt</code> is the editorially curated reading list: which pages an LLM should read first to understand the site, grouped into sections by topic. <code>/llms-full.txt</code> is the expanded companion: the same structure, but with each linked page's markdown content inlined under its heading.
+        </p>
+        <p>
+          Both files are generated from the same <code>AgenticConfig</code> object that drives <code>agents.txt</code> and the payment middleware. The <code>content.driver</code> discriminated union controls how pages are discovered. <code>sitemap</code> fetches <code>/sitemap.xml</code> and groups pages by path prefix. <code>firecrawl</code> calls the Firecrawl API and produces richer titles and natural groupings. <code>static</code> accepts a hardcoded page list, useful for Jamstack sites without a runtime sitemap. <code>manual</code> accepts a pre-built sections array for full editorial control.
+        </p>
+        <p>
+          When a Firecrawl driver is configured under <code>content.fullTxt.driver</code>, <code>generateLlmsFullTxt</code> scrapes each page's markdown via <code>POST https://api.firecrawl.dev/v2/scrape</code> with <code>onlyMainContent: true</code>, batching five at a time. The <code>fullTxt.driver</code> field is an independent driver, so a site can point <code>llms.txt</code> at the marketing site (<code>sitemap</code> driver) and <code>llms-full.txt</code> at a docs subdomain (Firecrawl driver). Without Firecrawl, <code>llms-full.txt</code> falls back to the same link-list format as <code>llms.txt</code>.
+        </p>
+
+        <h3>§4.5 serving headers (the cross-cutting layer)</h3>
+        <p>
+          agents.txt §4.5 mandates four response-header rules on <code>/agents.txt</code> and <code>/agents.json</code>: a <code>Content-Type</code> with charset for <code>agents.txt</code>, an <code>Access-Control-Allow-Origin: *</code> on both files (load-bearing for browser-context agent clients fetching cross-origin), and a SHOULD-set <code>Cache-Control</code>. Static-asset pipelines on most hosting platforms do not set these by default, so herald emits a platform-specific config file (<code>_headers</code> for Cloudflare and Netlify, <code>vercel.json#headers[]</code> for Vercel) carrying the rules. The same generator also walks <code>config.a2a.cards</code> and <code>config.ucp.profiles</code>, emitting matching entries for every same-origin AgentCard or UCP profile path.
+        </p>
+        <p>
+          The rule splits on <em>how</em> the path is served, not on what it contains. Static files (anything under <code>public/</code>, including <code>public/.well-known/*</code>) get headers from <code>_headers</code>. Dynamic worker routes (the agent-auth <code>/.well-known/agent-configuration</code>, the proxied <code>/mcp</code>, the synthetic <code>/x402</code> and <code>/mpp</code>) set their headers programmatically; a static <code>_headers</code> entry for those paths is silently ignored. Both patterns are exercised in this deployment.
+        </p>
+        <p class="text-xs text-[#777] border-l-2 border-[#e5e5e5] pl-3">
+          Note on local dev: <code>astro dev</code> uses Vite's static handler, which does not parse <code>public/_headers</code>. Running step 4 against <code>http://localhost:4321</code> will report a §4.5 fail (no <code>charset=utf-8</code>, no CORS, <code>Cache-Control: no-cache</code>). That is expected and is not a problem with the site config; the headers ship at deploy time through Cloudflare's static asset pipeline. The same check against the production origin passes.
+        </p>
+
+        <h3>How this all composes</h3>
+        <p>
+          A first-contact agent reads <code>/robots.txt</code> to learn whether it is permitted, follows <code>Allow: /agents.txt</code> to find the capability declaration, fetches <code>/agents.txt</code> (or the structured <code>/agents.json</code>) to discover what protocols this site speaks, and uses <code>/llms.txt</code> if it needs curated content for inference. <code>/sitemap.xml</code> serves the same crawler audience it always has. Each file is generated from the same config object, so the four layers cannot drift relative to each other.
         </p>
       </div>
 
@@ -212,6 +256,10 @@ function truncate(text: string, limit = 1200): string {
   return text.slice(0, limit) + `\n\n… (${text.length.toLocaleString()} bytes total; full content at this URL)`;
 }
 
+function countMatches(text: string, re: RegExp): number {
+  return (text.match(re) ?? []).length;
+}
+
 async function run() {
   const btn = document.getElementById('run-btn')!;
   const label = document.getElementById('run-btn-label')!;
@@ -238,25 +286,104 @@ async function run() {
   const origin = window.location.origin;
 
   try {
-    // ── Step 0: llms.txt ─────────────────────────────────────────────────────
+    // ── Step 0: robots.txt ───────────────────────────────────────────────────
     setRunning('0');
+    const robotsRes = await fetch(`${origin}/robots.txt`);
+    const robotsText = await robotsRes.text();
+    const allowsAgentsTxt = /^\s*Allow:\s*\/agents\.txt\b/m.test(robotsText);
+    const hasContentSignal = /^\s*Content-Signal:/m.test(robotsText);
+    const userAgents = countMatches(robotsText, /^\s*User-agent:/gm);
+    const robotsSummary = [
+      `Allow: /agents.txt  ${allowsAgentsTxt ? '✓ present (§4.3)' : '✕ missing (recommended by §4.3)'}`,
+      `Content-Signal:     ${hasContentSignal ? '✓ present' : 'not declared'}`,
+      `User-agent: blocks  ${userAgents}`,
+    ].join('\n');
+    setDone('0',
+      `GET /robots.txt\nStatus: ${robotsRes.status}\n\n${robotsSummary}\n\n${truncate(robotsText)}`,
+      `${robotsRes.status} · ${robotsText.length.toLocaleString()} bytes`,
+    );
+
+    // ── Step 1: sitemap.xml ──────────────────────────────────────────────────
+    setRunning('1');
+    const sitemapRes = await fetch(`${origin}/sitemap.xml`);
+    const sitemapText = await sitemapRes.text();
+    const isUrlset = /<urlset[\s>]/.test(sitemapText);
+    const isIndex = /<sitemapindex[\s>]/.test(sitemapText);
+    const urlCount = countMatches(sitemapText, /<loc>/g);
+    const sitemapSummary = [
+      `Root:        ${isIndex ? '<sitemapindex>' : isUrlset ? '<urlset>' : '(neither; non-conformant)'}`,
+      `<loc> count: ${urlCount}`,
+      `Format:      sitemaps.org 0.9`,
+    ].join('\n');
+    setDone('1',
+      `GET /sitemap.xml\nStatus: ${sitemapRes.status}\nContent-Type: ${sitemapRes.headers.get('content-type') ?? '(missing)'}\n\n${sitemapSummary}\n\n${truncate(sitemapText)}`,
+      `${sitemapRes.status} · ${urlCount} URL${urlCount === 1 ? '' : 's'}`,
+    );
+
+    // ── Step 2: llms.txt ─────────────────────────────────────────────────────
+    setRunning('2');
     const llmsRes = await fetch(`${origin}/llms.txt`);
     const llmsText = await llmsRes.text();
-    setDone('0',
-      `GET /llms.txt\n\n${truncate(llmsText)}`,
+    setDone('2',
+      `GET /llms.txt\nStatus: ${llmsRes.status}\nContent-Type: ${llmsRes.headers.get('content-type') ?? '(missing)'}\n\n${truncate(llmsText)}`,
       `${llmsRes.status} · ${llmsText.length.toLocaleString()} bytes`,
     );
 
-    // ── Step 1: llms-full.txt ────────────────────────────────────────────────
-    setRunning('1');
+    // ── Step 3: llms-full.txt ────────────────────────────────────────────────
+    setRunning('3');
     const fullRes = await fetch(`${origin}/llms-full.txt`);
     const fullText = await fullRes.text();
-    setDone('1',
-      `GET /llms-full.txt\n\n${truncate(fullText)}`,
+    setDone('3',
+      `GET /llms-full.txt\nStatus: ${fullRes.status}\nContent-Type: ${fullRes.headers.get('content-type') ?? '(missing)'}\n\n${truncate(fullText)}`,
       `${fullRes.status} · ${fullText.length.toLocaleString()} bytes`,
     );
 
-    resultText.textContent = `Both content declaration files retrieved: ${llmsText.length.toLocaleString()} bytes (llms.txt) · ${fullText.length.toLocaleString()} bytes (llms-full.txt).`;
+    // ── Step 4: §4.5 headers check ──────────────────────────────────────────
+    setRunning('4');
+    const checkHeaders = async (path: string, expectedType: RegExp) => {
+      const res = await fetch(`${origin}${path}`, { method: 'HEAD' });
+      const ct = res.headers.get('content-type') ?? '(missing)';
+      const cors = res.headers.get('access-control-allow-origin') ?? '(missing)';
+      const cache = res.headers.get('cache-control') ?? '(missing)';
+      const ctOk = expectedType.test(ct);
+      const corsOk = cors === '*';
+      const cacheOk = !!res.headers.get('cache-control');
+      return {
+        path,
+        status: res.status,
+        ct, cors, cache,
+        ctOk, corsOk, cacheOk,
+      };
+    };
+
+    const txtCheck = await checkHeaders('/agents.txt', /^text\/plain\s*;\s*charset\s*=\s*utf-8\b/i);
+    const jsonCheck = await checkHeaders('/agents.json', /^application\/json\b/i);
+
+    const renderCheck = (c: {
+      path: string; status: number; ct: string; cors: string; cache: string;
+      ctOk: boolean; corsOk: boolean; cacheOk: boolean;
+    }) => [
+      `HEAD ${c.path}  →  ${c.status}`,
+      `  Content-Type:                 ${c.ct}  ${c.ctOk ? '✓' : '✕'}`,
+      `  Access-Control-Allow-Origin:  ${c.cors}  ${c.corsOk ? '✓ (MUST be *)' : '✕'}`,
+      `  Cache-Control:                ${c.cache}  ${c.cacheOk ? '✓' : '(SHOULD be set)'}`,
+    ].join('\n');
+
+    const allOk = txtCheck.ctOk && txtCheck.corsOk && jsonCheck.ctOk && jsonCheck.corsOk;
+    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])/i.test(origin);
+    const envNote = isLocalhost
+      ? '\n\nNote: this looks like a localhost dev preview. astro dev (Vite) does not honor public/_headers; the §4.5 rules only apply once the site is deployed behind Cloudflare\'s static asset pipeline (or the equivalent platform headers file). Run this same check against the production origin to see the real result.'
+      : '';
+    const envBadge = allOk ? 'pass' : (isLocalhost ? 'dev (expected fail)' : 'fail');
+    setDone('4',
+      `§4.5 serving headers (HEAD requests, no body)\n\n${renderCheck(txtCheck)}\n\n${renderCheck(jsonCheck)}\n\nOverall: ${allOk ? 'pass' : 'fail'}${envNote}`,
+      envBadge,
+    );
+
+    const resultSuffix = allOk
+      ? '§4.5 pass'
+      : (isLocalhost ? '§4.5 fail (expected on localhost; passes in production)' : '§4.5 fail');
+    resultText.textContent = `${urlCount} URL${urlCount === 1 ? '' : 's'} in sitemap · ${llmsText.length.toLocaleString()} bytes (llms.txt) · ${fullText.length.toLocaleString()} bytes (llms-full.txt) · ${resultSuffix}.`;
     banner.classList.remove('hidden');
 
   } catch (err) {
