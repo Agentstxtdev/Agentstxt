@@ -448,3 +448,26 @@ Hand off to:
 - **Per-framework documentation** (Astro / Next.js / Hono / Express / Cloudflare Workers / Hugo / Jekyll) for their static-asset serving conventions.
 - **herald's own setup skill** when the user picks the generator path and wants the CLI walkthrough.
 - **MCP / agent-auth / x402 / mppx documentation** for protocol-implementation depth; this skill stops at "declare the capability". Wiring the actual `402` handler or MCP server is the next conversation.
+
+---
+
+## Complementary ecosystem discovery surfaces (optional, not part of `agents.txt` v1.0)
+
+`agents.txt` is the canonical capability-declaration surface. The wider agent-readiness ecosystem has converged on several additional well-known files that scanners and registry tools probe in parallel. None of them are mandated by `agents.txt` v1.0, and adopting any one of them is independent of adopting the others. Each one has its own working group, its own schema, and its own audit tooling. The spec covers the relationship between each of these and the `agents.txt` directives in §12.
+
+| Path | Standard | What it adds beyond `agents.txt` |
+|---|---|---|
+| `/.well-known/api-catalog` | RFC 9727 (`application/linkset+json`) | API discovery for non-agent consumers: lists every API with `service-desc` (OpenAPI / AsyncAPI / GraphQL spec) and `service-doc` (human docs) link relations. Useful when the site has APIs beyond MCP / A2A / UCP. |
+| `/.well-known/mcp/server-card.json` | SEP-2127 (MCP working group, draft) | MCP-native pre-screening: `serverInfo` + `transport` + capability flags (`tools`, `resources`, `prompts`). Agents read it to decide whether to open a session, without negotiating. |
+| `/.well-known/agent-skills/index.json` | agentskills.io Discovery v0.2.0 | Per-skill verification: each entry carries a `sha256:<hex>` digest plus `type` (`skill-md` or `archive`). Useful when skill artifact integrity matters or when sites publish skill bundles alongside SKILL.md files. |
+| `/openapi.json` | OpenAPI 3.1 + `x-payment-info` (paymentauth.org Payment Discovery draft) | Per-path payable-operation declaration: `x-payment-info` on each operation carries `intent`, `method`, `amount`, `currency`, `description`. Lets agents pre-screen the cost of a specific path before issuing the request. |
+| `/.well-known/oauth-protected-resource` | RFC 9728 | OAuth-specific binding: declares which authorization servers can issue tokens for this resource. Required only when the site speaks OAuth. `agents.txt`'s `Authorization:` directive carries the protocol family identifier; this file declares the OAuth-specific details. |
+| `Link:` response headers on `/` | RFC 8288 | HTTP-layer discovery: each `Link: <path>; rel="…"` lets an agent reach a discovery file in one round trip without parsing `agents.txt` first. Use `rel="api-catalog"` for the catalog, `rel="describedby"` for site descriptors, `rel="service-desc"` for machine specs. |
+
+How to advertise these consistently with `agents.txt`:
+
+1. Every URL declared in `agents.txt` (`MCP:`, `Skills:`, `A2A:`, `UCP:`) SHOULD appear as an entry or anchor in the corresponding ecosystem file when both are published. The cross-file consistency check is the same shape as the `agents.txt` / `agents.json` cross-check the MCP `audit_site` tool already performs.
+2. Per-path `x-payment-info` in `/openapi.json` and the per-protocol blocks in `agents.json` are complementary, not redundant. `agents.json` answers "what payment protocols does the site speak"; `x-payment-info` answers "what does *this specific path* cost". Both can coexist.
+3. The `_headers` rules for static files (Content-Type, `Access-Control-Allow-Origin: *`, `Cache-Control: public, max-age=3600`) are the same shape spec §4.5 mandates for `/agents.txt` / `/agents.json`. Mirror that pattern for any new well-known JSON / linkset+json file you publish.
+
+If the user is using a generator (herald or another), all of these can be emitted from the same single config object that drives `agents.txt`. If the user is hand-writing files, each one is a single small JSON document; the schemas are simple. Either way, none of them are prerequisites for adopting `agents.txt`. Adopt them as audit needs dictate.

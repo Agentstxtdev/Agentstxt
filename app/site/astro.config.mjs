@@ -6,6 +6,7 @@ export default defineConfig({
   adapter: cloudflare({
     prerenderEnvironment: 'node',
     platformProxy: { enabled: true },
+    imagesBindingName: false,
   }),
   markdown: {
     syntaxHighlight: false,

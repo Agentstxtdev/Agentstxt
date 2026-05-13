@@ -405,6 +405,17 @@ The `MCP:` directive is specific to the **Streamable HTTP** transport (MCP spec 
 
 Sites that also serve the deprecated SSE transport for backwards compatibility with pre-2025-03-26 clients MAY do so at an alternative path. They SHOULD still advertise only the Streamable HTTP endpoint in `agents.txt`: Streamable HTTP supersedes SSE as the interoperability baseline for this spec, and agents that support only SSE are outside its compatibility scope.
 
+### 6.5 Relationship to the MCP Server Card (SEP-2127)
+
+The MCP working group is standardizing a server-side discovery card at `/.well-known/mcp/server-card.json` (SEP-2127, see [`modelcontextprotocol/modelcontextprotocol#2127`](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2127)) that describes a single MCP server's `serverInfo`, transport endpoint, and capability flags (`tools` / `resources` / `prompts`). The card is the MCP-native pre-screening surface: an agent can fetch it to check which capability classes the server supports before opening a session.
+
+The `MCP:` directive and the Server Card sit at different layers and complement each other:
+
+- `agents.txt` `MCP:` is the **cross-protocol** discovery channel. An agent fetching `https://example.com/agents.txt` for the first time, with no prior knowledge that the site has any MCP server, learns the endpoint URL here.
+- The Server Card is the **MCP-side** descriptor. An agent that already knows where the endpoint is (because it read `agents.txt`, or because the URL is configured locally) reads the card to decide whether to negotiate a session.
+
+Sites with an MCP server SHOULD publish both. The `MCP:` URL in `agents.txt` and the `transport.endpoint` in the Server Card MUST agree.
+
 ---
 
 ## 7. Skills (Agent Skills Protocol)
@@ -443,6 +454,17 @@ This enables a natural tiering: free skills and premium skills can coexist as se
 ### 7.4 Authentication
 
 If skill URLs require authentication, the `Authorization:` block (e.g. `Authorization: agent-auth`) declares the site-level auth requirement. The `Skills:` block itself carries only URLs, with no auth signaling. This keeps the blocks fully independent.
+
+### 7.5 Relationship to the Agent Skills Discovery Index (v0.2.0)
+
+The agentskills.io ecosystem defines a complementary discovery index at `/.well-known/agent-skills/index.json` (v0.2.0 schema at `https://schemas.agentskills.io/discovery/0.2.0/schema.json`). The index lists each skill with `name`, `type` (`skill-md` or `archive`), `description`, `url`, and a `digest` of the form `sha256:<hex>`.
+
+The `Skills:` directive and the v0.2.0 index complement each other:
+
+- `agents.txt` `Skills:` is the **format-agnostic** discovery surface. It carries only URLs and works for any agent that can parse the `agents.txt` line format.
+- The v0.2.0 index adds **verification metadata** (the sha256 digest) and **artifact typing** (`skill-md` vs `archive`). Skill packagers that need integrity guarantees, or sites that want to advertise bundled archives alongside SKILL.md files, use the index for that.
+
+Both surfaces SHOULD list the same skill set. The `Skills:` URL in `agents.txt` and the `url` field in each `skills[]` entry of the discovery index MUST agree per skill.
 
 ---
 
@@ -652,6 +674,14 @@ Absence of `Identity: required` does not mean identity is optional; it means the
 | UCP (Universal Commerce Protocol) | `agents.txt` provides UCP profile discovery via `UCP:` directives (§10), covering sites with multiple profiles or non-canonical paths. The well-known path `/.well-known/ucp` remains the primary discovery surface for single-profile sites. The protocol itself (service catalogue, capability negotiation, payment handlers, signing keys, AP2 mandate extension) is defined by the UCP specification. |
 | ERC-8004 (Trustless Agents Registry) | Compatible. `agents.txt` operates entirely off-chain. Sites that anchor agent identity on-chain via ERC-8004 remain compatible; this spec imposes no constraint. |
 | security.txt (RFC 9116) | Independent. `security.txt` is a human-readable vulnerability disclosure channel published at `/.well-known/security.txt`; `agents.txt` is a machine-readable capability declaration. Sites that take agent payments or authentication SHOULD publish both. |
+| Link headers (RFC 8288) | Complementary. `Link:` response headers on `/` advertise discovery surfaces (e.g. `Link: </.well-known/api-catalog>; rel="api-catalog"`) at the HTTP layer, before any file is parsed. `agents.txt` declares site capabilities at the file layer. Both surfaces can coexist and point at the same underlying resources; agents that read headers first reach the discovery surface in one round trip, agents that read the file first arrive at the same destination via the `agents.txt` directives. |
+| API Catalog (RFC 9727) | Complementary. `/.well-known/api-catalog` returns `application/linkset+json` listing the site's APIs with `service-desc` / `service-doc` link relations. `agents.txt` declares agent-facing capabilities (Payments, Auth, MCP, Skills, A2A, UCP); the API catalog declares the underlying APIs. Sites with both can use API Catalog entries to point agents at the OpenAPI / AsyncAPI / GraphQL spec for each capability. The two formats target different audiences (API consumers vs. agents) but share an "anchor + relation" shape. |
+| MCP Server Card (SEP-2127 / [`modelcontextprotocol/modelcontextprotocol#2127`](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2127)) | Complementary. The Server Card at `/.well-known/mcp/server-card.json` describes a single MCP server's `serverInfo`, transport endpoint, and capability flags (`tools` / `resources` / `prompts`). It is the MCP-side discovery card; `agents.txt`'s `MCP:` directive remains the cross-protocol discovery surface that lets agents find the server in the first place. Sites SHOULD publish both: `agents.txt` for ecosystem discovery, the Server Card for MCP-native pre-screening of capabilities before opening a session. |
+| Agent Skills Discovery ([agentskills.io](https://agentskills.io) v0.2.0) | Complementary. The discovery index at `/.well-known/agent-skills/index.json` lists skill artifacts with name / type / url / sha256 digest per entry. `agents.txt`'s `Skills:` directive carries only URLs and remains the primary discovery channel; the Skills Discovery index adds verification (sha256) and metadata (type: `skill-md` or `archive`) for skill packagers that need integrity guarantees. Both list the same skill set; the digests in the discovery index let agents detect drift between the advertised artifact and what they fetched. |
+| OAuth Protected Resource Metadata (RFC 9728) | Independent. `/.well-known/oauth-protected-resource` declares which OAuth/OIDC authorization servers can issue tokens for the resource and which scopes it accepts. `agents.txt`'s `Authorization:` directive identifies a protocol family (e.g. `agent-auth`, `oauth2`); the OAuth Protected Resource Metadata declares the OAuth-specific binding details. Sites with OAuth-gated APIs SHOULD publish both. |
+| Payment Discovery (`x-payment-info` OpenAPI extension, [paymentauth.org draft](https://paymentauth.org/draft-payment-discovery-00.txt)) | Complementary. An OpenAPI document at `/openapi.json` MAY declare payable operations using the `x-payment-info` extension (per-operation offers of `{ intent, method, amount, currency, description }`). `agents.txt` declares which payment protocols the site speaks; the OpenAPI document declares which paths require payment and at what price. The two layers don't overlap: an agent that has read `agents.txt` and knows a site supports MPP still needs the OpenAPI document (or the 402 response itself) to find out which paths are payable and how much each costs. |
+| WebMCP ([webmachinelearning.github.io/webmcp](https://webmachinelearning.github.io/webmcp/)) | Complementary. WebMCP exposes site-defined tools to in-page AI agents via `navigator.modelContext.registerTool()` calls in the document. `agents.txt`'s `MCP:` directive advertises server-side MCP endpoints; WebMCP advertises browser-context tools. Both can coexist on the same site: server-side MCP for headless agents, WebMCP for agents running inside the browser tab. |
+| Markdown for Agents ([Cloudflare convention](https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/)) | Independent. HTTP content negotiation: requests with `Accept: text/markdown` SHOULD receive a markdown representation with `Content-Type: text/markdown`. `agents.txt` declares capabilities; Markdown for Agents handles content-format negotiation for arbitrary HTML pages. The two are orthogonal and can be applied to the same site without overlap. |
 
 ---
 

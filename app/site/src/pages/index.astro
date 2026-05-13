@@ -47,7 +47,7 @@ import { SPEC_VERSION } from '../config';
         Layer 4 of the agent-readiness stack
       </p>
       <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-[#111] mb-4 leading-tight">
-        The open standard for declaring what AI agents can do on a website.
+        The declarative capability discovery layer of the agent-native web.
       </h1>
       <p class="text-base text-[#555] leading-relaxed max-w-[68ch] mb-6">
         <span class="font-mono text-[#111]">agents.txt</span> is a lightweight, protocol-agnostic capability declaration format. A site publishes one plain-text file at <span class="font-mono text-[#111]">/agents.txt</span> and one structured companion at <span class="font-mono text-[#111]">/agents.json</span>; agents read both to find out which payment protocols, authorization schemes, MCP servers, skill packages, and A2A AgentCards the site supports. Implementation details for every protocol stay in that protocol's own response surface, never in the discovery files.
@@ -138,29 +138,86 @@ import { SPEC_VERSION } from '../config';
           <span>Route</span>
           <span class="text-right">Open</span>
         </div>
-        <ul class="divide-y divide-[#e5e5e5] m-0 p-0 list-none">
-          {[
-            ['/agents.txt',                       'Plain-text capability declaration (spec §3). Site identity plus the active capability blocks.',                                                                                       '/agents.txt',                       'text/plain'],
-            ['/agents.json',                      'Structured companion to agents.txt (spec §5). Same information in JSON with richer per-block detail.',                                                                              '/agents.json',                      'application/json'],
-            ['/.well-known/agent-card.json',      'A2A AgentCard for this deployment (spec §9). Describes a reference meta-agent, declared skills, and the x402 payments extension.',                                                  '/.well-known/agent-card.json',      'application/json'],
-            ['/.well-known/agent-configuration',  'Agent Auth Protocol discovery (spec §11). Served by a dynamic handler; the only well-known route on this deployment whose headers are set in code.',                                  '/.well-known/agent-configuration',  'application/json'],
-            ['/mcp',                              'Model Context Protocol endpoint (spec §6). Exposes get_spec, parse_agents_txt, validate_agents_txt, validate_agents_json, audit_site, get_skill. Streamable HTTP transport.',         '/mcp',                              'application/json · streamable-http'],
-            ['/skills/adopt-agents-txt/SKILL.md', 'Service-consumption skill package (spec §7) that walks a developer through adopting agents.txt on their own site.',                                                                  '/skills/adopt-agents-txt/SKILL.md', 'text/plain'],
-            ['/llms.txt',                         'Curated link inventory for LLM-friendly site browsing. Layer 3 of the stack (llmstxt.org).',                                                                                          '/llms.txt',                         'text/plain'],
-            ['/llms-full.txt',                    'Expanded form of llms.txt with full markdown content inlined under each page heading.',                                                                                              '/llms-full.txt',                    'text/plain'],
-          ].map(([path, description, href, contentType]) => (
-            <li class="grid grid-cols-[1fr_auto] gap-x-6 px-5 py-4 items-start hover:bg-[#fcfcfc] transition-colors">
-              <div class="min-w-0">
-                <p class="font-mono text-sm text-[#111] mb-1 break-all">{path}</p>
-                <p class="text-xs text-[#777] leading-relaxed mb-1">{description}</p>
-                <p class="font-mono text-[10px] text-[#999] tracking-[0.04em]">{contentType}</p>
-              </div>
-              <a href={href} class="font-mono text-xs text-[#555] hover:text-[#111] transition-colors no-underline shrink-0 mt-0.5">
-                Open →
-              </a>
-            </li>
-          ))}
-        </ul>
+        {[
+          {
+            label: 'agents.txt spec surfaces',
+            note:  'spec §3 · §5',
+            open:  true,
+            rows: [
+              ['/agents.txt',                       'Plain-text capability declaration (spec §3). Site identity plus the active capability blocks.',                                                                                       '/agents.txt',                       'text/plain'],
+              ['/agents.json',                      'Structured companion to agents.txt (spec §5). Same information in JSON with richer per-block detail.',                                                                              '/agents.json',                      'application/json'],
+            ],
+          },
+          {
+            label: 'Capability discovery',
+            note:  'spec §6 · §7 · §9 · §10 · §11',
+            open:  false,
+            rows: [
+              ['/mcp',                              'Model Context Protocol endpoint (spec §6). Exposes get_spec, parse_agents_txt, validate_agents_txt, validate_agents_json, audit_site, get_skill. Streamable HTTP transport.',         '/mcp',                              'application/json · streamable-http'],
+              ['/skills/adopt-agents-txt/SKILL.md', 'Service-consumption skill package (spec §7) that walks a developer through adopting agents.txt on their own site.',                                                                  '/skills/adopt-agents-txt/SKILL.md', 'text/plain'],
+              ['/.well-known/agent-card.json',      'A2A AgentCard for this deployment (spec §9). Describes a reference meta-agent, declared skills, and the x402 payments extension.',                                                  '/.well-known/agent-card.json',      'application/json'],
+              ['/.well-known/ucp',                  'UCP profile (spec §10). Declares services, transport bindings, payment handlers including the AP2 mandate extension, and signing keys.',                                            '/.well-known/ucp',                  'application/json'],
+              ['/.well-known/agent-configuration',  'Agent Auth Protocol discovery (spec §11). Served by a dynamic handler; the only well-known route on this deployment whose headers are set in code.',                                  '/.well-known/agent-configuration',  'application/json'],
+            ],
+          },
+          {
+            label: 'Ecosystem discovery surfaces',
+            note:  'RFC 8288 · RFC 9727 · SEP-2127 · agentskills.io v0.2.0 · Payment Discovery',
+            open:  false,
+            rows: [
+              ['/.well-known/api-catalog',           'RFC 9727 linkset of the machine-readable APIs this deployment exposes. Each anchor carries service-desc and describedby relations pointing at its descriptor.',                     '/.well-known/api-catalog',           'application/linkset+json'],
+              ['/.well-known/mcp/server-card.json',  'SEP-2127 server card for the MCP endpoint. Declares serverInfo, transport, and capability flags so agents can pre-screen the server before opening a session.',                       '/.well-known/mcp/server-card.json',  'application/json'],
+              ['/.well-known/agent-skills/index.json','agentskills.io Discovery v0.2.0 index. Per-skill name, type, URL, and sha256 digest for artifact verification.',                                                                       '/.well-known/agent-skills/index.json','application/json'],
+              ['/openapi.json',                      'OpenAPI 3.1 with x-payment-info per the Payment Discovery draft. Declares the /x402 and /mpp routes with their payable-operation metadata.',                                          '/openapi.json',                      'application/json'],
+            ],
+          },
+          {
+            label: 'Adjacent standards',
+            note:  'RFC 9309 · sitemaps.org · llmstxt.org · RFC 9116',
+            open:  false,
+            rows: [
+              ['/robots.txt',                       'RFC 9309 crawler access policy. Includes the spec §4.3 Allow rule that exposes /agents.txt at its canonical path.',                                                                  '/robots.txt',                       'text/plain'],
+              ['/sitemap.xml',                      'sitemaps.org 0.9 page inventory. Layer 2 of the stack.',                                                                                                                              '/sitemap.xml',                      'application/xml'],
+              ['/llms.txt',                         'Curated link inventory for LLM-friendly site browsing. Layer 3 of the stack (llmstxt.org).',                                                                                          '/llms.txt',                         'text/plain'],
+              ['/llms-full.txt',                    'Expanded form of llms.txt with full markdown content inlined under each page heading. Also served on /, /spec, and /demo/* when the Accept header carries text/markdown.',           '/llms-full.txt',                    'text/plain · text/markdown'],
+              ['/.well-known/security.txt',         'RFC 9116 vulnerability disclosure channel. Carries Contact, Expires, Canonical, and Policy.',                                                                                        '/.well-known/security.txt',         'text/plain'],
+            ],
+          },
+          {
+            label: 'Synthetic demo routes',
+            note:  'spec §8.1 · §8.2',
+            open:  false,
+            rows: [
+              ['/x402',                             'Synthetic gated route demonstrating the x402 v2 wire shape on Solana mainnet. Returns 402 with accepts[] on first contact; settles via the public x402.org facilitator after the agent supplies a signed payment payload.', '/x402', 'application/json · 402'],
+              ['/mpp',                              'Synthetic gated route demonstrating the MPP wire shape. Returns 402 with a WWW-Authenticate: Payment challenge composed by mppx. Tempo and Stripe methods activate per the credentials configured on the worker.',       '/mpp',  'application/json · 402'],
+            ],
+          },
+        ].map((group) => (
+          <details open={group.open} class="route-group border-t border-[#e5e5e5] first:border-t-0">
+            <summary class="grid grid-cols-[1fr_auto] gap-x-6 px-5 py-3 cursor-pointer list-none hover:bg-[#f5f5f5] transition-colors">
+              <span class="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#555] flex items-center">
+                <span class="chevron inline-block w-3 mr-2 text-[#999] text-[10px]">▸</span>
+                {group.label}
+                <span class="ml-2 text-[#999] font-normal normal-case tracking-normal text-[10px]">· {group.rows.length} route{group.rows.length === 1 ? '' : 's'}</span>
+              </span>
+              <span class="text-right text-[10px] uppercase tracking-[0.08em] text-[#999] self-center font-mono">{group.note}</span>
+            </summary>
+            <ul class="divide-y divide-[#e5e5e5] m-0 p-0 list-none border-t border-[#e5e5e5] bg-white">
+              {group.rows.map(([path, description, href, contentType]) => (
+                <li class="grid grid-cols-[1fr_auto] gap-x-6 px-5 py-4 items-start hover:bg-[#fcfcfc] transition-colors">
+                  <div class="min-w-0">
+                    <p class="font-mono text-sm text-[#111] mb-1 break-all">{path}</p>
+                    <p class="text-xs text-[#777] leading-relaxed mb-1">{description}</p>
+                    <p class="font-mono text-[10px] text-[#999] tracking-[0.04em]">{contentType}</p>
+                  </div>
+                  <a href={href} class="font-mono text-xs text-[#555] hover:text-[#111] transition-colors no-underline shrink-0 mt-0.5">
+                    Open →
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))}
       </div>
 
       <p class="text-xs text-[#999] mt-4 leading-relaxed max-w-[68ch]">
@@ -172,19 +229,20 @@ import { SPEC_VERSION } from '../config';
     <section class="mb-14">
       <div class="mb-6">
         <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#999] mb-2">Spec at a glance</p>
-        <h2 class="text-xl font-bold tracking-tight text-[#111] mb-2">Five capability blocks</h2>
+        <h2 class="text-xl font-bold tracking-tight text-[#111] mb-2">An open set of capability blocks</h2>
         <p class="text-sm text-[#555] leading-relaxed max-w-[68ch]">
-          Each block is independent and optional. A site emits only the blocks that apply to it; old parsers ignore any block they do not recognise. New protocols can be advertised with the <span class="font-mono">x-</span> prefix until they land in a future spec version.
+          Each block is independent and optional. A site emits only the blocks that apply to it; old parsers ignore any block they do not recognise. The blocks below are the ones currently registered in the spec. A protocol awaiting registration may be advertised with the <span class="font-mono">x-</span> prefix; new block types are added to the spec by amendment; older parsers ignore what they do not recognise.
         </p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
-          ['Payments',      '§8',  'Protocols:',        'x402, mpp',                                       'Per-request crypto micropayments and session-based fiat / stablecoin payments. Block opens with Protocols:; site-level policy hint Payments: required is optional.'],
+          ['Payments',      '§8',  'Protocols:',        'x402, mpp, ap2',                                  'Per-request crypto micropayments, session-based fiat / stablecoin payments, and the AP2 mandate trust layer. Block opens with Protocols:; site-level policy hint Payments: required is optional.'],
           ['Authorization', '§11',  'Authorization:',    'agent-auth',                                      'Agent identity and capability grants. Discovery at /.well-known/agent-configuration. Identity: required is the optional site-level policy hint.'],
           ['MCP',           '§6',  'MCP:',              'Streamable HTTP',                                 'Model Context Protocol server endpoint discovery. The directive is repeatable; one line per MCP server.'],
           ['Skills',        '§7',  'Skills:',           'agentskills.io',                                  'Service-consumption skill packages. Each Skills: line points to a SKILL.md at the root of an agentskills.io-canonical folder.'],
           ['A2A',           '§9',  'A2A:',              'a2a-protocol.org',                                'A2A AgentCard URLs. Complements the canonical well-known path for multi-agent sites and non-canonical AgentCard locations.'],
+          ['UCP',           '§10', 'UCP:',              'ucp.dev',                                         'Universal Commerce Protocol profile URLs. Profile document declares services, transport bindings, payment handlers, and signing keys. Complements the canonical /.well-known/ucp path for multi-profile sites.'],
         ].map(([name, section, directive, value, description]) => (
           <div class="border border-[#e5e5e5] px-5 py-4">
             <div class="flex items-baseline justify-between gap-3 mb-2">
@@ -257,3 +315,16 @@ import { SPEC_VERSION } from '../config';
     </div>
   </footer>
 </BaseLayout>
+
+<style>
+  /* Native <details> styling for the route groups: hide the default disclosure
+     marker and use a custom chevron that rotates when the group is open. */
+  details.route-group > summary { list-style: none; }
+  details.route-group > summary::-webkit-details-marker { display: none; }
+  details.route-group > summary .chevron {
+    transition: transform 200ms ease-out;
+  }
+  details.route-group[open] > summary .chevron {
+    transform: rotate(90deg);
+  }
+</style>
