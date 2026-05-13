@@ -2,10 +2,10 @@
 
 **Status:** Draft  
 **Version:** 1.0  
-**Authors:** [hsologarcia](https://github.com/hsologarcia)
+**Authors:** [https://github.com/hsologarcia](https://github.com/hsologarcia)
 **Contact:** contact@agentstxt.dev
 **Published:** 2025-10-13  
-**Repository:** https://github.com/agentstxtdev/agentstxt  
+**Repository:** [https://github.com/agentstxtdev/agentstxt](https://github.com/agentstxtdev/agentstxt)  
 **License:** CC0 (spec), Apache 2.0 (reference implementation)
 
 ---
