@@ -1,11 +1,19 @@
-# agents.txt
+<div align="center">
+
+<img src="assets/alogo.svg" width="235" alt="AGENTS.TXT">
+
+<h1>AGENTS.TXT</h1>
 
 **An open standard for AI agent capability declarations on the web.**
+
+<br>
 
 [![Spec: v1.0](https://img.shields.io/badge/spec-v1.0-111?style=flat-square)](spec/AGENTS-TXT-STANDARD.md)
 [![License: CC0](https://img.shields.io/badge/license-CC0-lightgrey?style=flat-square)](spec/AGENTS-TXT-STANDARD.md)
 [![Live: agentstxt.dev](https://img.shields.io/badge/live-agentstxt.dev-7c3aed?style=flat-square)](https://agentstxt.dev)
 [![GitHub stars](https://img.shields.io/github/stars/agentstxtdev/agentstxt?style=flat-square&logo=github&logoColor=white&color=181717)](https://github.com/agentstxtdev/agentstxt)
+
+</div>
 
 `agents.txt` is the discovery file an AI agent reads to find out what your site supports (payments, authorization, MCP servers, agent skills) without needing to know the implementation details of any particular protocol.
 
