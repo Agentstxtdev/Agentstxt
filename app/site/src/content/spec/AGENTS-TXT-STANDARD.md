@@ -2,7 +2,7 @@
 
 **Status:** Draft  
 **Version:** 1.0  
-**Authors:** https://github.com/hsologarcia
+**Authors:** [hsologarcia](https://github.com/hsologarcia)
 **Contact:** contact@agentstxt.dev
 **Published:** 2025-10-13  
 **Repository:** https://github.com/agentstxtdev/agentstxt  

@@ -1,6 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "agents-txt-spec",
+	"name": "agents-txt-site-production",
 	"main": "./src/worker.ts",
 	"compatibility_date": "2026-01-28",
 	"compatibility_flags": [
