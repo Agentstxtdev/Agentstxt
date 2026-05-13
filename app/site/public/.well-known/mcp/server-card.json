@@ -1,0 +1,15 @@
+{
+  "serverInfo": {
+    "name": "agents.txt",
+    "version": "0.5.0"
+  },
+  "transport": {
+    "endpoint": "https://agentstxt.dev/mcp",
+    "type": "streamable-http"
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": false,
+    "prompts": false
+  }
+}

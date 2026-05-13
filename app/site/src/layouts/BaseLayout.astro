@@ -43,5 +43,51 @@ const {
   </head>
   <body class="bg-white text-[#111] antialiased">
     <slot />
+
+    <!--
+      WebMCP registration (webmachinelearning.github.io/webmcp). Browsers that
+      expose `navigator.modelContext` see this site advertising three read-only
+      tools an in-page agent can call without leaving the document. Feature-
+      detected so this is a no-op on browsers without the API and on SSR.
+      Same surface the site already exposes via /mcp, restricted to the GETs
+      that make sense from the page context.
+    -->
+    <script is:inline>
+      (function () {
+        if (typeof navigator === 'undefined') return;
+        var ctx = navigator.modelContext;
+        if (!ctx || typeof ctx.registerTool !== 'function') return;
+
+        ctx.registerTool({
+          name: 'fetch_agents_txt',
+          description: "Fetch this site's /agents.txt — the plain-text capability declaration listing supported payment, auth, MCP, skills, A2A, and UCP discovery surfaces.",
+          inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+          execute: async function () {
+            var res = await fetch('/agents.txt', { headers: { Accept: 'text/plain' } });
+            return await res.text();
+          },
+        });
+
+        ctx.registerTool({
+          name: 'fetch_agents_json',
+          description: "Fetch this site's /agents.json — the structured JSON companion to agents.txt with full payment, auth, MCP, skills, A2A, and UCP block detail.",
+          inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+          execute: async function () {
+            var res = await fetch('/agents.json', { headers: { Accept: 'application/json' } });
+            return await res.json();
+          },
+        });
+
+        ctx.registerTool({
+          name: 'fetch_api_catalog',
+          description: "Fetch this site's /.well-known/api-catalog (RFC 9727 linkset+json) listing every machine-readable API surface declared by the site.",
+          inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+          execute: async function () {
+            var res = await fetch('/.well-known/api-catalog', { headers: { Accept: 'application/linkset+json, application/json' } });
+            return await res.json();
+          },
+        });
+      })();
+    </script>
   </body>
 </html>

@@ -1,0 +1,46 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://agentstxt.dev/mcp",
+      "links": [
+        {
+          "rel": "describedby",
+          "href": "https://agentstxt.dev/.well-known/mcp/server-card.json",
+          "type": "application/json"
+        },
+        {
+          "rel": "service-doc",
+          "href": "https://agentstxt.dev"
+        }
+      ]
+    },
+    {
+      "anchor": "https://agentstxt.dev/.well-known/agent-card.json",
+      "links": [
+        {
+          "rel": "service-desc",
+          "href": "https://agentstxt.dev/.well-known/agent-card.json",
+          "type": "application/json"
+        },
+        {
+          "rel": "service-doc",
+          "href": "https://agentstxt.dev"
+        }
+      ]
+    },
+    {
+      "anchor": "https://agentstxt.dev/.well-known/ucp",
+      "links": [
+        {
+          "rel": "service-desc",
+          "href": "https://agentstxt.dev/.well-known/ucp",
+          "type": "application/json"
+        },
+        {
+          "rel": "service-doc",
+          "href": "https://agentstxt.dev"
+        }
+      ]
+    }
+  ]
+}

@@ -61,6 +61,57 @@ export default {
         description: MPP_DESCRIPTION,
       },
     }),
+    // OpenAPI discovery surface (/openapi.json) per the MPP / Payment Discovery
+    // draft. Independent of the env-var gate on protocols[] above: the
+    // openapi.json file is a discovery surface, so it announces what the
+    // /x402 and /mpp routes can do at protocol level. The wire activation gate
+    // (whether the route actually settles a payment right now) is the worker's
+    // responsibility — it returns 503 endpoint_inactive when secrets are absent.
+    openapi: {
+      title:   'agents.txt — payable demo routes',
+      version: '1.0.0',
+      paths: {
+        '/x402': {
+          summary:     'Synthetic x402 v2 gated route (Solana USDC).',
+          description: 'Returns HTTP 402 with x402 v2 accepts on first contact; settles via the public x402.org facilitator after the agent supplies a signed payment payload.',
+          // x402 is not in MPP's registered method list, but the offer shape is
+          // still useful as a service-desc hint and parses fine.
+          offers: [{
+            intent:      'charge',
+            method:      'x402',
+            // 0.01 USDC in atomic 6-decimal units.
+            amount:      '10000',
+            // USDC SPL mint on Solana mainnet.
+            currency:    'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+            description: 'agents.txt x402 demo charge (0.01 USDC on Solana mainnet).',
+          }],
+        },
+        '/mpp': {
+          summary:     'Synthetic MPP gated route (Tempo + Stripe).',
+          description: 'Returns HTTP 402 with a WWW-Authenticate: Payment challenge composed by mppx. Each method activates per the credentials configured on the worker.',
+          offers: [
+            {
+              intent:      'charge',
+              method:      'tempo',
+              // 0.01 USDC.e in atomic 6-decimal units.
+              amount:      '10000',
+              // USDC.e on Tempo mainnet — matches TEMPO_USDC_E in worker.ts.
+              currency:    '0x20c0000000000000000000000000000000000000',
+              description: 'agents.txt MPP demo charge (0.01 USDC.e on Tempo mainnet).',
+            },
+            {
+              intent:      'charge',
+              method:      'stripe',
+              // 0.01 USD in cents (Stripe's smallest unit).
+              amount:      '1',
+              currency:    'usd',
+              description: 'agents.txt MPP demo charge (0.01 USD via Stripe — card or Solana USDC).',
+            },
+          ],
+        },
+      },
+    },
+
     // AP2 (Agent Payments Protocol) mandate layer. Spec §5.3. Presence of
     // this object is the announcement signal; the mandate exchange itself
     // (CheckoutMandate, PaymentMandate) happens during checkout per the AP2
@@ -133,11 +184,29 @@ export default {
       url: 'https://agentstxt.dev/mcp',
       description: 'Exposes the agents.txt spec as structured resources: sections, directive reference, examples, and the JSON schema for agents.json.',
     },
+    // SEP-2127 server-card metadata. herald emits
+    // /.well-known/mcp/server-card.json describing this MCP server.
+    serverCard: {
+      name:    'agents.txt',
+      version: '0.5.0',
+      capabilities: {
+        tools:     true,
+        resources: false,
+        prompts:   false,
+      },
+    },
   },
 
   skills: {
+    // sha256 of public/skills/adopt-agents-txt/SKILL.md — required by the
+    // Cloudflare Agent Skills Discovery v0.2.0 index. Regenerate with
+    // `sha256sum public/skills/adopt-agents-txt/SKILL.md` whenever the file
+    // changes; herald otherwise omits the entry from the discovery index.
     urls: {
       url: 'https://agentstxt.dev/skills/adopt-agents-txt/SKILL.md',
+      name: 'adopt-agents-txt',
+      type: 'skill-md',
+      digest: 'sha256:28b3b35c5f712e9d46d9e0f80d6dfadeec6dab6036179c292d53a47c15933a4a',
       description: 'Guides a developer through adopting the agents.txt standard on their own website: walks the spec, picks an adoption path (hand-write, generator, or library), and validates the result.',
     },
   },
@@ -172,7 +241,7 @@ export default {
   // herald and served as a static asset under public/.well-known/.
   security: {
     contact: 'security@agentstxt.dev',
-    policy: 'https://github.com/agentstxt/agents.txt/security/policy',
+    policy: 'https://github.com/agentstxtdev/agents.txt/security/policy',
     preferredLanguages: ['en'],
   },
 }

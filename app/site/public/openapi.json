@@ -1,0 +1,68 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agents.txt — payable demo routes",
+    "version": "1.0.0",
+    "description": "The open specification for AI agent capability declarations. Layer 4 of the agent-readiness stack."
+  },
+  "servers": [
+    {
+      "url": "https://agentstxt.dev"
+    }
+  ],
+  "paths": {
+    "/x402": {
+      "get": {
+        "summary": "Synthetic x402 v2 gated route (Solana USDC).",
+        "description": "Returns HTTP 402 with x402 v2 accepts on first contact; settles via the public x402.org facilitator after the agent supplies a signed payment payload.",
+        "x-payment-info": {
+          "intent": "charge",
+          "method": "x402",
+          "amount": "10000",
+          "currency": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "description": "agents.txt x402 demo charge (0.01 USDC on Solana mainnet)."
+        },
+        "responses": {
+          "200": {
+            "description": "Payment verified; response returned."
+          },
+          "402": {
+            "description": "Payment required. Resolve the x-payment-info offer(s) and retry."
+          }
+        }
+      }
+    },
+    "/mpp": {
+      "get": {
+        "summary": "Synthetic MPP gated route (Tempo + Stripe).",
+        "description": "Returns HTTP 402 with a WWW-Authenticate: Payment challenge composed by mppx. Each method activates per the credentials configured on the worker.",
+        "x-payment-info": {
+          "offers": [
+            {
+              "intent": "charge",
+              "method": "tempo",
+              "amount": "10000",
+              "currency": "0x20c0000000000000000000000000000000000000",
+              "description": "agents.txt MPP demo charge (0.01 USDC.e on Tempo mainnet)."
+            },
+            {
+              "intent": "charge",
+              "method": "stripe",
+              "amount": "1",
+              "currency": "usd",
+              "description": "agents.txt MPP demo charge (0.01 USD via Stripe — card or Solana USDC)."
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Payment verified; response returned."
+          },
+          "402": {
+            "description": "Payment required. Resolve the x-payment-info offer(s) and retry."
+          }
+        }
+      }
+    }
+  }
+}

@@ -145,6 +145,37 @@ export default {
     if (env.MCP  && matches(pathname, MCP_PREFIXES))  return proxyTo(request, env.MCP);
     if (env.AUTH && matches(pathname, AUTH_PREFIXES)) return proxyTo(request, env.AUTH);
 
+    // Markdown for Agents: when a client sends `Accept: text/markdown` (or the
+    // markdown q-value beats text/html), serve /llms-full.txt — the canonical
+    // markdown representation of this site already published by the herald
+    // generator — with the matching Content-Type. Cloudflare's managed
+    // `content_converter` zone setting does the same thing transparently when
+    // it rolls out; this worker-side fallback satisfies the same audit check
+    // (isitagentready.com → contentAccessibility.markdownNegotiation) and uses
+    // content the site already publishes, so it stays an honest declaration.
+    //
+    // Scoped to HTML page paths only. Protocol routes (/x402, /mpp) and proxied
+    // routes were already returned above, but `wrangler.json` sets
+    // `assets.run_worker_first: true` to ensure / and other static-asset pages
+    // reach this handler. Without the page-path allowlist below we'd shadow
+    // future no-extension routes (e.g. /pay or /api/foo) with markdown content.
+    const PAGE_PATHS = /^\/(spec|demo(\/[^/]+)?)?$/;
+    const accept = request.headers.get('accept') ?? '';
+    if (request.method === 'GET' && /text\/markdown/i.test(accept) && PAGE_PATHS.test(pathname)) {
+      const md = await env.ASSETS.fetch(new Request(new URL('/llms-full.txt', request.url)));
+      if (md.ok) {
+        return new Response(md.body, {
+          status: 200,
+          headers: {
+            'Content-Type':                'text/markdown; charset=utf-8',
+            'Cache-Control':               'public, max-age=3600',
+            'Access-Control-Allow-Origin': '*',
+            'Vary':                        'Accept',
+          },
+        });
+      }
+    }
+
     if (pathname === '/x402') {
       if (request.method === 'OPTIONS') {
         return new Response(null, { status: 204, headers: CORS });
