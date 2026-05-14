@@ -130,7 +130,7 @@ The live deployment at [agentstxt.dev](https://agentstxt.dev) is a working agent
 
 For end-to-end adopter setups in real frameworks, the herald repo ships runnable examples: [`examples/express`](https://github.com/agentstxtdev/herald/tree/main/examples/express) and [`examples/nextjs`](https://github.com/agentstxtdev/herald/tree/main/examples/nextjs). Each shows the same config-driven pattern wired into a host framework's build pipeline.
 
-Optionally, if you want the simplicity of a generator handling all of this for you — emitting the discovery files from one config and keeping them in sync on every build — `herald emit` (path 2 above) is what the reference deployment uses. You can also hand-roll your own generator or hand-write the files; the spec is implementation-agnostic.
+If you want a generator handling all of this for you, `herald emit` (path 2 above) is what the reference deployment uses. It reads one config file, emits the discovery surfaces, and keeps them in sync on every build. You can also hand-roll your own generator or hand-write the files; the spec is implementation-agnostic.
 
 ---
 

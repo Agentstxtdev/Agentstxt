@@ -6,6 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "deploy": "astro build && wrangler deploy --config dist/server/wrangler.json"
   },
   "dependencies": {
@@ -18,6 +20,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/postcss": "^4.3.0",
     "tailwindcss": "^4.3.0",
+    "vitest": "^4.1.5",
     "wrangler": "^4.90.0"
   }
 }
