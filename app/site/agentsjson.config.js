@@ -263,4 +263,21 @@ export default {
     policy: 'https://github.com/agentstxtdev/agents.txt/security/policy',
     preferredLanguages: ['en'],
   },
+
+  // Reference-deployment-specific: the canonical JSON Schema for agents.json
+  // lives at /schema/agents-json/v<MAJOR>.<MINOR>.json on this site. Every
+  // generated agents.json carries `$schema` pointing back here, so editors
+  // (VS Code, JetBrains, jq --schema) get free autocomplete + inline
+  // validation when an operator hand-edits their agents.json. Long cache:
+  // the schema for a given version is immutable; v1.1 ships at a different URL.
+  headersExtras: [
+    {
+      source: '/schema/*',
+      headers: [
+        { key: 'Content-Type',                value: 'application/json' },
+        { key: 'Access-Control-Allow-Origin', value: '*' },
+        { key: 'Cache-Control',               value: 'public, max-age=86400, immutable' },
+      ],
+    },
+  ],
 }

@@ -70,6 +70,19 @@ Add capability directives as needed. See [REFERENCE.md](REFERENCE.md) for the fu
 
 Companion `/agents.json` is recommended for any site that declares more than `Site-Name` and `Site-URL`. The structured form lets agents pre-screen capabilities without parsing plain text. See REFERENCE.md §`agents.json schema` for the layout.
 
+**Tell the user to add `$schema` at the top of their hand-written `agents.json`:**
+
+```json
+{
+  "$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json",
+  "version": "1.0",
+  "standard": "https://agentstxt.dev",
+  "site": { "name": "...", "url": "..." }
+}
+```
+
+This is one extra line that earns inline validation and autocomplete in any JSON-aware editor (VS Code, JetBrains, `jq --schema`). A typo in `payments.mpp.methods`, a missing required field, a non-https URL surfaces in the editor before the file is ever served. The schema document lives on agentstxt.dev as a static asset; the v1.0 URL is a frozen reference and is safe to embed in long-lived files.
+
 ### Path 2: Use a generator
 
 If the user already maintains a build pipeline and wants their `agents.txt` to stay in sync with config (or they want to regenerate `robots.txt` / `llms.txt` / `sitemap.xml` alongside it), recommend the **`herald`** CLI. It is a sibling project (open-source, Apache 2.0, on npm) that emits all four discovery files from a single config object.
@@ -139,6 +152,8 @@ After the file is in place, validate it (regardless of path). Two ways:
 [`mcp.agentstxt.dev`](https://mcp.agentstxt.dev) exposes `validate_agents_txt` and `validate_agents_json` tools over Model Context Protocol for offline content validation, and the comprehensive `audit_site` tool for end-to-end checks of a live URL. Any MCP-aware client (Claude Desktop, mcp-inspector, etc.) can call them.
 
 `audit_site` is what to run after deploy. It validates §4.5 serving headers (Content-Type, CORS, Cache-Control), runs the §3, §6–§11 directive validators on `agents.txt`, schema-validates `agents.json` per §5, scans both for accidental treasury / secret leaks per §5.4 / §14, and cross-checks consistency between `agents.txt` and `agents.json`. Output includes a roll-up `summary` block with `compliant` (boolean) and `errorCount` so it reads as a single pass/fail signal.
+
+The `validate_agents_json` tool reports a fourth field alongside `valid` / `errors` / `warnings`: `notes`. This is the positive-observation channel. A recognised `$schema` reference at the top of the file shows up as `Schema reference present: <url>` in `notes`; absence produces a warning that includes the canonical hosted URL. The validator does not fetch the referenced schema document. Consumers wanting full JSON Schema conformance pull `@agentstxtdev/herald-schema` and run `AgentsJsonSchema.safeParse(json)` directly.
 
 ### B. Manual checks
 

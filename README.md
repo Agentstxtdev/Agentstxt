@@ -35,6 +35,7 @@ This repository contains:
 - **An MCP server** at [mcp.agentstxt.dev](https://mcp.agentstxt.dev): exposes the spec to agents via Model Context Protocol; the `audit_site` tool lets any agent compliance-check any URL
 - **An agent-auth Cloudflare Worker**: Ed25519 JWT verification, `/.well-known/agent-configuration`, capability execution
 - **A live audit surface** at [agentstxt.dev/audit](https://agentstxt.dev/audit): paste any URL, get HTML / JSON / Markdown depending on the `Accept` header
+- **A hosted JSON Schema** at [agentstxt.dev/schema/agents-json/v1.0.json](https://agentstxt.dev/schema/agents-json/v1.0.json): the canonical JSON Schema 2020-12 document describing the `agents.json` wire format. Operators who reference it from their own `agents.json` (via the `$schema` field) get inline validation and autocomplete in any JSON-aware editor.
 
 ---
 
@@ -111,6 +112,19 @@ You have three paths, in increasing automation:
 ### 1. Hand-write it
 
 The format is plain text. Read [the spec](spec/AGENTS-TXT-STANDARD.md), copy the directives that apply to your site, save the file as `/agents.txt`. Repeat for `agents.json` if you want the structured companion. Total time: 5 minutes.
+
+For the `agents.json` companion, add a `$schema` field at the top pointing at the canonical JSON Schema:
+
+```json
+{
+  "$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json",
+  "version": "1.0",
+  "standard": "https://agentstxt.dev",
+  "site": { "name": "My Site", "url": "https://mysite.com" }
+}
+```
+
+Any JSON-aware editor (VS Code, JetBrains, Helix with the JSON LSP, `jq --schema`) reads that URL and offers inline validation plus autocomplete the moment you open the file. A typo in `payments.mpp.methods`, a missing required field, a non-https URL in `mcp[].url` all surface in the editor before the file is ever served. The schema document lives on this site and is regenerated from the Zod source whenever the wire format changes; the v1.0 URL stays stable as a frozen reference.
 
 ### 2. Generate it
 

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json",
+  "version": "1.0",
+  "standard": "https://agentstxt.dev",
+  "site": {
+    "name": "Example",
+    "url": "https://example.com"
+  },
+  "payments": {
+    "required": true,
+    "pricing": {
+      "amount": "0.01",
+      "currency": "USDC"
+    }
+  }
+}

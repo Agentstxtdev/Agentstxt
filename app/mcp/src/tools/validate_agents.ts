@@ -13,6 +13,14 @@ type ValidationResult = {
   valid: boolean;
   errors: string[];
   warnings: string[];
+  /**
+   * Positive observations — fields the validator recognised as present and
+   * correctly shaped. Surfaces spec-compliant signals the operator should
+   * keep, e.g. a `$schema` reference that earns the file editor autocomplete.
+   * Always emitted (may be empty); consumers that ignore unknown fields are
+   * unaffected.
+   */
+  notes: string[];
 };
 
 function isHttpsUrl(value: string): boolean {
@@ -26,6 +34,7 @@ function isHttpsUrl(value: string): boolean {
 function validateParsed(parsed: ReturnType<typeof parseAgentsTxt>): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
+  const notes: string[] = [];
 
   if (parsed.payments) {
     if (parsed.payments.protocols.length === 0) {
@@ -74,19 +83,31 @@ function validateParsed(parsed: ReturnType<typeof parseAgentsTxt>): ValidationRe
     warnings.push(`Unknown directive "${key}:" — ignored. Use \`x-\` prefix for experimental identifiers; new block-level directives require a spec update.`);
   }
 
-  return { valid: errors.length === 0, errors, warnings };
+  return { valid: errors.length === 0, errors, warnings, notes };
 }
 
 function validateAgentsJson(obj: unknown): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
+  const notes: string[] = [];
 
   if (typeof obj !== 'object' || obj === null) {
-    return { valid: false, errors: ['agents.json must be a JSON object'], warnings };
+    return { valid: false, errors: ['agents.json must be a JSON object'], warnings, notes };
   }
 
   const json = obj as Record<string, unknown>;
 
+  // `$schema` is optional but recommended: a URL pointing at the JSON Schema
+  // for agents.json earns the file inline validation + autocomplete in any
+  // JSON-aware editor. Surface a positive signal when present; nudge once
+  // when absent so operators learn about the integration.
+  if (typeof json.$schema === 'string') {
+    notes.push(`Schema reference present: ${json.$schema}`);
+  } else if ('$schema' in json) {
+    warnings.push('"$schema" present but not a string — should be the URL of the JSON Schema describing this document');
+  } else {
+    warnings.push('No "$schema" field — adding one (e.g. "https://agentstxt.dev/schema/agents-json/v1.0.json") gives editors autocomplete and inline validation');
+  }
   if (!('version' in json)) warnings.push('Missing "version" field (expected "0.5")');
   if (!('standard' in json)) warnings.push('Missing "standard" field (expected "https://agentstxt.dev")');
   if (!('site' in json)) warnings.push('Missing "site" block with name and url');
@@ -189,7 +210,7 @@ function validateAgentsJson(obj: unknown): ValidationResult {
     }
   }
 
-  return { valid: errors.length === 0, errors, warnings };
+  return { valid: errors.length === 0, errors, warnings, notes };
 }
 
 export function registerValidateAgents(server: McpServer) {
@@ -224,7 +245,7 @@ export function registerValidateAgents(server: McpServer) {
         obj = JSON.parse(content);
       } catch {
         return {
-          content: [{ type: 'text' as const, text: JSON.stringify({ valid: false, errors: ['Invalid JSON'], warnings: [] }, null, 2) }],
+          content: [{ type: 'text' as const, text: JSON.stringify({ valid: false, errors: ['Invalid JSON'], warnings: [], notes: [] }, null, 2) }],
         };
       }
       const result = validateAgentsJson(obj);

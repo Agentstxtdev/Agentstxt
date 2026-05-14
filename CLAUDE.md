@@ -209,6 +209,20 @@ The `_headers` file gets matching `Content-Type` + CORS rules and an RFC 8288 `L
 
 These surfaces are published despite not being part of the agents.txt spec because the wider agent-readiness ecosystem (Cloudflare's `isitagentready.com`, agentic-API auditors, MCP Registry scrapers) probes these paths alongside `agents.txt`. Maintaining them is the cost of being readable by every scanner. agents.txt remains the canonical capability declaration.
 
+**The hosted JSON Schema at `/schema/agents-json/v<MAJOR>.<MINOR>.json`.** A fifth static surface alongside the four above, distinct in two ways. First, the file is the canonical JSON Schema 2020-12 document describing the `agents.json` wire format. Every generated `agents.json` carries `"$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json"` at the top, which gives any JSON-aware editor (VS Code, JetBrains, `jq --schema`) inline validation and autocomplete when an operator opens the file. Adopters who hand-write their `agents.json` get the same benefit by copying the `$schema` line. Second, this file is owned by `@agentstxtdev/herald-schema` (the Zod source of truth in the herald monorepo), not by `herald emit`. The schema is regenerated whenever the wire format changes by running `pnpm --filter @agentstxtdev/herald-schema emit:json-schema /path/to/agentstxt/app/site/public/schema` from the herald repo; commit the resulting file in this repo. The matching `_headers` entry is declared via `headersExtras` in `app/site/agentsjson.config.js` so it survives subsequent `herald emit` runs.
+
+### …the user asks how the MCP `validate_agents_json` tool reports on `$schema`
+
+The tool's `ValidationResult` shape is `{ valid, errors, warnings, notes }`. The `notes` field is the positive-observation channel: spec-compliant signals the operator should keep. `$schema` recognition lives there:
+
+- Present and a string: emits a note `Schema reference present: <url>`.
+- Present but not a string (e.g. someone wrote a number or object): emits a warning `"$schema" present but not a string ...`.
+- Absent: emits a warning nudging adoption with the canonical URL as the recommended value.
+
+The tool does NOT fetch the referenced schema document. Presence + string-shape is enough at this layer; downstream consumers that want full conformance run `AgentsJsonSchema.safeParse(json)` from `@agentstxtdev/herald-schema` instead. The MCP worker and the herald-core validator are independent re-implementations of the same rules; the round-trip test in herald guarantees they stay in agreement with the Zod source on what the wire shape should look like.
+
+When a user reports a "missing $schema" warning from `audit_site` or `validate_agents_json`, the fix is to add the field to their generated or hand-written `agents.json`. herald already injects it for adopters using `herald emit`; hand-writers need the line themselves.
+
 ### …the user asks how `agents.json` and the deployed worker stay in sync on x402 / MPP credentials
 
 The honest-declarations gate at the top of `agentsjson.config.js` (`hasX402 = !!(process.env.EVM_ADDRESS || process.env.SOLANA_ADDRESS)`, etc.) reads `process.env` at build time. The worker reads wrangler secrets at runtime. These are two independent layers. A consequence: the env var must be present in the shell that runs `herald emit` for the payments block to land in `agents.json`; setting it only via `wrangler secret put` populates the runtime but leaves the static `agents.json` advertising fewer protocols than the worker actually serves.
@@ -282,5 +296,7 @@ Acknowledge it as a sibling project that helps adopt this spec. Mention it lives
 | What's in `/.well-known/mcp/server-card.json`? | SEP-2127 server card; generated from `agentsjson.config.js` `mcp.serverCard`. |
 | What's in `/.well-known/agent-skills/index.json`? | agentskills.io v0.2.0 discovery index; generated from `agentsjson.config.js` `skills.urls` entries that carry a `digest`. |
 | What's in `/openapi.json`? | OpenAPI 3.1 with `x-payment-info` per the Payment Discovery draft; generated from `agentsjson.config.js` `payments.openapi.paths`. |
+| What's in `/schema/agents-json/v1.0.json`? | JSON Schema 2020-12 document for the `agents.json` wire format. Generated from the Zod source in `@agentstxtdev/herald-schema` via `pnpm --filter @agentstxtdev/herald-schema emit:json-schema <out-dir>`. Editors that respect the `$schema` field read it for autocomplete and inline validation. |
+| Why does every served `agents.json` start with `$schema`? | herald injects `AGENTS_JSON_SCHEMA_URL` at the top of every emitted file. The MCP `validate_agents_json` tool recognises it as a positive signal in its `notes` field; absence emits a warning that includes the canonical URL. |
 | Why does `wrangler.json` have `run_worker_first: true`? | The Markdown for Agents fallback in `site/src/worker.ts` needs to intercept `GET /` before the static-asset pipeline returns `dist/index.html`. |
 | Why doesn't the deployed `agents.json` have `payments.x402` even though the worker serves a 402 there? | The env-var gate at build time. `herald emit` ran without `SOLANA_ADDRESS` in the shell. Re-run `set -a; source .dev.vars; set +a; node ... emit` then redeploy. |

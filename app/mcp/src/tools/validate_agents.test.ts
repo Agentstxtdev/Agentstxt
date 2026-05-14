@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { registerValidateAgents } from './validate_agents.js';
 import { captureTools, jsonOf, type CapturedTool } from '../__tests__/helpers.js';
 
-type ValidationResult = { valid: boolean; errors: string[]; warnings: string[] };
+type ValidationResult = { valid: boolean; errors: string[]; warnings: string[]; notes: string[] };
 
 let txtTool: CapturedTool;
 let jsonTool: CapturedTool;
@@ -20,7 +20,7 @@ const runJson = (content: string): ValidationResult => jsonOf(jsonTool.handler({
 describe('validate_agents_txt — happy path', () => {
   it('returns valid for a minimal spec-compliant file', () => {
     const r = runTxt('MCP: https://example.com/mcp\n');
-    expect(r).toEqual({ valid: true, errors: [], warnings: [] });
+    expect(r).toEqual({ valid: true, errors: [], warnings: [], notes: [] });
   });
 
   it('returns valid for a complete file', () => {
@@ -34,7 +34,7 @@ describe('validate_agents_txt — happy path', () => {
       'A2A: https://example.com/a2a',
       'UCP: https://example.com/ucp',
     ].join('\n');
-    expect(runTxt(txt)).toEqual({ valid: true, errors: [], warnings: [] });
+    expect(runTxt(txt)).toEqual({ valid: true, errors: [], warnings: [], notes: [] });
   });
 });
 
@@ -94,7 +94,7 @@ describe('validate_agents_txt — warnings', () => {
 describe('validate_agents_json — top-level shape', () => {
   it('rejects invalid JSON with an Invalid JSON error', () => {
     const r = runJson('this is not json');
-    expect(r).toEqual({ valid: false, errors: ['Invalid JSON'], warnings: [] });
+    expect(r).toEqual({ valid: false, errors: ['Invalid JSON'], warnings: [], notes: [] });
   });
 
   it('rejects null and primitive JSON values', () => {
@@ -109,6 +109,26 @@ describe('validate_agents_json — top-level shape', () => {
   it('arrays slip past the object check but fail field-level validation', () => {
     const r = runJson('[]');
     expect(r.warnings.some((w) => /Missing "version"/.test(w))).toBe(true);
+  });
+
+  it('surfaces a positive note when $schema is present and a string', () => {
+    const r = runJson(JSON.stringify({
+      $schema: 'https://agentstxt.dev/schema/agents-json/v1.0.json',
+      version: '1.0',
+      standard: 'https://agentstxt.dev',
+      site: { name: 'X', url: 'https://example.com' },
+    }));
+    expect(r.notes.some((n) => /Schema reference present/.test(n))).toBe(true);
+  });
+
+  it('warns when $schema is present but not a string', () => {
+    const r = runJson(JSON.stringify({ $schema: 42, version: '1.0', standard: 'https://agentstxt.dev', site: { name: 'X', url: 'https://example.com' } }));
+    expect(r.warnings.some((w) => /\$schema.*not a string/.test(w))).toBe(true);
+  });
+
+  it('warns (nudge) when $schema is absent so operators learn about editor autocomplete', () => {
+    const r = runJson('{}');
+    expect(r.warnings.some((w) => /No "\$schema" field/.test(w))).toBe(true);
   });
 
   it('warns about missing top-level fields without failing', () => {

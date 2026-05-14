@@ -56,6 +56,11 @@
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=3600
 
+/schema/*
+  Content-Type: application/json
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=86400, immutable
+
 /
   Link: </.well-known/api-catalog>; rel="api-catalog"
   Link: </.well-known/mcp/server-card.json>; rel="describedby"; type="application/json"

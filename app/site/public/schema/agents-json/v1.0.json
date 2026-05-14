@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "description": "URL of the JSON Schema describing this document. Optional but recommended.",
+      "type": "string",
+      "pattern": "^https?:\\/\\/"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "agents.json schema version (e.g. \"1.0\"). MUST be a numeric major.minor pair."
+    },
+    "standard": {
+      "type": "string",
+      "pattern": "^https?:\\/\\/",
+      "description": "URL of the agents.txt standard this file conforms to."
+    },
+    "site": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https?:\\/\\/",
+          "description": "Absolute HTTP(S) URL."
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "url"
+      ],
+      "additionalProperties": false,
+      "description": "Site identity."
+    },
+    "payments": {
+      "type": "object",
+      "properties": {
+        "x402": {
+          "type": "object",
+          "properties": {
+            "chains": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(eip155|solana):"
+              },
+              "description": "CAIP-2 chain identifiers the site can settle on."
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "chains"
+          ],
+          "additionalProperties": false,
+          "description": "x402 v2 micropayments block. See https://x402.org."
+        },
+        "mpp": {
+          "type": "object",
+          "properties": {
+            "methods": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "tempo",
+                  "stripe"
+                ]
+              },
+              "description": "Wire-active MPP methods. Gated on credentials at emit time."
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "methods"
+          ],
+          "additionalProperties": false,
+          "description": "MPP session-based payments. See https://mpp.dev."
+        },
+        "ap2": {
+          "type": "object",
+          "properties": {
+            "presentations": {
+              "description": "Accepted VC presentation formats (e.g. sd-jwt-vc).",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "spec": {
+              "description": "URL of the AP2 spec revision the site implements.",
+              "type": "string",
+              "pattern": "^https?:\\/\\/"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "description": "AP2 mandate-trust layer. Composes with x402 / MPP. See https://ap2-protocol.org."
+        },
+        "required": {
+          "description": "Site-level policy: every interaction requires payment.",
+          "type": "boolean",
+          "const": true
+        },
+        "pricing": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "description": "Advertised default price (atomic / decimal per protocol)."
+            },
+            "currency": {
+              "description": "ISO 4217 code or on-chain token symbol.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false,
+          "description": "Pre-screen pricing. Wallet addresses live in 402 responses, never here."
+        }
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {}
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "properties": {
+        "protocols": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(agent-auth|oauth2|x-.+)$"
+          },
+          "description": "Accepted authorization protocol identifiers."
+        },
+        "discovery": {
+          "type": "string",
+          "pattern": "^\\/.*",
+          "description": "Discovery endpoint, typically /.well-known/agent-configuration."
+        },
+        "identity": {
+          "description": "Site-level policy: every authenticated agent must carry a verifiable identity.",
+          "type": "string",
+          "const": "required"
+        }
+      },
+      "required": [
+        "protocols",
+        "discovery"
+      ],
+      "additionalProperties": false
+    },
+    "mcp": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "pattern": "^https?:\\/\\/",
+            "description": "Absolute HTTP(S) URL."
+          },
+          "type": {
+            "type": "string",
+            "const": "streamable-http",
+            "description": "MCP HTTP transport — only \"streamable-http\" is registered."
+          },
+          "version": {
+            "description": "MCP transport revision pin.",
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "type"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "pattern": "^https?:\\/\\/",
+            "description": "URL of the SKILL.md or skill bundle."
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "a2a": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "pattern": "^https?:\\/\\/",
+            "description": "URL of an AgentCard per the A2A spec §9."
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "ucp": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "pattern": "^https?:\\/\\/",
+            "description": "URL of a UCP profile JSON."
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "version",
+    "standard",
+    "site"
+  ],
+  "additionalProperties": false,
+  "description": "agents.json — structured companion to agents.txt. Declares the capabilities a site exposes to AI agents (payments, authorization, MCP servers, skill packages, A2A AgentCards, UCP profiles). See https://agentstxt.dev for the full specification.",
+  "$id": "https://agentstxt.dev/schema/agents-json/v1.0.json",
+  "title": "agents.json v1.0",
+  "$comment": "JSON Schema for agents.json (v1.0). See https://agentstxt.dev for the specification."
+}

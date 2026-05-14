@@ -116,8 +116,11 @@ One `A2A:` line per [A2A](https://a2a-protocol.org) AgentCard URL. Each URL poin
 
 Same information as `agents.txt`, in machine-friendly JSON. Sites SHOULD serve both: `agents.txt` for plain-text discovery, `agents.json` for structured pre-screening.
 
+The canonical JSON Schema 2020-12 document is hosted at `https://agentstxt.dev/schema/agents-json/v1.0.json`. Reference it from every `agents.json` via the `$schema` field; JSON-aware editors (VS Code, JetBrains, `jq --schema`) read the URL and offer inline validation plus autocomplete on hand-edited files. The URL is a frozen v1.0 reference and is safe to embed long-term. Future major or minor versions ship at distinct URLs (`v1.1.json`, `v2.0.json`).
+
 ```json
 {
+  "$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json",
   "version": "1.0",
   "site": {
     "name": "My Site",
@@ -156,6 +159,7 @@ Same information as `agents.txt`, in machine-friendly JSON. Sites SHOULD serve b
 
 | Field | Required | Notes |
 |---|---|---|
+| `$schema` | optional, recommended | URL of the JSON Schema describing this document, typically `"https://agentstxt.dev/schema/agents-json/v1.0.json"`. Enables editor autocomplete + inline validation. Validators recognise the field and emit a positive signal when it is present (the MCP `validate_agents_json` tool surfaces it in its `notes` field); absence emits a warning. |
 | `version` | yes | Always `"1.0"` for v1.0 compliance |
 | `site.name`, `site.url` | yes | Mirror the `Site-Name` / `Site-URL` directives |
 | `site.description` | no | Plain text, ≤ 200 chars |

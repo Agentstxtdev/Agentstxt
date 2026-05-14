@@ -1,4 +1,5 @@
 {
+  "$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json",
   "version": "1.0",
   "standard": "https://agentstxt.dev",
   "site": {

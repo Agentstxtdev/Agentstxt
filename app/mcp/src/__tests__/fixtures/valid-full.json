@@ -1,0 +1,59 @@
+{
+  "$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json",
+  "version": "1.0",
+  "standard": "https://agentstxt.dev",
+  "site": {
+    "name": "Example",
+    "url": "https://example.com",
+    "description": "A demonstration agentic site."
+  },
+  "payments": {
+    "x402": {
+      "chains": ["eip155:8453", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
+      "description": "Per-request x402 micropayments."
+    },
+    "mpp": {
+      "methods": ["tempo", "stripe"],
+      "description": "Session-based MPP payments."
+    },
+    "ap2": {
+      "presentations": ["sd-jwt-vc"],
+      "spec": "https://ap2-protocol.org/v0.1"
+    },
+    "required": true,
+    "pricing": {
+      "amount": "0.01",
+      "currency": "USDC"
+    }
+  },
+  "authorization": {
+    "protocols": ["agent-auth", "oauth2"],
+    "discovery": "/.well-known/agent-configuration",
+    "identity": "required"
+  },
+  "mcp": [
+    {
+      "url": "https://example.com/mcp",
+      "type": "streamable-http",
+      "description": "Primary MCP endpoint."
+    }
+  ],
+  "skills": [
+    {
+      "url": "https://example.com/skills/adopt-agents-txt/SKILL.md",
+      "description": "Adopt the agents.txt standard."
+    }
+  ],
+  "a2a": [
+    {
+      "url": "https://example.com/.well-known/agent-card.json",
+      "description": "Primary support agent."
+    }
+  ],
+  "ucp": [
+    {
+      "url": "https://example.com/.well-known/ucp.json",
+      "description": "Commerce capabilities profile."
+    }
+  ]
+}

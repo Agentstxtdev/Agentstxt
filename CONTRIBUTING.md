@@ -64,7 +64,8 @@ pnpm auth:deploy / pnpm auth:deploy:prod
 | Astro site page or content | `site/src/pages/` or `site/src/content/` | Standard |
 | BFF and `/x402` + `/mpp` demo routes | `site/src/worker.ts` | Standard, must stay self-contained (no `@herald/*` imports) |
 | Generated discovery files served by site | `site/public/agents.txt`, `agents.json`, `llms.txt`, `llms-full.txt`, `robots.txt`, `sitemap.xml` | Must validate against the latest spec |
-| MCP tool | `mcp/src/` | Tool signatures must stay backward-compatible |
+| Hosted JSON Schema (`site/public/schema/agents-json/v*.json`) | Regenerated from the Zod source in `@agentstxtdev/herald-schema` (lives in the herald repo). Do not hand-edit. Re-emit with `pnpm --filter @agentstxtdev/herald-schema emit:json-schema /path/to/agentstxt/app/site/public/schema` from the herald repo and commit the result here. | The file is the wire-format contract for editors. Any change must be paired with a spec-version bump on the herald side. |
+| MCP tool | `mcp/src/` | Tool signatures must stay backward-compatible. `validate_agents_json` returns `{ valid, errors, warnings, notes }`; `notes` is the positive-observation channel and is append-only. |
 | Agent-auth capability | `auth/src/` + Vitest case | Cryptographic primitives via `@noble/*`, not hand-rolled |
 | Landing page | `landingpage/` | Standard |
 | Skills | `skills/<skill-name>/` | Documentation-style review |
