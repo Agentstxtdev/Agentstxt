@@ -3,9 +3,9 @@
 **Status:** Draft  
 **Version:** 1.0  
 **Authors:** [hsologarcia](https://github.com/hsologarcia)  
-**Contact:** contact@agentstxt.dev  
+**Contact:** contact@agents-txt.com  
 **Published:** 2025-10-13  
-**Repository:** [agentstxtdev/agentstxt](https://github.com/agentstxtdev/agentstxt)  
+**Repository:** [agents-txt/agents-txt](https://github.com/agents-txt/agents-txt)  
 **License:** CC0 (spec), Apache 2.0 (reference implementation)
 
 ---
@@ -29,7 +29,7 @@ The existing layers handle access policies, page indexes, and content guidance f
 
 Its companion, `agents.json`, is the structured catalog layer: where `agents.txt` carries the minimum viable signal, `agents.json` aggregates all declared capabilities into a single machine-readable document with richer detail: pricing, chain identifiers, transport types, and capability descriptions. The relationship mirrors `llms.txt` and `llms-full.txt`: a terse plain-text signal file paired with a comprehensive structured companion. Sites SHOULD serve both; §5 defines the full schema.
 
-A live reference deployment of this specification is available at `https://agentstxt.dev`.
+A live reference deployment of this specification is available at `https://agents-txt.com`.
 
 ---
 
@@ -61,7 +61,7 @@ Capability blocks are separated by blank lines. Each block begins with a directi
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 # JSON: https://example.com/agents.json
 ```
 
@@ -71,7 +71,7 @@ The `# JSON:` line is an optional comment that points agents to the structured c
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Protocols: x402, mpp
 ```
@@ -80,7 +80,7 @@ Protocols: x402, mpp
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Authorization: agent-auth
 Identity: required
@@ -90,7 +90,7 @@ Identity: required
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Protocols: x402, mpp
 
@@ -102,7 +102,7 @@ Identity: required
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Protocols: x402, mpp
 Payments: required
@@ -118,7 +118,7 @@ MCP: https://example.com/mcp-premium
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 # JSON: https://example.com/agents.json
 
 Protocols: x402, mpp
@@ -146,7 +146,7 @@ Skills: https://example.com/skills/premium/SKILL.md
 | `A2A:` | A2A | No | URL | One A2A AgentCard URL; repeat for multiple agents (§9) |
 | `UCP:` | UCP | No | URL | One UCP profile URL; repeat for multiple profiles (§10) |
 
-Registered directives are tracked in §17.2; the live surface at `https://agentstxt.dev/registry` carries any additions between spec versions.
+Registered directives are tracked in §17.2; the live surface at `https://agents-txt.com/registry` carries any additions between spec versions.
 
 Presence of `Protocols:` is the payment-block signal: a site that accepts agent payments declares the protocols it supports and nothing more. `Payments:` is an OPTIONAL site-level policy hint, symmetric with `Identity:` in the Authorization block. Both `Protocols:` and `Authorization:` accept comma-separated values, allowing a site to declare simultaneous support for multiple protocol identifiers within the same block. Currently recognized identifiers are defined in §8 and §11 respectively.
 
@@ -180,7 +180,7 @@ Sites SHOULD include a `# JSON:` comment in the header of `agents.txt` to point 
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 # JSON: https://example.com/agents.json
 ```
 
@@ -231,7 +231,7 @@ The same choice applies to every other discovery surface a deployment serves alo
 
 #### Reference deployment
 
-The site at `https://agentstxt.dev` exercises both patterns within a single deployment. The headers emitted on each agent-facing route are:
+The site at `https://agents-txt.com` exercises both patterns within a single deployment. The headers emitted on each agent-facing route are:
 
 | Route | Served as | Headers configured in | Headers emitted |
 |---|---|---|---|
@@ -266,9 +266,9 @@ Registered per-protocol shapes and top-level array shapes are tracked in §17.3.
 
 ```json
 {
-  "$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json",
+  "$schema": "https://agents-txt.com/schema/agents-json/v1.0.json",
   "version": "1.0",
-  "standard": "https://agentstxt.dev",
+  "standard": "https://agents-txt.com",
   "site": {
     "name": "My Site",
     "url": "https://example.com",
@@ -327,11 +327,11 @@ Registered per-protocol shapes and top-level array shapes are tracked in §17.3.
 
 All blocks are optional. A block is omitted entirely when the capability is not configured. Within `payments`, each per-protocol object (`x402`, `mpp`, and any future protocol) is emitted only when that protocol is actually wired up; the `payments` block itself is present only when at least one per-protocol object is present. Absence of the block means the site does not accept agent payments. There is no top-level `payments.protocols` array: the set of supported protocols is the set of per-protocol keys, and the corresponding `Protocols:` line in `agents.txt` carries the same set as plain text.
 
-Implementations SHOULD include the `$schema` field shown above, pointing at the canonical JSON Schema document for the format version they emit. The schema is descriptive: it duplicates rules already defined in this section and is published so JSON-aware editors and validators can perform inline schema validation and autocomplete on hand-edited files. The canonical document for v1.0 is published at `https://agentstxt.dev/schema/agents-json/v1.0.json` as a JSON Schema 2020-12 artefact [JSON-SCHEMA-2020-12]. The `$schema` field has no effect on the wire semantics of any other field.
+Implementations SHOULD include the `$schema` field shown above, pointing at the canonical JSON Schema document for the format version they emit. The schema is descriptive: it duplicates rules already defined in this section and is published so JSON-aware editors and validators can perform inline schema validation and autocomplete on hand-edited files. The canonical document for v1.0 is published at `https://agents-txt.com/schema/agents-json/v1.0.json` as a JSON Schema 2020-12 artefact [JSON-SCHEMA-2020-12]. The `$schema` field has no effect on the wire semantics of any other field.
 
 ### 5.3 Field notes
 
-**`$schema`**: OPTIONAL URL pointing to the JSON Schema document that describes this revision of the format. When present, the value SHOULD be the canonical document for the format version emitted: for v1.0, `https://agentstxt.dev/schema/agents-json/v1.0.json`, published as a JSON Schema 2020-12 artefact [JSON-SCHEMA-2020-12]. Editors and validators that respect the `$schema` field provide inline validation and autocomplete on hand-edited files; the field exists for that purpose. Implementations MAY reference an equivalent schema hosted elsewhere, provided the document covers the same rules established in this section. Future format versions are published at distinct URLs (`v1.1.json`, `v2.0.json`, etc.); the v1.0 URL is a frozen reference and remains valid for documents conforming to this version.
+**`$schema`**: OPTIONAL URL pointing to the JSON Schema document that describes this revision of the format. When present, the value SHOULD be the canonical document for the format version emitted: for v1.0, `https://agents-txt.com/schema/agents-json/v1.0.json`, published as a JSON Schema 2020-12 artefact [JSON-SCHEMA-2020-12]. Editors and validators that respect the `$schema` field provide inline validation and autocomplete on hand-edited files; the field exists for that purpose. Implementations MAY reference an equivalent schema hosted elsewhere, provided the document covers the same rules established in this section. Future format versions are published at distinct URLs (`v1.1.json`, `v2.0.json`, etc.); the v1.0 URL is a frozen reference and remains valid for documents conforming to this version.
 
 **`version`**: the stable semver number of the spec this file was generated against (e.g. `"1.0"`). Pre-release suffixes such as `-draft` are omitted: the `version` field tracks the numeric version only, so agents can parse and compare it without handling arbitrary suffix strings. The value SHOULD match the numeric portion of the spec version declared in the document header.
 
@@ -758,7 +758,7 @@ This spec follows semver. The current version is `v1.0`, the first published rel
 **Payments only (x402 + MPP):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Protocols: x402, mpp
 ```
@@ -766,7 +766,7 @@ Protocols: x402, mpp
 **Authorization only (agent-auth, identity required):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Authorization: agent-auth
 Identity: required
@@ -775,7 +775,7 @@ Identity: required
 **Payments + authorization:**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Protocols: x402, mpp
 
@@ -785,7 +785,7 @@ Authorization: agent-auth
 **MCP only:**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 MCP: https://example.com/mcp
 ```
@@ -793,7 +793,7 @@ MCP: https://example.com/mcp
 **Skills only:**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Skills: https://example.com/skills/main/SKILL.md
 ```
@@ -801,7 +801,7 @@ Skills: https://example.com/skills/main/SKILL.md
 **Skills with free and paid tiers:**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Protocols: x402, mpp
 
@@ -812,7 +812,7 @@ Skills: https://example.com/skills/premium/SKILL.md
 **A2A only (single AgentCard at the canonical path):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 A2A: https://example.com/.well-known/agent-card.json
 ```
@@ -820,7 +820,7 @@ A2A: https://example.com/.well-known/agent-card.json
 **A2A with multiple agents (non-canonical paths):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 A2A: https://example.com/.well-known/agent-card.json
 A2A: https://example.com/agents/support/card.json
@@ -830,7 +830,7 @@ A2A: https://example.com/agents/sales/card.json
 **UCP only (single profile at the canonical path):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 UCP: https://example.com/.well-known/ucp
 ```
@@ -838,7 +838,7 @@ UCP: https://example.com/.well-known/ucp
 **UCP with B2C and B2B profiles:**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 UCP: https://example.com/.well-known/ucp
 UCP: https://example.com/profiles/b2b.json
@@ -847,7 +847,7 @@ UCP: https://example.com/profiles/b2b.json
 **AP2 mandates over x402 settlement:**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Protocols: x402, ap2
 ```
@@ -855,7 +855,7 @@ Protocols: x402, ap2
 **AP2 mandates over MPP settlement:**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Protocols: mpp, ap2
 ```
@@ -863,7 +863,7 @@ Protocols: mpp, ap2
 **Full stack (payments + authorization + MCP + skills):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 # JSON: https://example.com/agents.json
 
 Protocols: x402, mpp
@@ -881,7 +881,7 @@ Skills: https://example.com/skills/premium/SKILL.md
 **Everything (all blocks, including A2A, UCP, and AP2 mandates):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 # JSON: https://example.com/agents.json
 
 Protocols: x402, mpp, ap2
@@ -906,7 +906,7 @@ UCP: https://example.com/profiles/b2b.json
 **No capabilities declared (discovery file only):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 ```
 
 ---
@@ -921,13 +921,13 @@ See `CONTRIBUTING.md` in the repository. Changes to this spec require a PR with 
 
 This section establishes two registries governed by this specification. Both follow the IANA "Specification Required" registration policy ([RFC8126] §4.6) adapted for the spec's GitHub-hosted editorial process.
 
-The live registry surface is maintained at `https://agentstxt.dev/registry` and reflects the same entries enumerated below. Where the two disagree, the live surface is authoritative between spec versions; the next spec version absorbs accumulated changes.
+The live registry surface is maintained at `https://agents-txt.com/registry` and reflects the same entries enumerated below. Where the two disagree, the live surface is authoritative between spec versions; the next spec version absorbs accumulated changes.
 
-A canonical JSON Schema 2020-12 document for the `agents.json` wire format described in §5 is published at `https://agentstxt.dev/schema/agents-json/v1.0.json` [JSON-SCHEMA-2020-12]. The document is descriptive: it captures the rules already defined in §5 so JSON-aware editors and validators can perform inline schema validation on `agents.json` files. Implementations referencing the schema via the `$schema` field (§5.3) SHOULD use this URL for v1.0 documents. Future format versions are published at distinct URLs (`v1.1.json`, `v2.0.json`, etc.) so existing references remain valid for documents conforming to their declared version.
+A canonical JSON Schema 2020-12 document for the `agents.json` wire format described in §5 is published at `https://agents-txt.com/schema/agents-json/v1.0.json` [JSON-SCHEMA-2020-12]. The document is descriptive: it captures the rules already defined in §5 so JSON-aware editors and validators can perform inline schema validation on `agents.json` files. Implementations referencing the schema via the `$schema` field (§5.3) SHOULD use this URL for v1.0 documents. Future format versions are published at distinct URLs (`v1.1.json`, `v2.0.json`, etc.) so existing references remain valid for documents conforming to their declared version.
 
 ### 17.1 Registration Policy
 
-New entries are proposed by opening a PR against [`agentstxtdev/agentstxt`](https://github.com/agentstxtdev/agentstxt) that:
+New entries are proposed by opening a PR against [`agents-txt/agents-txt`](https://github.com/agents-txt/agents-txt) that:
 
 1. Adds a row to the relevant registry table in §17.2 or §17.3.
 2. Includes the registration template (§17.4) filled in, in the PR description.

@@ -1,8 +1,8 @@
-# https://agentstxt.dev  RFC 9116 security.txt
+# https://agents-txt.com  RFC 9116 security.txt
 # Standard: https://www.rfc-editor.org/rfc/rfc9116
 
-Contact: mailto:security@agentstxt.dev
+Contact: mailto:security@agents-txt.com
 Expires: 2027-05-14T00:00:00.000Z
 Preferred-Languages: en
-Canonical: https://agentstxt.dev/.well-known/security.txt
-Policy: https://github.com/agentstxtdev/agents.txt/security/policy
+Canonical: https://agents-txt.com/.well-known/security.txt
+Policy: https://github.com/agents-txt/agents-txt/security/policy

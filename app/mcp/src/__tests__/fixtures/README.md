@@ -1,6 +1,6 @@
 # Shared `agents.json` fixture corpus
 
-This directory is the canonical fixture corpus exercised by the cross-validator agreement tests in both `@agentstxtdev/herald-schema` (this package) and the agentstxt MCP worker.
+This directory is the canonical fixture corpus exercised by the cross-validator agreement tests in both `@agentstxtdev/herald-schema` (this package) and the agents-txt MCP worker.
 
 Each fixture is a standalone `agents.json` candidate. Filename prefix encodes the expected validity verdict:
 
@@ -18,4 +18,4 @@ The corpus is restricted to cases where all three validators agree on the binary
 - Non-`https://` but parseable URLs (Zod accepts http(s) via regex, herald-core accepts any parseable URL with a non-https warning, MCP worker rejects non-https).
 - `payments.x402.chains: []` (Zod rejects `min(1)`, herald-core does not check).
 
-When the wire schema changes and a fixture's verdict shifts, BOTH copies of this corpus must be updated. A sync check at `pnpm sync-check:fixtures` (in the herald root) asserts byte-equality between this directory and `agentstxt/app/mcp/src/__tests__/fixtures/`.
+When the wire schema changes and a fixture's verdict shifts, BOTH copies of this corpus must be updated. A sync check at `pnpm sync-check:fixtures` (in the herald root) asserts byte-equality between this directory and `agents-txt/app/mcp/src/__tests__/fixtures/`.

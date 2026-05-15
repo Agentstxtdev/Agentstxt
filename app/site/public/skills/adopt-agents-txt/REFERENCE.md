@@ -2,7 +2,7 @@
 
 Full directive list, `agents.json` schema, capability block examples, and hand-write templates per framework. Open this from SKILL.md when the user asks about a specific directive's syntax, an `agents.json` field, or the canonical layout for a capability block.
 
-Canonical spec: [`spec/AGENTS-TXT-STANDARD.md`](https://agentstxt.dev/spec). When in doubt, the spec wins.
+Canonical spec: [`spec/AGENTS-TXT-STANDARD.md`](https://agents-txt.com/spec). When in doubt, the spec wins.
 
 ---
 
@@ -32,7 +32,7 @@ Plain UTF-8 text. One directive per line. Lines starting with `#` are comments. 
 
 ```
 # /agents.txt
-# Spec: https://agentstxt.dev
+# Spec: https://agents-txt.com
 
 Site-Name: My Site
 Site-URL: https://mysite.com
@@ -190,7 +190,7 @@ const SITE = { name: 'My Site', url: 'https://mysite.com', description: '…' }
 app.get('/agents.txt', (_, res) => {
   res.type('text/plain').send(
     `# /agents.txt\n` +
-    `# Spec: https://agentstxt.dev\n\n` +
+    `# Spec: https://agents-txt.com\n\n` +
     `Site-Name: ${SITE.name}\n` +
     `Site-URL: ${SITE.url}\n`
   )
@@ -364,7 +364,7 @@ After wiring, run `audit_site` (below) to verify.
 
 ### Via the public MCP server
 
-The reference MCP server at `mcp.agentstxt.dev` exposes:
+The reference MCP server at `mcp.agents-txt.com` exposes:
 
 | Tool | Input | What it returns |
 |---|---|---|

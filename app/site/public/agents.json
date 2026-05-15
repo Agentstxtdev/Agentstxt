@@ -1,10 +1,10 @@
 {
-  "$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json",
+  "$schema": "https://agents-txt.com/schema/agents-json/v1.0.json",
   "version": "1.0",
-  "standard": "https://agentstxt.dev",
+  "standard": "https://agents-txt.com",
   "site": {
     "name": "agents.txt Standard",
-    "url": "https://agentstxt.dev",
+    "url": "https://agents-txt.com",
     "description": "The open specification for AI agent capability declarations. Layer 4 of the agent-readiness stack."
   },
   "payments": {
@@ -42,26 +42,26 @@
   },
   "mcp": [
     {
-      "url": "https://agentstxt.dev/mcp",
+      "url": "https://agents-txt.com/mcp",
       "type": "streamable-http",
       "description": "Exposes the agents.txt spec as structured resources: sections, directive reference, examples, and the JSON schema for agents.json."
     }
   ],
   "skills": [
     {
-      "url": "https://agentstxt.dev/skills/adopt-agents-txt/SKILL.md",
+      "url": "https://agents-txt.com/skills/adopt-agents-txt/SKILL.md",
       "description": "Guides a developer through adopting the agents.txt standard on their own website: walks the spec, picks an adoption path (hand-write, generator, or library), and validates the result."
     }
   ],
   "a2a": [
     {
-      "url": "https://agentstxt.dev/.well-known/agent-card.json",
+      "url": "https://agents-txt.com/.well-known/agent-card.json",
       "description": "Reference A2A AgentCard describing a meta-agent that explains the agents.txt spec, validates discovery files, and points clients at the live MCP tools."
     }
   ],
   "ucp": [
     {
-      "url": "https://agentstxt.dev/.well-known/ucp",
+      "url": "https://agents-txt.com/.well-known/ucp",
       "description": "Reference UCP profile demonstrating the discovery shape: declared services, transport bindings, payment handlers including the AP2 mandate extension, and signing keys. No live UCP server runs at the declared endpoint; the profile exists as a discovery artifact."
     }
   ]

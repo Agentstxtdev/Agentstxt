@@ -1,15 +1,15 @@
 # agents.txt
-# Standard: https://agentstxt.dev
-# JSON: https://agentstxt.dev/agents.json
+# Standard: https://agents-txt.com
+# JSON: https://agents-txt.com/agents.json
 
 Protocols: x402, mpp, ap2
 
 Authorization: agent-auth, oauth2
 
-MCP: https://agentstxt.dev/mcp
+MCP: https://agents-txt.com/mcp
 
-Skills: https://agentstxt.dev/skills/adopt-agents-txt/SKILL.md
+Skills: https://agents-txt.com/skills/adopt-agents-txt/SKILL.md
 
-A2A: https://agentstxt.dev/.well-known/agent-card.json
+A2A: https://agents-txt.com/.well-known/agent-card.json
 
-UCP: https://agentstxt.dev/.well-known/ucp
+UCP: https://agents-txt.com/.well-known/ucp

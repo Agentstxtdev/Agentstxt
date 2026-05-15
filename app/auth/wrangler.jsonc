@@ -37,7 +37,7 @@
           "simple": { "limit": 20, "period": 60 }
         }
       ],
-      "routes": [{ "pattern": "auth.agentstxt.dev", "custom_domain": true }]
+      "routes": [{ "pattern": "auth.agents-txt.com", "custom_domain": true }]
     }
   }
 }

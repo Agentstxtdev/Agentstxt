@@ -35,7 +35,7 @@ export interface AuditEnv {
 // Out of scope (different specs governed by different bodies): the rest of
 // robots.txt validation, sitemap.xml (sitemaps.org), llms.txt (llmstxt.org).
 
-const SPEC_URL = 'https://agentstxt.dev';
+const SPEC_URL = 'https://agents-txt.com';
 const TREASURY_REGEX = /\b0x[a-fA-F0-9]{40}\b/;
 // Solana base58 wallet: standard alphabet (no 0OIl), address length range.
 // Applied to parsed JSON string values only, so CAIP-2 chain IDs like
@@ -86,7 +86,7 @@ async function safeFetch(url: string, env?: AuditEnv): Promise<FetchResult> {
   const fetcher = useBinding ? env!.SITE!.fetch.bind(env!.SITE!) : fetch;
   try {
     const res = await fetcher(url, {
-      headers: { 'User-Agent': 'agents-txt-validator/1.0 (https://agentstxt.dev/mcp)' },
+      headers: { 'User-Agent': 'agents-txt-validator/1.0 (https://agents-txt.com/mcp)' },
       signal: AbortSignal.timeout(8000),
     });
     const headers: ResponseHeaders = {

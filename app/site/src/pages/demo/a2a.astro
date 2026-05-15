@@ -8,7 +8,7 @@ import { SPEC_VERSION } from '../../config';
 <BaseLayout
   title="A2A Demo · agents.txt"
   description="Live demonstration of A2A AgentCard discovery via the A2A directive in agents.txt. Reads agents.json, fetches the declared AgentCard, parses its capabilities and skills, then confirms cross-file consistency via the MCP audit_site tool. Executed in your browser."
-  canonicalUrl="https://agentstxt.dev/demo/a2a"
+  canonicalUrl="https://agents-txt.com/demo/a2a"
 >
   <!-- Nav -->
   <header class="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
@@ -349,7 +349,7 @@ async function run() {
 
     // ── Step 1: HTTP retrieval ───────────────────────────────────────────────
     // agents.json advertises absolute URLs against the production origin
-    // (e.g. https://agentstxt.dev/...). Resolve to the local origin for
+    // (e.g. https://agents-txt.com/...). Resolve to the local origin for
     // dev preview parity, like the skills demo does.
     setRunning('1');
     const firstUrl = cards[0].url;
@@ -381,7 +381,7 @@ async function run() {
     setRunning('3');
     const init = await mcpPost(`${origin}/mcp`, {
       jsonrpc: '2.0', id: 1, method: 'initialize',
-      params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'agentstxt-a2a-demo', version: '1.0.0' } },
+      params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'agents-txt-a2a-demo', version: '1.0.0' } },
     });
     if (!init.sessionId) throw new Error(`MCP session not established:\n${fmt(init.raw)}`);
     const sessionId = init.sessionId;

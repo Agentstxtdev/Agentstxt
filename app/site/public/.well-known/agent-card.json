@@ -1,14 +1,14 @@
 {
   "name": "agents.txt Reference Agent",
   "description": "A reference A2A agent demonstrating the AgentCard discovery path declared by the agents.txt standard. Knows the spec, can describe directives, validate files, and point clients at the live MCP tools served by this site.",
-  "url": "https://agentstxt.dev/a2a",
+  "url": "https://agents-txt.com/a2a",
   "version": "1.0.0",
   "protocolVersion": "0.2",
   "provider": {
     "organization": "agents.txt contributors",
-    "url": "https://agentstxt.dev"
+    "url": "https://agents-txt.com"
   },
-  "documentationUrl": "https://agentstxt.dev/spec",
+  "documentationUrl": "https://agents-txt.com/spec",
   "defaultInputModes": ["text", "text/plain"],
   "defaultOutputModes": ["text", "text/plain"],
   "capabilities": {
@@ -45,7 +45,7 @@
     {
       "id": "validate_agents_files",
       "name": "Validate agents.txt and agents.json",
-      "description": "Runs the spec validators against a site's discovery files and returns a compliance report. Delegates to the audit_site MCP tool exposed at mcp.agentstxt.dev.",
+      "description": "Runs the spec validators against a site's discovery files and returns a compliance report. Delegates to the audit_site MCP tool exposed at mcp.agents-txt.com.",
       "tags": ["validation", "audit", "compliance"],
       "examples": [
         "Validate https://example.com/agents.txt",
@@ -73,7 +73,7 @@
       "description": "Reads agents.txt and agents.json from a target origin, summarizes the declared payment protocols, authorization scheme, MCP endpoints, skill packages, and A2A AgentCards in plain language.",
       "tags": ["discovery", "capabilities", "summary"],
       "examples": [
-        "What can an agent do on agentstxt.dev?",
+        "What can an agent do on agents-txt.com?",
         "List the capabilities declared at example.com"
       ],
       "inputModes": ["text", "text/plain"],

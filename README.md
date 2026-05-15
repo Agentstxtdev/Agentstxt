@@ -10,8 +10,8 @@
 
 [![Spec: v1.0](https://img.shields.io/badge/spec-v1.0-111?style=flat-square)](spec/AGENTS-TXT-STANDARD.md)
 [![License: CC0](https://img.shields.io/badge/license-CC0-lightgrey?style=flat-square)](spec/AGENTS-TXT-STANDARD.md)
-[![Live: agentstxt.dev](https://img.shields.io/badge/live-agentstxt.dev-7c3aed?style=flat-square)](https://agentstxt.dev)
-[![GitHub stars](https://img.shields.io/github/stars/agentstxtdev/agentstxt?style=flat-square&logo=github&logoColor=white&color=181717)](https://github.com/agentstxtdev/agentstxt)
+[![Live: agents-txt.com](https://img.shields.io/badge/live-agents-txt.com-7c3aed?style=flat-square)](https://agents-txt.com)
+[![GitHub stars](https://img.shields.io/github/stars/agents-txt/agents-txt?style=flat-square&logo=github&logoColor=white&color=181717)](https://github.com/agents-txt/agents-txt)
 
 </div>
 
@@ -31,11 +31,11 @@ Layers 1 through 3 govern access, inventory, and content. None of them say *what
 This repository contains:
 
 - **The spec**: [`spec/AGENTS-TXT-STANDARD.md`](spec/AGENTS-TXT-STANDARD.md), CC0
-- **A live reference deployment** at [agentstxt.dev](https://agentstxt.dev): Astro site + Cloudflare Workers with demos
-- **An MCP server** at [mcp.agentstxt.dev](https://mcp.agentstxt.dev): exposes the spec to agents via Model Context Protocol; the `audit_site` tool lets any agent compliance-check any URL
+- **A live reference deployment** at [agents-txt.com](https://agents-txt.com): Astro site + Cloudflare Workers with demos
+- **An MCP server** at [mcp.agents-txt.com](https://mcp.agents-txt.com): exposes the spec to agents via Model Context Protocol; the `audit_site` tool lets any agent compliance-check any URL
 - **An agent-auth Cloudflare Worker**: Ed25519 JWT verification, `/.well-known/agent-configuration`, capability execution
-- **A live audit surface** at [agentstxt.dev/audit](https://agentstxt.dev/audit): paste any URL, get HTML / JSON / Markdown depending on the `Accept` header
-- **A hosted JSON Schema** at [agentstxt.dev/schema/agents-json/v1.0.json](https://agentstxt.dev/schema/agents-json/v1.0.json): the canonical JSON Schema 2020-12 document describing the `agents.json` wire format. Operators who reference it from their own `agents.json` (via the `$schema` field) get inline validation and autocomplete in any JSON-aware editor.
+- **A live audit surface** at [agents-txt.com/audit](https://agents-txt.com/audit): paste any URL, get HTML / JSON / Markdown depending on the `Accept` header
+- **A hosted JSON Schema** at [agents-txt.com/schema/agents-json/v1.0.json](https://agents-txt.com/schema/agents-json/v1.0.json): the canonical JSON Schema 2020-12 document describing the `agents.json` wire format. Operators who reference it from their own `agents.json` (via the `$schema` field) get inline validation and autocomplete in any JSON-aware editor.
 
 ---
 
@@ -43,7 +43,7 @@ This repository contains:
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 # JSON: https://mysite.com/agents.json
 
 Protocols: x402, mpp, ap2
@@ -117,9 +117,9 @@ For the `agents.json` companion, add a `$schema` field at the top pointing at th
 
 ```json
 {
-  "$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json",
+  "$schema": "https://agents-txt.com/schema/agents-json/v1.0.json",
   "version": "1.0",
-  "standard": "https://agentstxt.dev",
+  "standard": "https://agents-txt.com",
   "site": { "name": "My Site", "url": "https://mysite.com" }
 }
 ```
@@ -128,7 +128,7 @@ Any JSON-aware editor (VS Code, JetBrains, Helix with the JSON LSP, `jq --schema
 
 ### 2. Generate it
 
-The community reference generator [**herald**](https://github.com/agentstxtdev/herald) (a sibling project, distributed via npm) emits `agents.txt`, `agents.json`, `robots.txt`, `llms.txt`, and `sitemap.xml` from a single config file. Useful if you also want the lower layers of the stack regenerated alongside, or if you're hosting on Express / Hono / Next.js and want a payment middleware wired up automatically.
+The community reference generator [**herald**](https://github.com/agents-txt/herald) (a sibling project, distributed via npm) emits `agents.txt`, `agents.json`, `robots.txt`, `llms.txt`, and `sitemap.xml` from a single config file. Useful if you also want the lower layers of the stack regenerated alongside, or if you're hosting on Express / Hono / Next.js and want a payment middleware wired up automatically.
 
 ```bash
 npm install -D @herald/cli
@@ -140,9 +140,9 @@ herald is **a nice-to-have, not a requirement**. The spec is implementation-agno
 
 ### 3. Look at the reference site
 
-The live deployment at [agentstxt.dev](https://agentstxt.dev) is a working agentic site, and the single source of truth for everything it advertises is one config file: [`app/site/agentsjson.config.js`](app/site/agentsjson.config.js). Read it to see how the composability pattern in [*Your site, your discovery shape*](#your-site-your-discovery-shape) plays out for real: every directive in the live `/agents.txt`, every block in the live `/agents.json`, and every ecosystem discovery surface (`/.well-known/api-catalog`, `/openapi.json`, the MCP server card, the agent-skills index) maps back to a single declaration.
+The live deployment at [agents-txt.com](https://agents-txt.com) is a working agentic site, and the single source of truth for everything it advertises is one config file: [`app/site/agentsjson.config.js`](app/site/agentsjson.config.js). Read it to see how the composability pattern in [*Your site, your discovery shape*](#your-site-your-discovery-shape) plays out for real: every directive in the live `/agents.txt`, every block in the live `/agents.json`, and every ecosystem discovery surface (`/.well-known/api-catalog`, `/openapi.json`, the MCP server card, the agent-skills index) maps back to a single declaration.
 
-For end-to-end adopter setups in real frameworks, the herald repo ships runnable examples: [`examples/express`](https://github.com/agentstxtdev/herald/tree/main/examples/express) and [`examples/nextjs`](https://github.com/agentstxtdev/herald/tree/main/examples/nextjs). Each shows the same config-driven pattern wired into a host framework's build pipeline.
+For end-to-end adopter setups in real frameworks, the herald repo ships runnable examples: [`examples/express`](https://github.com/agents-txt/herald/tree/main/examples/express) and [`examples/nextjs`](https://github.com/agents-txt/herald/tree/main/examples/nextjs). Each shows the same config-driven pattern wired into a host framework's build pipeline.
 
 If you want a generator handling all of this for you, `herald emit` (path 2 above) is what the reference deployment uses. It reads one config file, emits the discovery surfaces, and keeps them in sync on every build. You can also hand-roll your own generator or hand-write the files; the spec is implementation-agnostic.
 
@@ -168,7 +168,7 @@ Blocks are separated by blank lines. Unknown keys are ignored by parsers (forwar
 ## Repository layout
 
 ```
-agentstxt/
+agents-txt/
 ├── README.md                        — this file
 ├── AGENTS.md                        — repo orientation for AI agents working on this codebase
 ├── CLAUDE.md                        — Claude-specific operating instructions
@@ -182,7 +182,7 @@ agentstxt/
 ├── assets/                          — logos, OG images, brand marks
 │
 ├── app/
-│   ├── site/                        — agentstxt.dev (Astro 6 + Cloudflare Worker)
+│   ├── site/                        — agents-txt.com (Astro 6 + Cloudflare Worker)
 │   │   ├── agentsjson.config.js     — source of truth for /agents.txt, /agents.json, ecosystem files
 │   │   ├── astro.config.mjs
 │   │   ├── wrangler.json
@@ -213,7 +213,7 @@ agentstxt/
 │   │           ├── agent-skills/index.json  — agentskills.io v0.2.0
 │   │           └── security.txt             — RFC 9116
 │   │
-│   ├── mcp/                         — mcp.agentstxt.dev (Cloudflare Worker)
+│   ├── mcp/                         — mcp.agents-txt.com (Cloudflare Worker)
 │   │   ├── wrangler.jsonc
 │   │   └── src/
 │   │       ├── server.ts            — McpAgent over Streamable HTTP + SSE
@@ -253,7 +253,7 @@ set -a; source .dev.vars; set +a     # export build-time env (per-worker)
 
 ```bash
 source ~/.nvm/nvm.sh && nvm use 24
-cd agentstxt
+cd agents-txt
 pnpm install
 ```
 
@@ -267,7 +267,7 @@ pnpm test           # pnpm -r run test
 ### Per-worker dev
 
 ```bash
-pnpm site:dev       # Astro dev server for agentstxt.dev (port 4321)
+pnpm site:dev       # Astro dev server for agents-txt.com (port 4321)
 pnpm mcp:dev        # wrangler dev for the MCP worker
 pnpm auth:dev       # wrangler dev for the agent-auth worker
 ```
@@ -299,7 +299,7 @@ The non-production `pnpm run deploy` on the MCP and auth workers (without `:prod
 
 ### Convenience aliases at the monorepo root
 
-If you prefer not to `cd` between sub-packages, the root `package.json` mirrors each script with a `<pkg>:` prefix and forwards to the sub-package via `pnpm --filter`. Run these from `agentstxt/`:
+If you prefer not to `cd` between sub-packages, the root `package.json` mirrors each script with a `<pkg>:` prefix and forwards to the sub-package via `pnpm --filter`. Run these from `agents-txt/`:
 
 ```bash
 pnpm site:deploy           # → app/site:  pnpm run deploy
@@ -315,9 +315,9 @@ Each sub-package owns its own toolchain: Astro for the site, Wrangler + `tsc --n
 
 ## Architecture
 
-The reference deployment is **three independent Cloudflare Workers** plus the static Astro build. They share no internal modules; coupling is limited to service-binding `fetch()` calls at the edge, and each worker can be redeployed without touching the others. The `site` worker is the Backend-For-Frontend at `agentstxt.dev`: it serves the static spec artifacts, proxies a fixed prefix list into the `mcp` and `auth` workers via Wrangler service bindings, and exposes two synthetic gated routes that demonstrate the wire shape of each payment protocol independently. `/x402` returns an x402 v2 `402` with `payTo` from `SOLANA_ADDRESS`. `/mpp` returns a `WWW-Authenticate: Payment` challenge composed by `mppx` from `TREASURY_TEMPO` (Tempo) and/or `STRIPE_SECRET_KEY`+`STRIPE_NETWORK_ID` (Stripe). Per spec §8.1 / §8.2 / §5.4 the recipient wallet appears only in the 402 response (in `accepts[].payTo` for x402, inside the base64-encoded `request` parameter of the `WWW-Authenticate` header for MPP) and never in `agents.json`.
+The reference deployment is **three independent Cloudflare Workers** plus the static Astro build. They share no internal modules; coupling is limited to service-binding `fetch()` calls at the edge, and each worker can be redeployed without touching the others. The `site` worker is the Backend-For-Frontend at `agents-txt.com`: it serves the static spec artifacts, proxies a fixed prefix list into the `mcp` and `auth` workers via Wrangler service bindings, and exposes two synthetic gated routes that demonstrate the wire shape of each payment protocol independently. `/x402` returns an x402 v2 `402` with `payTo` from `SOLANA_ADDRESS`. `/mpp` returns a `WWW-Authenticate: Payment` challenge composed by `mppx` from `TREASURY_TEMPO` (Tempo) and/or `STRIPE_SECRET_KEY`+`STRIPE_NETWORK_ID` (Stripe). Per spec §8.1 / §8.2 / §5.4 the recipient wallet appears only in the 402 response (in `accepts[].payTo` for x402, inside the base64-encoded `request` parameter of the `WWW-Authenticate` header for MPP) and never in `agents.json`.
 
-The site **self-validates** through a closed loop. The `audit_site` MCP tool fetches `agentstxt.dev`'s own `/agents.txt`, `/agents.json`, and `/robots.txt`, then runs them through the same `validate_agents_txt` and `validate_agents_json` validators that any third party would use. The shared source of truth for accepted directives lives in [`mcp/src/protocols.ts`](app/mcp/src/protocols.ts) (`BLOCK_OPENERS`, `PAYMENT_PROTOCOLS`, `AUTH_PROTOCOLS`); changing a registered identifier there immediately affects every parser, validator, and audit pass.
+The site **self-validates** through a closed loop. The `audit_site` MCP tool fetches `agents-txt.com`'s own `/agents.txt`, `/agents.json`, and `/robots.txt`, then runs them through the same `validate_agents_txt` and `validate_agents_json` validators that any third party would use. The shared source of truth for accepted directives lives in [`mcp/src/protocols.ts`](app/mcp/src/protocols.ts) (`BLOCK_OPENERS`, `PAYMENT_PROTOCOLS`, `AUTH_PROTOCOLS`); changing a registered identifier there immediately affects every parser, validator, and audit pass.
 
 Alongside the spec's canonical `agents.txt` + `agents.json` surfaces, the reference deployment publishes four ecosystem discovery files for readability by scanners that follow other working groups' standards: `/.well-known/api-catalog` (RFC 9727 linkset), `/.well-known/mcp/server-card.json` (SEP-2127 MCP card), `/.well-known/agent-skills/index.json` (agentskills.io Discovery v0.2.0 with sha256 digests), and `/openapi.json` (Payment Discovery `x-payment-info` extensions for the `/x402` and `/mpp` routes). All four are static, all four are generated by `herald emit` from a single config file, and all four are advertised via RFC 8288 `Link:` headers on `/`. The site worker handles HTTP content negotiation: requests with `Accept: text/markdown` on HTML page paths receive `llms-full.txt` with `Content-Type: text/markdown; charset=utf-8`. Spec §12 documents how each of these relates to `agents.txt`; none of them are part of `agents.txt` v1.0, and none of them replace it.
 
@@ -325,7 +325,7 @@ Alongside the spec's canonical `agents.txt` + `agents.json` surfaces, the refere
 flowchart TB
     Client(["AI Agent / Browser"])
 
-    subgraph SITE["site worker &nbsp;·&nbsp; agentstxt.dev"]
+    subgraph SITE["site worker &nbsp;·&nbsp; agents-txt.com"]
         direction TB
         SW["worker.ts &nbsp; default.fetch"]
         SP["/x402 handler<br/>x402 v2 402 response<br/>payTo from SOLANA_ADDRESS env"]
@@ -338,7 +338,7 @@ flowchart TB
         SW -- "everything else" --> SA
     end
 
-    subgraph MCP["mcp worker &nbsp;·&nbsp; mcp.agentstxt.dev"]
+    subgraph MCP["mcp worker &nbsp;·&nbsp; mcp.agents-txt.com"]
         direction TB
         MX["server.ts &nbsp; McpAgent<br/>(Streamable HTTP + SSE)"]
         MAPI["/api/audit (plain HTTP)<br/>thin wrapper over runAudit()"]
@@ -400,7 +400,7 @@ flowchart TB
 
 ### How the workers cooperate at request time
 
-| Path prefix (on `agentstxt.dev`) | Handled by | Entry point |
+| Path prefix (on `agents-txt.com`) | Handled by | Entry point |
 |---|---|---|
 | `/agents.txt`, `/agents.json`, `/llms.txt`, `/.well-known/agent-card.json` | site → static assets | [`site/public/`](app/site/public/) + [`_headers`](app/site/public/_headers) |
 | `/x402` | site, inline | [`worker.ts`](app/site/src/worker.ts) (synthetic gated route, x402 v2 on Solana, `payTo` from `SOLANA_ADDRESS`) |
@@ -417,7 +417,7 @@ The site, the spec, and the MCP validators form a triangle that the project keep
 1. **Source of truth.** [`mcp/src/protocols.ts`](app/mcp/src/protocols.ts) lists every registered directive and identifier. Spec changes flow into this file in the same PR.
 2. **Validators.** [`validate_agents.ts`](app/mcp/src/tools/validate_agents.ts) exposes `validate_agents_txt` and `validate_agents_json` against `protocols.ts`. They run on raw user input and on the site's own artifacts.
 3. **Audit.** [`audit_site.ts`](app/mcp/src/tools/audit_site.ts) (`audit_site` tool) fetches a live origin's `/agents.txt`, `/agents.json`, and `/robots.txt`; calls `parseAgentsTxt` + `validateParsed`; checks §4.5 HTTP headers (`Content-Type`, `Access-Control-Allow-Origin: *`, `Cache-Control`); and enforces the cross-file consistency rule (the URL set in `agents.txt` MUST equal the URL set in `agents.json`).
-4. **Closed loop.** Pointing `audit_site` at `https://agentstxt.dev` runs the site against its own spec through the `site → static assets` path and the `mcp → audit_site → site` path. A clean run is the production health check.
+4. **Closed loop.** Pointing `audit_site` at `https://agents-txt.com` runs the site against its own spec through the `site → static assets` path and the `mcp → audit_site → site` path. A clean run is the production health check.
 
 ### Where to read each piece end-to-end
 
@@ -490,7 +490,7 @@ The spec is forward-compatible by design: parsers ignore unknown directives, so 
 
 **Spec:** v1.0. Format and schema are stable. Major capability blocks (Payments, Authorization, MCP, Skills) are settled. Patches accepted via PR; structural changes will be RFCs against [`spec/AGENTS-TXT-STANDARD.md`](spec/AGENTS-TXT-STANDARD.md).
 
-**Reference deployment:** Live at [agentstxt.dev](https://agentstxt.dev). The MCP server is live at [mcp.agentstxt.dev](https://mcp.agentstxt.dev). The agent-auth worker runs as a separate service.
+**Reference deployment:** Live at [agents-txt.com](https://agents-txt.com). The MCP server is live at [mcp.agents-txt.com](https://mcp.agents-txt.com). The agent-auth worker runs as a separate service.
 
 **Adoption:** Open. The spec is CC0; anyone can implement it without restriction. The reference workers in this repo are Apache 2.0; vendor in or fork freely.
 
@@ -507,7 +507,7 @@ Contributions are welcome across the repo:
 
 Downstream implementations (parsers, generators, validators, middleware, CMS plugins) in any language or framework: open a PR to add yours to the implementations list in the spec.
 
-Issues, questions, and proposals: [github.com/agentstxtdev/agentstxt](https://github.com/agentstxtdev/agentstxt).
+Issues, questions, and proposals: [github.com/agents-txt/agents-txt](https://github.com/agents-txt/agents-txt).
 
 ---
 

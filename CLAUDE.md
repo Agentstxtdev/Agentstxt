@@ -1,4 +1,4 @@
-# CLAUDE.md: agentstxt repository
+# CLAUDE.md: agents-txt repository
 
 **For Claude instances working on this codebase.** Read [AGENTS.md](AGENTS.md) first for the orientation map and editing rules; this file holds the Claude-specific operating instructions, skill pointers, and pitfalls.
 
@@ -30,7 +30,7 @@ Use it when:
 
 Do **not** use it when:
 
-- The user is editing files inside `agentstxt/` itself (then follow `AGENTS.md` repo rules)
+- The user is editing files inside `agents-txt/` itself (then follow `AGENTS.md` repo rules)
 - The user wants to publish or extend the spec (that's RFC-style PR work)
 
 The skill must stay neutral on tooling. It explains the spec first, then lists the adoption paths in increasing automation, with `herald` mentioned as one option among hand-writing and writing a custom generator.
@@ -54,7 +54,7 @@ The skill must stay neutral on tooling. It explains the spec first, then lists t
 ## Commands you'll use
 
 ```bash
-# from agentstxt/ root
+# from agents-txt/ root
 pnpm install
 pnpm build                   # runs build across site, mcp, auth
 pnpm test                    # auth's 55 tests
@@ -182,8 +182,8 @@ Default behaviour: when a user mentions a brand-new protocol, suggest Path A fir
 
 1. The site satisfies §4.5 via `site/public/_headers` (Cloudflare Workers Static Assets format). It declares `Content-Type: text/plain; charset=utf-8` for `/agents.txt`, `Content-Type: application/json` for `/agents.json`, `Access-Control-Allow-Origin: *` on both, and `Cache-Control: public, max-age=3600`.
 2. Astro copies `public/_headers` to `dist/client/_headers` at build; the adapter-generated `dist/server/wrangler.json` resolves `assets.directory` to `../client`, so wrangler picks it up at deploy.
-3. Verify after deploy by calling the MCP `audit_site` tool against `https://agentstxt.dev` (e.g. via `mcp.agentstxt.dev/mcp`); a clean run reports `corsAllOrigins: true`, the right `Content-Type`, and a present `Cache-Control` for both files.
-4. Localhost (`astro dev`) does NOT honor `_headers`. The §4.5 errors that appear when auditing `http://localhost:4321` are expected; the spec governs production, not dev preview. If a developer asks for dev/prod parity (so `audit_site` passes against `localhost` too), point them at three options without prescribing one: audit the production URL instead, hand-roll a small middleware that parses `_headers` and applies the matching headers (~30 lines), or use their generator's dev shim if it ships one (the sibling `herald` project exposes `heraldHeadersVitePlugin` / `heraldHeadersConnect` / `heraldHeadersHono` from `@herald/addon/dev` for adopters already using it; Next.js sites can mirror the rules in `next.config.js` `async headers()`). Do not import any of these into this repo — the agentstxt deployment intentionally has no `@herald/*` dependency.
+3. Verify after deploy by calling the MCP `audit_site` tool against `https://agents-txt.com` (e.g. via `mcp.agents-txt.com/mcp`); a clean run reports `corsAllOrigins: true`, the right `Content-Type`, and a present `Cache-Control` for both files.
+4. Localhost (`astro dev`) does NOT honor `_headers`. The §4.5 errors that appear when auditing `http://localhost:4321` are expected; the spec governs production, not dev preview. If a developer asks for dev/prod parity (so `audit_site` passes against `localhost` too), point them at three options without prescribing one: audit the production URL instead, hand-roll a small middleware that parses `_headers` and applies the matching headers (~30 lines), or use their generator's dev shim if it ships one (the sibling `herald` project exposes `heraldHeadersVitePlugin` / `heraldHeadersConnect` / `heraldHeadersHono` from `@herald/addon/dev` for adopters already using it; Next.js sites can mirror the rules in `next.config.js` `async headers()`). Do not import any of these into this repo — the agents-txt deployment intentionally has no `@herald/*` dependency.
 
 ### …the user adds a new well-known path (or any new static discovery file)
 
@@ -209,7 +209,7 @@ The `_headers` file gets matching `Content-Type` + CORS rules and an RFC 8288 `L
 
 These surfaces are published despite not being part of the agents.txt spec because the wider agent-readiness ecosystem (Cloudflare's `isitagentready.com`, agentic-API auditors, MCP Registry scrapers) probes these paths alongside `agents.txt`. Maintaining them is the cost of being readable by every scanner. agents.txt remains the canonical capability declaration.
 
-**The hosted JSON Schema at `/schema/agents-json/v<MAJOR>.<MINOR>.json`.** A fifth static surface alongside the four above, distinct in two ways. First, the file is the canonical JSON Schema 2020-12 document describing the `agents.json` wire format. Every generated `agents.json` carries `"$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json"` at the top, which gives any JSON-aware editor (VS Code, JetBrains, `jq --schema`) inline validation and autocomplete when an operator opens the file. Adopters who hand-write their `agents.json` get the same benefit by copying the `$schema` line. Second, this file is owned by `@agentstxtdev/herald-schema` (the Zod source of truth in the herald monorepo), not by `herald emit`. The schema is regenerated whenever the wire format changes by running `pnpm --filter @agentstxtdev/herald-schema emit:json-schema /path/to/agentstxt/app/site/public/schema` from the herald repo; commit the resulting file in this repo. The matching `_headers` entry is declared via `headersExtras` in `app/site/agentsjson.config.js` so it survives subsequent `herald emit` runs.
+**The hosted JSON Schema at `/schema/agents-json/v<MAJOR>.<MINOR>.json`.** A fifth static surface alongside the four above, distinct in two ways. First, the file is the canonical JSON Schema 2020-12 document describing the `agents.json` wire format. Every generated `agents.json` carries `"$schema": "https://agents-txt.com/schema/agents-json/v1.0.json"` at the top, which gives any JSON-aware editor (VS Code, JetBrains, `jq --schema`) inline validation and autocomplete when an operator opens the file. Adopters who hand-write their `agents.json` get the same benefit by copying the `$schema` line. Second, this file is owned by `@agentstxtdev/herald-schema` (the Zod source of truth in the herald monorepo), not by `herald emit`. The schema is regenerated whenever the wire format changes by running `pnpm --filter @agentstxtdev/herald-schema emit:json-schema /path/to/agents-txt/app/site/public/schema` from the herald repo; commit the resulting file in this repo. The matching `_headers` entry is declared via `headersExtras` in `app/site/agentsjson.config.js` so it survives subsequent `herald emit` runs.
 
 ### …the user asks how the MCP `validate_agents_json` tool reports on `$schema`
 

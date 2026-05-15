@@ -106,10 +106,10 @@ function validateAgentsJson(obj: unknown): ValidationResult {
   } else if ('$schema' in json) {
     warnings.push('"$schema" present but not a string — should be the URL of the JSON Schema describing this document');
   } else {
-    warnings.push('No "$schema" field — adding one (e.g. "https://agentstxt.dev/schema/agents-json/v1.0.json") gives editors autocomplete and inline validation');
+    warnings.push('No "$schema" field — adding one (e.g. "https://agents-txt.com/schema/agents-json/v1.0.json") gives editors autocomplete and inline validation');
   }
   if (!('version' in json)) warnings.push('Missing "version" field (expected "0.5")');
-  if (!('standard' in json)) warnings.push('Missing "standard" field (expected "https://agentstxt.dev")');
+  if (!('standard' in json)) warnings.push('Missing "standard" field (expected "https://agents-txt.com")');
   if (!('site' in json)) warnings.push('Missing "site" block with name and url');
 
   if ('payments' in json && json.payments) {

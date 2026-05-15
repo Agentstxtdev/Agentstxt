@@ -17,8 +17,8 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
 
 <BaseLayout
   title="agents.txt Standard"
-  description="The open specification for AI agent capability declarations. Layer 4 of the agent-readiness stack. The reference deployment at agentstxt.dev serves the specification, the discovery files, the MCP endpoint, and live protocol demos."
-  canonicalUrl="https://agentstxt.dev"
+  description="The open specification for AI agent capability declarations. Layer 4 of the agent-readiness stack. The reference deployment at agents-txt.com serves the specification, the discovery files, the MCP endpoint, and live protocol demos."
+  canonicalUrl="https://agents-txt.com"
 >
   <!-- Nav -->
   <header class="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
@@ -76,7 +76,7 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
                 Run the demos
               </a>
               <a
-                href="https://github.com/agentstxtdev/agentstxt"
+                href="https://github.com/agents-txt/agents-txt"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.06em] uppercase text-[#555] hover:text-[#111] transition-colors no-underline px-4 py-2.5"
@@ -99,7 +99,7 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
                    the focus off the primary "Read the spec" / "Run the demos"
                    buttons. -->
               <a
-                href="https://isitagentready.com/agentstxt.dev"
+                href="https://isitagentready.com/agents-txt.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Verified 100 / 100 on isitagentready.com"
@@ -223,12 +223,12 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
         <div class="border border-[#e5e5e5] px-5 py-4">
           <p class="font-mono text-[10px] text-[#999] uppercase tracking-[0.08em] mb-2">Path 2</p>
           <p class="text-sm font-semibold text-[#111] mb-2">Use a generator</p>
-          <p class="text-xs text-[#777] leading-relaxed"><a href="https://github.com/agentstxtdev/herald" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">HERALD</a> is the sibling project built to generate the discovery files for this site. Useful if you want all layers kept in sync on every build.
+          <p class="text-xs text-[#777] leading-relaxed"><a href="https://github.com/agents-txt/herald" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">HERALD</a> is the sibling project built to generate the discovery files for this site. Useful if you want all layers kept in sync on every build.
         </div>
         <div class="border border-[#e5e5e5] px-5 py-4">
           <p class="font-mono text-[10px] text-[#999] uppercase tracking-[0.08em] mb-2">Path 3</p>
           <p class="text-sm font-semibold text-[#111] mb-2">Read this deployment</p>
-          <p class="text-xs text-[#777] leading-relaxed">The source for every route on this site is on <a href="https://github.com/agentstxtdev/agentstxt" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">GitHub</a>. The reference workers (site, MCP, agent-auth) are Apache 2.0; vendor in or fork freely.</p>
+          <p class="text-xs text-[#777] leading-relaxed">The source for every route on this site is on <a href="https://github.com/agents-txt/agents-txt" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">GitHub</a>. The reference workers (site, MCP, agent-auth) are Apache 2.0; vendor in or fork freely.</p>
         </div>
       </div>
     </section>
@@ -418,7 +418,7 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
       </div>
 
       <p class="text-xs text-[#999] mt-4 leading-relaxed max-w-[68ch]">
-        The mechanism by which each route emits its response headers is documented in <a href="/spec#45-serving-requirements" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">spec §4.5</a>. Static files share a single <span class="font-mono">_headers</span> configuration; dynamic handlers set their headers in code. The MCP server lives at <a href="https://mcp.agentstxt.dev" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">mcp.agentstxt.dev</a> and is proxied through this origin so cross-origin clients see a single host.
+        The mechanism by which each route emits its response headers is documented in <a href="/spec#45-serving-requirements" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">spec §4.5</a>. Static files share a single <span class="font-mono">_headers</span> configuration; dynamic handlers set their headers in code. The MCP server lives at <a href="https://mcp.agents-txt.com" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#111] transition-all text-[#555]">mcp.agents-txt.com</a> and is proxied through this origin so cross-origin clients see a single host.
       </p>
     </section>
 

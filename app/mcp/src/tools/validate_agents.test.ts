@@ -113,16 +113,16 @@ describe('validate_agents_json — top-level shape', () => {
 
   it('surfaces a positive note when $schema is present and a string', () => {
     const r = runJson(JSON.stringify({
-      $schema: 'https://agentstxt.dev/schema/agents-json/v1.0.json',
+      $schema: 'https://agents-txt.com/schema/agents-json/v1.0.json',
       version: '1.0',
-      standard: 'https://agentstxt.dev',
+      standard: 'https://agents-txt.com',
       site: { name: 'X', url: 'https://example.com' },
     }));
     expect(r.notes.some((n) => /Schema reference present/.test(n))).toBe(true);
   });
 
   it('warns when $schema is present but not a string', () => {
-    const r = runJson(JSON.stringify({ $schema: 42, version: '1.0', standard: 'https://agentstxt.dev', site: { name: 'X', url: 'https://example.com' } }));
+    const r = runJson(JSON.stringify({ $schema: 42, version: '1.0', standard: 'https://agents-txt.com', site: { name: 'X', url: 'https://example.com' } }));
     expect(r.warnings.some((w) => /\$schema.*not a string/.test(w))).toBe(true);
   });
 
@@ -146,7 +146,7 @@ describe('validate_agents_json — top-level shape', () => {
 
 describe('validate_agents_json — payments block', () => {
   it('rejects payments with no recognised per-protocol object', () => {
-    const r = runJson(JSON.stringify({ version: '0.5', standard: 'https://agentstxt.dev', payments: {} }));
+    const r = runJson(JSON.stringify({ version: '0.5', standard: 'https://agents-txt.com', payments: {} }));
     expect(r.valid).toBe(false);
     expect(r.errors.some((e) => /"payments" must include at least one per-protocol object/.test(e))).toBe(true);
   });

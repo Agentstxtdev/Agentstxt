@@ -61,8 +61,8 @@ describe.each(DEMOS)('demo page: /demo/%s', (name) => {
     expect(desc!.length).toBeGreaterThanOrEqual(80);
   });
 
-  it(`canonicalUrl points to https://agentstxt.dev/demo/${name}`, () => {
-    expect(attrValue(content, 'canonicalUrl')).toBe(`https://agentstxt.dev/demo/${name}`);
+  it(`canonicalUrl points to https://agents-txt.com/demo/${name}`, () => {
+    expect(attrValue(content, 'canonicalUrl')).toBe(`https://agents-txt.com/demo/${name}`);
   });
 
   it('includes the shared NavRight component', () => {

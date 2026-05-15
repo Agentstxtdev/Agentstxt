@@ -1,7 +1,7 @@
 {
-  "$schema": "https://agentstxt.dev/schema/agents-json/v1.0.json",
+  "$schema": "https://agents-txt.com/schema/agents-json/v1.0.json",
   "version": "1.0",
-  "standard": "https://agentstxt.dev",
+  "standard": "https://agents-txt.com",
   "site": {
     "name": "Example",
     "url": "https://example.com",

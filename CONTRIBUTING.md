@@ -1,9 +1,9 @@
-# Contributing to agentstxt
+# Contributing to agents-txt
 
-Thanks for taking the time to contribute. agentstxt is the `agents.txt` open standard plus its reference deployment. Two distinct concerns share this repository, with different review bars:
+Thanks for taking the time to contribute. agents-txt is the `agents.txt` open standard plus its reference deployment. Two distinct concerns share this repository, with different review bars:
 
 - **The specification** at [`spec/AGENTS-TXT-STANDARD.md`](spec/AGENTS-TXT-STANDARD.md) is the load-bearing artifact for the entire ecosystem. Changes here can break every parser, generator, and validator in the wild.
-- **The reference deployment** (three Cloudflare Workers + a marketing landing page) is operational code. Changes here only affect agentstxt.dev and its sister deployments.
+- **The reference deployment** (three Cloudflare Workers + a marketing landing page) is operational code. Changes here only affect agents-txt.com and its sister deployments.
 
 This guide covers what's specific to this repository. For overall architectural rules and the orientation map, read [`AGENTS.md`](AGENTS.md) (codebase guide) and [`CLAUDE.md`](CLAUDE.md) (operating instructions for AI agents; humans benefit too).
 
@@ -11,7 +11,7 @@ This guide covers what's specific to this repository. For overall architectural 
 
 ## Before you start
 
-- agentstxt is the **spec + reference deployment**. It is *not* the place for the `herald` toolkit; that lives in a sibling project. Do not import `@herald/*` anywhere here.
+- agents-txt is the **spec + reference deployment**. It is *not* the place for the `herald` toolkit; that lives in a sibling project. Do not import `@herald/*` anywhere here.
 - Open an issue or RFC discussion **before** sending any PR that touches `spec/AGENTS-TXT-STANDARD.md`. Editorial fixes (typos, broken links) are fine without a heads-up; structural changes are not.
 - Run on **Node 24 (`nvm use 24`)** and **pnpm 10**. The lockfile is committed; respect it (`pnpm install --frozen-lockfile`).
 
@@ -20,8 +20,8 @@ This guide covers what's specific to this repository. For overall architectural 
 ## Setup
 
 ```bash
-git clone https://github.com/agentstxtdev/agentstxt
-cd agents.txt/agentstxt
+git clone https://github.com/agents-txt/agents-txt
+cd agents-txt
 
 nvm use 24
 pnpm install
@@ -37,7 +37,7 @@ If anything in that sequence fails on a clean clone, that's a bug. Please file a
 
 ```bash
 # Per sub-package dev servers
-pnpm site:dev      # Astro dev server for agentstxt.dev
+pnpm site:dev      # Astro dev server for agents-txt.com
 pnpm mcp:dev       # wrangler dev for the MCP worker
 pnpm auth:dev      # wrangler dev for the agent-auth worker
 
@@ -64,7 +64,7 @@ pnpm auth:deploy / pnpm auth:deploy:prod
 | Astro site page or content | `site/src/pages/` or `site/src/content/` | Standard |
 | BFF and `/x402` + `/mpp` demo routes | `site/src/worker.ts` | Standard, must stay self-contained (no `@herald/*` imports) |
 | Generated discovery files served by site | `site/public/agents.txt`, `agents.json`, `llms.txt`, `llms-full.txt`, `robots.txt`, `sitemap.xml` | Must validate against the latest spec |
-| Hosted JSON Schema (`site/public/schema/agents-json/v*.json`) | Regenerated from the Zod source in `@agentstxtdev/herald-schema` (lives in the herald repo). Do not hand-edit. Re-emit with `pnpm --filter @agentstxtdev/herald-schema emit:json-schema /path/to/agentstxt/app/site/public/schema` from the herald repo and commit the result here. | The file is the wire-format contract for editors. Any change must be paired with a spec-version bump on the herald side. |
+| Hosted JSON Schema (`site/public/schema/agents-json/v*.json`) | Regenerated from the Zod source in `@agentstxtdev/herald-schema` (lives in the herald repo). Do not hand-edit. Re-emit with `pnpm --filter @agentstxtdev/herald-schema emit:json-schema /path/to/agents-txt/app/site/public/schema` from the herald repo and commit the result here. | The file is the wire-format contract for editors. Any change must be paired with a spec-version bump on the herald side. |
 | MCP tool | `mcp/src/` | Tool signatures must stay backward-compatible. `validate_agents_json` returns `{ valid, errors, warnings, notes }`; `notes` is the positive-observation channel and is append-only. |
 | Agent-auth capability | `auth/src/` + Vitest case | Cryptographic primitives via `@noble/*`, not hand-rolled |
 | Landing page | `landingpage/` | Standard |
@@ -166,9 +166,9 @@ pnpm auth:dev
 
 The [PR template](.github/PULL_REQUEST_TEMPLATE.md) is required. Specifically:
 
-- **Thinking path**: five to eight steps, blockquote style, traces from "agentstxt is X" down to "this PR does Y."
+- **Thinking path**: five to eight steps, blockquote style, traces from "agents-txt is X" down to "this PR does Y."
 - **Type of change**: tick the right bucket. If a PR touches multiple buckets, split it.
-- **Verification**: concrete commands and expected output. For spec PRs, the live `agentstxt.dev` URLs that exercise the change. For worker PRs, `wrangler dev` exercise notes.
+- **Verification**: concrete commands and expected output. For spec PRs, the live `agents-txt.com` URLs that exercise the change. For worker PRs, `wrangler dev` exercise notes.
 - **Risks**: even if "Low risk."
 - **Spec impact**: required for structural spec changes. Backwards-compat / migration / version bump / mirrored validator updates.
 - **Model used**: be specific: provider, model ID/version, thinking mode if applicable. "Claude" is not enough; "claude-opus-4-7 in extended thinking mode" is.

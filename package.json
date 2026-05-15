@@ -1,5 +1,5 @@
 {
-  "name": "agentstxt",
+  "name": "agents-txt",
   "private": true,
   "version": "0.1.0",
   "description": "agents.txt — open standard, reference site, MCP server, and agent-auth worker",

@@ -39,5 +39,5 @@ Allow: /llms.txt
 Allow: /agents.txt
 Allow: /
 
-Sitemap: https://agentstxt.dev/sitemap.xml
+Sitemap: https://agents-txt.com/sitemap.xml
 Content-Signal: search=yes, ai-train=no, ai-input=no

@@ -32,7 +32,7 @@ async function handleApiAudit(request: Request, env: Env): Promise<Response> {
   }
   // Pass env so safeFetch can route self-targeted fetches through the SITE
   // service binding instead of public fetch(), avoiding the same-account
-  // subrequest loop that returns 522 when site → MCP → public agentstxt.dev.
+  // subrequest loop that returns 522 when site → MCP → public agents-txt.com.
   const report = await runAudit(target, env);
   const status = report._error === true ? 400 : 200;
   if (report._error === true) delete report._error;

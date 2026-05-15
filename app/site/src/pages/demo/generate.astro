@@ -8,7 +8,7 @@ import { SPEC_VERSION } from '../../config';
 <BaseLayout
   title="File Generator · agents.txt"
   description="Generate agents.txt and agents.json for your site. Select directives, configure options, and copy the output directly into your project. No install required."
-  canonicalUrl="https://agentstxt.dev/demo/generate"
+  canonicalUrl="https://agents-txt.com/demo/generate"
 >
   <!-- Nav -->
   <header class="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
@@ -62,7 +62,7 @@ import { SPEC_VERSION } from '../../config';
         Select the directives you want to declare, fill in the values for your site, then click
         <strong>Generate</strong>. The files are built entirely in your browser. Copy the output
         directly into your project. Optionally, you can use
-        <a href="https://github.com/agentstxtdev/herald" target="_blank" rel="noopener noreferrer">
+        <a href="https://github.com/agents-txt/herald" target="_blank" rel="noopener noreferrer">
           HERALD
 </a>
         to generate and keep them in sync from <code>agentsjson.config.js</code>.
@@ -473,7 +473,7 @@ import { SPEC_VERSION } from '../../config';
       </div>
 
       <p class="text-xs text-[#999] mt-6 leading-relaxed">
-        Place <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agents.txt</code> and <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agents.json</code> in the <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/public</code> folder of your site so they are automatically served. For ongoing sync you can optionally use the <a href="https://github.com/agentstxtdev/herald" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">HERALD</a>, where <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">herald emit</code> regenerates both from <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agentsjson.config.js</code> on demand.
+        Place <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agents.txt</code> and <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agents.json</code> in the <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">/public</code> folder of your site so they are automatically served. For ongoing sync you can optionally use the <a href="https://github.com/agents-txt/herald" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">HERALD</a>, where <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">herald emit</code> regenerates both from <code class="font-mono text-[11px] bg-[#f4f4f4] border border-[#e8e8e8] px-1 py-0.5">agentsjson.config.js</code> on demand.
       </p>
     </div>
 
@@ -663,7 +663,7 @@ import { SPEC_VERSION } from '../../config';
       const base = c.url.replace(/\/$/, '')
       const lines: string[] = [
         '# agents.txt',
-        '# Standard: https://agentstxt.dev',
+        '# Standard: https://agents-txt.com',
         `# JSON: ${base}/agents.json`,
       ]
 
@@ -708,7 +708,7 @@ import { SPEC_VERSION } from '../../config';
     function buildAgentsJson(c: GenConfig): string {
       const obj: Record<string, unknown> = {
         version: '1.0',
-        standard: 'https://agentstxt.dev',
+        standard: 'https://agents-txt.com',
         site: {
           name: c.name,
           url: c.url,

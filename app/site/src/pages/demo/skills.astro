@@ -8,7 +8,7 @@ import { SPEC_VERSION } from '../../config';
 <BaseLayout
   title="Skills Demo · agents.txt"
   description="Live demonstration of skill package discovery. agents.json is read to enumerate declared skills, the package is fetched directly over HTTP, and the same content is retrieved through the MCP get_skill tool. Executed in your browser."
-  canonicalUrl="https://agentstxt.dev/demo/skills"
+  canonicalUrl="https://agents-txt.com/demo/skills"
 >
   <!-- Nav -->
   <header class="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
@@ -288,7 +288,7 @@ async function run() {
     // ── Step 1: HTTP retrieval ────────────────────────────────────────────────
     // Use the path from the canonical URL but fetch against the demo's own
     // origin. agents.json advertises absolute URLs against the production
-    // origin (e.g. https://agentstxt.dev/...); when the demo runs on
+    // origin (e.g. https://agents-txt.com/...); when the demo runs on
     // localhost we still need to fetch from the local dev server.
     setRunning('1');
     const skillPath = new URL(skillUrl).pathname;
@@ -303,7 +303,7 @@ async function run() {
     setRunning('2');
     const init = await mcpPost(`${origin}/mcp`, {
       jsonrpc: '2.0', id: 1, method: 'initialize',
-      params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'agentstxt-demo', version: '1.0.0' } },
+      params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'agents-txt-demo', version: '1.0.0' } },
     });
     if (!init.sessionId) throw new Error(`No session ID returned:\n${fmt(init.raw)}`);
     const sessionId = init.sessionId;

@@ -2,13 +2,13 @@
 
 <!--
   Required. Trace your reasoning from the top of the project down to this
-  specific change. Start with what agentstxt is, then narrow through the
+  specific change. Start with what agents-txt is, then narrow through the
   surface (spec / site / mcp / auth / landingpage), the problem, and why
   this PR exists. Use blockquote style. Aim for 5–8 steps.
   See CONTRIBUTING.md for full examples.
 -->
 
-> - agentstxt is the `agents.txt` open standard plus its reference deployment
+> - agents-txt is the `agents.txt` open standard plus its reference deployment
 > - [Which surface — spec/AGENTS-TXT-STANDARD.md / site/ / mcp/ / auth/ / landingpage/]
 > - [What problem or gap exists]
 > - [Why it needs to be addressed]
@@ -30,10 +30,10 @@
 
 - [ ] **Spec — editorial** (typos, clarifying examples, broken links, formatting). No semantics change.
 - [ ] **Spec — structural** (new directives, schema fields, conformance shifts, version bump). RFC discussion required in this PR's description.
-- [ ] **Site** (`agentstxt/site/`) — Astro pages, BFF / `/x402` worker, content updates, demo pages.
-- [ ] **MCP** (`agentstxt/mcp/`) — new tool, validator improvement, transport fix.
-- [ ] **Auth** (`agentstxt/auth/`) — capability extension, scope improvement, key handling.
-- [ ] **Landingpage** (`agentstxt/landingpage/`).
+- [ ] **Site** (`agents-txt/site/`) — Astro pages, BFF / `/x402` worker, content updates, demo pages.
+- [ ] **MCP** (`agents-txt/mcp/`) — new tool, validator improvement, transport fix.
+- [ ] **Auth** (`agents-txt/auth/`) — capability extension, scope improvement, key handling.
+- [ ] **Landingpage** (`agents-txt/landingpage/`).
 - [ ] **Skills / docs / CI / repo plumbing.**
 
 ## Verification
@@ -41,7 +41,7 @@
 <!--
   How can a reviewer confirm this works? Include test commands, manual
   steps, or both. Examples per surface:
-    Spec:     re-validate the live `agents.txt` and `agents.json` at agentstxt.dev
+    Spec:     re-validate the live `agents.txt` and `agents.json` at agents-txt.com
     Site:     `pnpm site:build`, screenshots of any UI change
     MCP:      `pnpm mcp:dev`, exercise the new tool from mcp-inspector / Claude Desktop
     Auth:     `pnpm auth:test` (must end at the same or higher number of tests passing)

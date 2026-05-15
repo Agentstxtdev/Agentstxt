@@ -3,18 +3,18 @@
 > The open specification for AI agent capability declarations. Layer 4 of the agent-readiness stack.
 
 ## Specification
-- [agents.txt Standard v1.0](https://agentstxt.dev): The open specification for AI agent capability declarations. Covers file format, directives, discovery, payment protocols (x402, MPP), authorization (agent-auth), MCP endpoint declaration, and skills. Layer 4 of the agent-readiness stack.
-- [agents.txt Standard v1.0 (full text)](https://agentstxt.dev/spec): The complete text of the v1.0 specification rendered as a single page: file format, directives, discovery, the agents.json schema, the four capability blocks (Payments, Authorization, MCP, Skills) plus A2A and UCP, §4.5 serving requirements, and the registries defined in §17.
-- [agents.txt Registry](https://agentstxt.dev/registry): Live surface for the two registries defined in §17 of the spec: the directive names registered for use in agents.txt, and the per-protocol object shapes registered for use in agents.json. Authoritative between spec versions; the next spec version absorbs accumulated changes.
+- [agents.txt Standard v1.0](https://agents-txt.com): The open specification for AI agent capability declarations. Covers file format, directives, discovery, payment protocols (x402, MPP), authorization (agent-auth), MCP endpoint declaration, and skills. Layer 4 of the agent-readiness stack.
+- [agents.txt Standard v1.0 (full text)](https://agents-txt.com/spec): The complete text of the v1.0 specification rendered as a single page: file format, directives, discovery, the agents.json schema, the four capability blocks (Payments, Authorization, MCP, Skills) plus A2A and UCP, §4.5 serving requirements, and the registries defined in §17.
+- [agents.txt Registry](https://agents-txt.com/registry): Live surface for the two registries defined in §17 of the spec: the directive names registered for use in agents.txt, and the per-protocol object shapes registered for use in agents.json. Authoritative between spec versions; the next spec version absorbs accumulated changes.
 
 ## Demos
-- [Demos index](https://agentstxt.dev/demo): Live demonstrations of every capability the spec advertises.
-- [Agent Auth demo](https://agentstxt.dev/demo/auth): 7-step Ed25519 + JWT handshake against the agent-auth Cloudflare Worker.
-- [MCP demo](https://agentstxt.dev/demo/mcp): Streamable HTTP MCP session: initialize, tools/list, get_spec, validators.
-- [Payments demo](https://agentstxt.dev/demo/payments): Announcement-then-wire walkthrough: reads agents.json, then fetches the synthetic /x402 gated route to show the payTo recipient in a real 402.
-- [MPP demo](https://agentstxt.dev/demo/mpp): Announcement-then-wire walkthrough: reads agents.json, then probes /mpp for a real 402 + WWW-Authenticate: Payment challenge composed by mppx. Tempo and/or Stripe methods activate per the credentials configured on the worker.
-- [A2A discovery demo](https://agentstxt.dev/demo/a2a): A2A AgentCard discovery flow: reads the A2A: directive from agents.txt and the a2a[] block from agents.json, fetches the declared AgentCard, parses its capabilities and skills, then confirms cross-file consistency via the MCP audit_site tool.
-- [UCP discovery demo](https://agentstxt.dev/demo/ucp): UCP profile discovery flow: reads the UCP: directive from agents.txt and the ucp[] block from agents.json, fetches the declared profile, parses its services / capabilities / payment_handlers (including the AP2 mandate extension) and signing keys, then confirms cross-file consistency via the MCP audit_site tool.
-- [Skills demo](https://agentstxt.dev/demo/skills): agents.json skills index → MCP get_skill → installable skill package.
-- [Discovery & content layers demo](https://agentstxt.dev/demo/llms): Fetches every discovery and content file served by this site: /robots.txt (Layer 1), /sitemap.xml (Layer 2), /llms.txt and /llms-full.txt (Layer 3), plus a §4.5 headers check that confirms /agents.txt and /agents.json serve with the right Content-Type, CORS, and Cache-Control.
-- [File Generator](https://agentstxt.dev/demo/generate): Browser-only configurator that emits agents.txt + agents.json from form input.
+- [Demos index](https://agents-txt.com/demo): Live demonstrations of every capability the spec advertises.
+- [Agent Auth demo](https://agents-txt.com/demo/auth): 7-step Ed25519 + JWT handshake against the agent-auth Cloudflare Worker.
+- [MCP demo](https://agents-txt.com/demo/mcp): Streamable HTTP MCP session: initialize, tools/list, get_spec, validators.
+- [Payments demo](https://agents-txt.com/demo/payments): Announcement-then-wire walkthrough: reads agents.json, then fetches the synthetic /x402 gated route to show the payTo recipient in a real 402.
+- [MPP demo](https://agents-txt.com/demo/mpp): Announcement-then-wire walkthrough: reads agents.json, then probes /mpp for a real 402 + WWW-Authenticate: Payment challenge composed by mppx. Tempo and/or Stripe methods activate per the credentials configured on the worker.
+- [A2A discovery demo](https://agents-txt.com/demo/a2a): A2A AgentCard discovery flow: reads the A2A: directive from agents.txt and the a2a[] block from agents.json, fetches the declared AgentCard, parses its capabilities and skills, then confirms cross-file consistency via the MCP audit_site tool.
+- [UCP discovery demo](https://agents-txt.com/demo/ucp): UCP profile discovery flow: reads the UCP: directive from agents.txt and the ucp[] block from agents.json, fetches the declared profile, parses its services / capabilities / payment_handlers (including the AP2 mandate extension) and signing keys, then confirms cross-file consistency via the MCP audit_site tool.
+- [Skills demo](https://agents-txt.com/demo/skills): agents.json skills index → MCP get_skill → installable skill package.
+- [Discovery & content layers demo](https://agents-txt.com/demo/llms): Fetches every discovery and content file served by this site: /robots.txt (Layer 1), /sitemap.xml (Layer 2), /llms.txt and /llms-full.txt (Layer 3), plus a §4.5 headers check that confirms /agents.txt and /agents.json serve with the right Content-Type, CORS, and Cache-Control.
+- [File Generator](https://agents-txt.com/demo/generate): Browser-only configurator that emits agents.txt + agents.json from form input.

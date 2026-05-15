@@ -8,7 +8,7 @@ import { SPEC_VERSION } from '../config';
 <BaseLayout
   title="Audit a site against the agents.txt spec"
   description="Audit any live site against the agents.txt specification. Validates /agents.txt and /agents.json against §3–§11, §5 schema, §4.5 serving headers, and cross-file consistency. Shareable result URL, JSON and Markdown representations available via content negotiation."
-  canonicalUrl="https://agentstxt.dev/audit"
+  canonicalUrl="https://agents-txt.com/audit"
 >
   <!-- Nav -->
   <header class="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
@@ -95,7 +95,7 @@ import { SPEC_VERSION } from '../config';
       <!-- Empty state visible when no audit has been run yet. -->
       <div id="audit-empty" class="border border-dashed border-[#e5e5e5] px-5 py-12 text-center">
         <p class="text-sm text-[#777]">Paste a URL above to run an audit.</p>
-        <p class="text-xs text-[#999] mt-2 font-mono">curl -H 'Accept: application/json' https://agentstxt.dev/audit?url=&lt;target&gt;</p>
+        <p class="text-xs text-[#999] mt-2 font-mono">curl -H 'Accept: application/json' https://agents-txt.com/audit?url=&lt;target&gt;</p>
       </div>
 
       <!-- Other representations -->
@@ -106,14 +106,14 @@ import { SPEC_VERSION } from '../config';
         </p>
         <pre><code>{`# JSON
 curl -H 'Accept: application/json' \\
-  'https://agentstxt.dev/audit?url=https://example.com'
+  'https://agents-txt.com/audit?url=https://example.com'
 
 # Markdown (for LLMs and copy-paste into chat threads)
 curl -H 'Accept: text/markdown' \\
-  'https://agentstxt.dev/audit?url=https://example.com'
+  'https://agents-txt.com/audit?url=https://example.com'
 
 # HTML (default; what the browser sees)
-curl 'https://agentstxt.dev/audit?url=https://example.com'`}</code></pre>
+curl 'https://agents-txt.com/audit?url=https://example.com'`}</code></pre>
         <p>
           MCP-speaking agents can also call the underlying <code>audit_site</code> tool over <code>/mcp</code> directly. The tool's response shape is identical to the JSON returned here.
         </p>

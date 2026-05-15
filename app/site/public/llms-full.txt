@@ -4,14 +4,14 @@
 
 ## Specification
 
-### [agents.txt Standard v1.0](https://agentstxt.dev)
+### [agents.txt Standard v1.0](https://agents-txt.com)
 
 # agents.txt Standard — v1.0
 
 **Status:** Draft  
 **Version:** 0.5-draft  
 **Authors:** Open Agentic Web contributors  
-**Repository:** https://github.com/agentstxtdev/agentstxt  
+**Repository:** https://github.com/agents-txt/agents-txt  
 **License:** CC0 (spec), MIT (reference implementation)
 
 ---
@@ -59,7 +59,7 @@ Capability blocks are separated by blank lines. Each block begins with a directi
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 # JSON: https://example.com/agents.json
 ```
 
@@ -69,7 +69,7 @@ The `# JSON:` line is an optional comment that points agents to the structured c
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Payments: enabled
 Protocols: x402, mpp
@@ -79,7 +79,7 @@ Protocols: x402, mpp
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Authorization: agent-auth
 Identity: required
@@ -89,7 +89,7 @@ Identity: required
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Payments: enabled
 Protocols: x402, mpp
@@ -102,7 +102,7 @@ Identity: required
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Payments: enabled
 Protocols: x402, mpp
@@ -118,7 +118,7 @@ MCP: https://example.com/mcp-premium
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 # JSON: https://example.com/agents.json
 
 Payments: enabled
@@ -171,7 +171,7 @@ Sites SHOULD include a `# JSON:` comment in the header of `agents.txt` to point 
 
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 # JSON: https://example.com/agents.json
 ```
 
@@ -403,7 +403,7 @@ The key additions agents.json makes over agents.txt:
 ```json
 {
   "version": "0.5",
-  "standard": "https://agentstxt.dev",
+  "standard": "https://agents-txt.com",
   "site": {
     "name": "My Site",
     "url": "https://example.com",
@@ -493,7 +493,7 @@ This spec follows semver. The current version is `v1.0`.
 **Payments only (x402 + MPP):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Payments: enabled
 Protocols: x402, mpp
@@ -502,7 +502,7 @@ Protocols: x402, mpp
 **Authorization only (agent-auth, identity required):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Authorization: agent-auth
 Identity: required
@@ -511,7 +511,7 @@ Identity: required
 **Payments + authorization:**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Payments: enabled
 Protocols: x402, mpp
@@ -522,7 +522,7 @@ Authorization: agent-auth
 **MCP only:**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 MCP: https://example.com/mcp
 ```
@@ -530,7 +530,7 @@ MCP: https://example.com/mcp
 **Skills only:**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Skills: https://example.com/.well-known/skills/main.md
 ```
@@ -538,7 +538,7 @@ Skills: https://example.com/.well-known/skills/main.md
 **Skills with free and paid tiers:**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 
 Payments: enabled
 Protocols: x402, mpp
@@ -550,7 +550,7 @@ Skills: https://example.com/.well-known/skills/premium.md
 **Full stack (payments + authorization + MCP + skills):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 # JSON: https://example.com/agents.json
 
 Payments: enabled
@@ -569,7 +569,7 @@ Skills: https://example.com/.well-known/skills/premium.md
 **No capabilities declared (discovery file only):**
 ```
 # agents.txt
-# Standard: https://agentstxt.dev
+# Standard: https://agents-txt.com
 ```
 
 ---

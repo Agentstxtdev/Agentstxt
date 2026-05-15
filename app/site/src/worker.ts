@@ -75,7 +75,7 @@ function proxyTo(request: Request, binding: { fetch: typeof fetch }): Promise<Re
 // the x402 v2 wire shape. agents.json never advertises this path; the spec
 // does not have a "go pay here" route. Production sites gate the resources the
 // agent actually wants, and the 402 appears on first contact with the resource.
-// For agentstxt.dev there is no real gated resource (the spec and docs are
+// For agents-txt.com there is no real gated resource (the spec and docs are
 // free), so we fabricate one route and label it as a demo.
 
 const SOLANA_NETWORK = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp';
@@ -556,8 +556,8 @@ export default {
         };
         return new Response(JSON.stringify({
           message:  'Payment verified. agents.txt x402 demo route settled.',
-          resource: 'https://agentstxt.dev/x402',
-          standard: 'https://agentstxt.dev',
+          resource: 'https://agents-txt.com/x402',
+          standard: 'https://agents-txt.com',
           ...settlement,
         }), {
           status: 200,
@@ -573,7 +573,7 @@ export default {
         x402Version: 2,
         error: 'Payment required',
         resource: {
-          url:         'https://agentstxt.dev/x402',
+          url:         'https://agents-txt.com/x402',
           description: 'Synthetic gated route demonstrating the x402 v2 wire shape on Solana. Not a revenue endpoint.',
           mimeType:    'application/json',
         },
@@ -610,8 +610,8 @@ export default {
         if (request.headers.get('Authorization')?.toLowerCase().startsWith('payment ') && result.status !== 402) {
           return result.withReceipt(new Response(JSON.stringify({
             message:  'Payment verified. agents.txt MPP demo route settled.',
-            resource: 'https://agentstxt.dev/mpp',
-            standard: 'https://agentstxt.dev',
+            resource: 'https://agents-txt.com/mpp',
+            standard: 'https://agents-txt.com',
           }), {
             status: 200,
             headers: { 'Content-Type': 'application/json', ...CORS },
@@ -626,7 +626,7 @@ export default {
         return new Response(JSON.stringify({
           error: 'Payment required',
           resource: {
-            url:         'https://agentstxt.dev/mpp',
+            url:         'https://agents-txt.com/mpp',
             description: 'Synthetic gated route demonstrating the MPP (Machine Payments Protocol) wire shape. Methods activate per configured credentials.',
             mimeType:    'application/json',
           },

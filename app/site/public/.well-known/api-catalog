@@ -1,44 +1,44 @@
 {
   "linkset": [
     {
-      "anchor": "https://agentstxt.dev/mcp",
+      "anchor": "https://agents-txt.com/mcp",
       "links": [
         {
           "rel": "describedby",
-          "href": "https://agentstxt.dev/.well-known/mcp/server-card.json",
+          "href": "https://agents-txt.com/.well-known/mcp/server-card.json",
           "type": "application/json"
         },
         {
           "rel": "service-doc",
-          "href": "https://agentstxt.dev"
+          "href": "https://agents-txt.com"
         }
       ]
     },
     {
-      "anchor": "https://agentstxt.dev/.well-known/agent-card.json",
+      "anchor": "https://agents-txt.com/.well-known/agent-card.json",
       "links": [
         {
           "rel": "service-desc",
-          "href": "https://agentstxt.dev/.well-known/agent-card.json",
+          "href": "https://agents-txt.com/.well-known/agent-card.json",
           "type": "application/json"
         },
         {
           "rel": "service-doc",
-          "href": "https://agentstxt.dev"
+          "href": "https://agents-txt.com"
         }
       ]
     },
     {
-      "anchor": "https://agentstxt.dev/.well-known/ucp",
+      "anchor": "https://agents-txt.com/.well-known/ucp",
       "links": [
         {
           "rel": "service-desc",
-          "href": "https://agentstxt.dev/.well-known/ucp",
+          "href": "https://agents-txt.com/.well-known/ucp",
           "type": "application/json"
         },
         {
           "rel": "service-doc",
-          "href": "https://agentstxt.dev"
+          "href": "https://agents-txt.com"
         }
       ]
     }

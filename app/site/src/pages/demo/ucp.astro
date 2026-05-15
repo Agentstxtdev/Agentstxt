@@ -8,7 +8,7 @@ import { SPEC_VERSION } from '../../config';
 <BaseLayout
   title="UCP Demo · agents.txt"
   description="Live demonstration of UCP profile discovery via the UCP directive in agents.txt. Reads agents.json, fetches the declared profile, parses its services, capabilities, payment_handlers (including the AP2 mandate extension), and signing keys, then confirms cross-file consistency via the MCP audit_site tool. Executed in your browser."
-  canonicalUrl="https://agentstxt.dev/demo/ucp"
+  canonicalUrl="https://agents-txt.com/demo/ucp"
 >
   <!-- Nav -->
   <header class="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
@@ -476,7 +476,7 @@ async function run() {
 
     // ── Step 1: HTTP retrieval ───────────────────────────────────────────────
     // agents.json advertises absolute URLs against the production origin
-    // (e.g. https://agentstxt.dev/...). Resolve to the local origin for
+    // (e.g. https://agents-txt.com/...). Resolve to the local origin for
     // dev preview parity, like the a2a and skills demos do.
     setRunning('1');
     const firstUrl = profiles[0].url;
@@ -509,7 +509,7 @@ async function run() {
     setRunning('3');
     const init = await mcpPost(`${origin}/mcp`, {
       jsonrpc: '2.0', id: 1, method: 'initialize',
-      params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'agentstxt-ucp-demo', version: '1.0.0' } },
+      params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'agents-txt-ucp-demo', version: '1.0.0' } },
     });
     if (!init.sessionId) throw new Error(`MCP session not established:\n${fmt(init.raw)}`);
     const sessionId = init.sessionId;

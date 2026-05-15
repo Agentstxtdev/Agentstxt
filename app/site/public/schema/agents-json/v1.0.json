@@ -275,8 +275,8 @@
     "site"
   ],
   "additionalProperties": false,
-  "description": "agents.json — structured companion to agents.txt. Declares the capabilities a site exposes to AI agents (payments, authorization, MCP servers, skill packages, A2A AgentCards, UCP profiles). See https://agentstxt.dev for the full specification.",
-  "$id": "https://agentstxt.dev/schema/agents-json/v1.0.json",
+  "description": "agents.json — structured companion to agents.txt. Declares the capabilities a site exposes to AI agents (payments, authorization, MCP servers, skill packages, A2A AgentCards, UCP profiles). See https://agents-txt.com for the full specification.",
+  "$id": "https://agents-txt.com/schema/agents-json/v1.0.json",
   "title": "agents.json v1.0",
-  "$comment": "JSON Schema for agents.json (v1.0). See https://agentstxt.dev for the specification."
+  "$comment": "JSON Schema for agents.json (v1.0). See https://agents-txt.com for the specification."
 }

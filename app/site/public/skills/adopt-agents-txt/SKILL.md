@@ -48,7 +48,7 @@ The format is plain UTF-8 text. The minimum viable file:
 
 ```
 # /agents.txt
-# Spec: https://agentstxt.dev
+# Spec: https://agents-txt.com
 
 Site-Name: <name>
 Site-URL: <https://...>
@@ -135,7 +135,7 @@ After the file is in place, validate it (regardless of path). Two ways:
 
 ### A. Use the public MCP server
 
-[`mcp.agentstxt.dev`](https://mcp.agentstxt.dev) exposes `validate_agents_txt` and `validate_agents_json` tools over Model Context Protocol for offline content validation, and the comprehensive `audit_site` tool for end-to-end checks of a live URL. Any MCP-aware client (Claude Desktop, mcp-inspector, etc.) can call them.
+[`mcp.agents-txt.com`](https://mcp.agents-txt.com) exposes `validate_agents_txt` and `validate_agents_json` tools over Model Context Protocol for offline content validation, and the comprehensive `audit_site` tool for end-to-end checks of a live URL. Any MCP-aware client (Claude Desktop, mcp-inspector, etc.) can call them.
 
 `audit_site` is what to run after deploy. It validates §4.5 serving headers (Content-Type, CORS, Cache-Control), runs the §3, §6–§11 directive validators on `agents.txt`, schema-validates `agents.json` per §5, scans both for accidental treasury / secret leaks per §5.4 / §14, and cross-checks consistency between `agents.txt` and `agents.json`. Output includes a roll-up `summary` block with `compliant` (boolean) and `errorCount` so it reads as a single pass/fail signal.
 
@@ -182,7 +182,7 @@ If the user has an `agents.txt` *and* an `agents.json`, confirm they declare the
 
 ## When you should hand off
 
-- **Spec questions** ("can I add a custom directive?", "what does `Authorization: agent-auth` actually mean for me?") → point them at [`spec/AGENTS-TXT-STANDARD.md`](https://agentstxt.dev/spec) and offer to read the relevant section out loud.
+- **Spec questions** ("can I add a custom directive?", "what does `Authorization: agent-auth` actually mean for me?") → point them at [`spec/AGENTS-TXT-STANDARD.md`](https://agents-txt.com/spec) and offer to read the relevant section out loud.
 - **herald CLI deep dives** ("how do I configure the firecrawl driver?") → tell them herald has its own setup skill and documentation in a separate repository; do not duplicate that work here.
 - **Cloudflare / hosting setup** → out of scope; this skill assumes they have a working deploy pipeline.
 

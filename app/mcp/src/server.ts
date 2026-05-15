@@ -24,7 +24,7 @@ export class AgentsTxtMCP extends McpAgent<Env, State, Props> {
   server = new McpServer({
     name: 'agents.txt',
     version: '0.5.0',
-    websiteUrl: 'https://agentstxt.dev',
+    websiteUrl: 'https://agents-txt.com',
   });
 
   initialState: State = {};

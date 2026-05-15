@@ -23,7 +23,7 @@ const MPP_DESCRIPTION  = 'Synthetic gated route /mpp demonstrating the MPP wire 
 export default {
   site: {
     name: 'agents.txt Standard',
-    url: 'https://agentstxt.dev',
+    url: 'https://agents-txt.com',
     description: 'The open specification for AI agent capability declarations. Layer 4 of the agent-readiness stack.',
   },
 
@@ -127,7 +127,7 @@ export default {
 
   // Opinionated crawler policy:
   //   • Search engines welcome.
-  //   • Free AI training scrapers blocked by default — agentstxt.dev is a spec
+  //   • Free AI training scrapers blocked by default — agents-txt.com is a spec
   //     site and a live demo, not a training corpus. Agents that want access
   //     can pay via x402 / MPP.
   //   • Paid agents (AgentstxtBot) explicitly allowed.
@@ -146,17 +146,17 @@ export default {
           name: 'Specification',
           pages: [
             {
-              url: 'https://agentstxt.dev',
+              url: 'https://agents-txt.com',
               title: 'agents.txt Standard v1.0',
               description: 'The open specification for AI agent capability declarations. Covers file format, directives, discovery, payment protocols (x402, MPP), authorization (agent-auth), MCP endpoint declaration, and skills. Layer 4 of the agent-readiness stack.',
             },
             {
-              url: 'https://agentstxt.dev/spec',
+              url: 'https://agents-txt.com/spec',
               title: 'agents.txt Standard v1.0 (full text)',
               description: 'The complete text of the v1.0 specification rendered as a single page: file format, directives, discovery, the agents.json schema, the four capability blocks (Payments, Authorization, MCP, Skills) plus A2A and UCP, §4.5 serving requirements, and the registries defined in §17.',
             },
             {
-              url: 'https://agentstxt.dev/registry',
+              url: 'https://agents-txt.com/registry',
               title: 'agents.txt Registry',
               description: 'Live surface for the two registries defined in §17 of the spec: the directive names registered for use in agents.txt, and the per-protocol object shapes registered for use in agents.json. Authoritative between spec versions; the next spec version absorbs accumulated changes.',
             },
@@ -165,22 +165,22 @@ export default {
         {
           name: 'Demos',
           pages: [
-            { url: 'https://agentstxt.dev/demo',           title: 'Demos index',                description: 'Live demonstrations of every capability the spec advertises.' },
-            { url: 'https://agentstxt.dev/demo/auth',      title: 'Agent Auth demo',            description: '7-step Ed25519 + JWT handshake against the agent-auth Cloudflare Worker.' },
-            { url: 'https://agentstxt.dev/demo/mcp',       title: 'MCP demo',                   description: 'Streamable HTTP MCP session: initialize, tools/list, get_spec, validators.' },
-            { url: 'https://agentstxt.dev/demo/payments',  title: 'Payments demo',              description: 'Announcement-then-wire walkthrough: reads agents.json, then fetches the synthetic /x402 gated route to show the payTo recipient in a real 402.' },
-            { url: 'https://agentstxt.dev/demo/mpp',       title: 'MPP demo',                   description: 'Announcement-then-wire walkthrough: reads agents.json, then probes /mpp for a real 402 + WWW-Authenticate: Payment challenge composed by mppx. Tempo and/or Stripe methods activate per the credentials configured on the worker.' },
-            { url: 'https://agentstxt.dev/demo/a2a',       title: 'A2A discovery demo',         description: 'A2A AgentCard discovery flow: reads the A2A: directive from agents.txt and the a2a[] block from agents.json, fetches the declared AgentCard, parses its capabilities and skills, then confirms cross-file consistency via the MCP audit_site tool.' },
-            { url: 'https://agentstxt.dev/demo/ucp',       title: 'UCP discovery demo',         description: 'UCP profile discovery flow: reads the UCP: directive from agents.txt and the ucp[] block from agents.json, fetches the declared profile, parses its services / capabilities / payment_handlers (including the AP2 mandate extension) and signing keys, then confirms cross-file consistency via the MCP audit_site tool.' },
-            { url: 'https://agentstxt.dev/demo/skills',    title: 'Skills demo',                description: 'agents.json skills index → MCP get_skill → installable skill package.' },
-            { url: 'https://agentstxt.dev/demo/llms',      title: 'Discovery & content layers demo',  description: 'Fetches every discovery and content file served by this site: /robots.txt (Layer 1), /sitemap.xml (Layer 2), /llms.txt and /llms-full.txt (Layer 3), plus a §4.5 headers check that confirms /agents.txt and /agents.json serve with the right Content-Type, CORS, and Cache-Control.' },
-            { url: 'https://agentstxt.dev/demo/generate',  title: 'File Generator',             description: 'Browser-only configurator that emits agents.txt + agents.json from form input.' },
+            { url: 'https://agents-txt.com/demo',           title: 'Demos index',                description: 'Live demonstrations of every capability the spec advertises.' },
+            { url: 'https://agents-txt.com/demo/auth',      title: 'Agent Auth demo',            description: '7-step Ed25519 + JWT handshake against the agent-auth Cloudflare Worker.' },
+            { url: 'https://agents-txt.com/demo/mcp',       title: 'MCP demo',                   description: 'Streamable HTTP MCP session: initialize, tools/list, get_spec, validators.' },
+            { url: 'https://agents-txt.com/demo/payments',  title: 'Payments demo',              description: 'Announcement-then-wire walkthrough: reads agents.json, then fetches the synthetic /x402 gated route to show the payTo recipient in a real 402.' },
+            { url: 'https://agents-txt.com/demo/mpp',       title: 'MPP demo',                   description: 'Announcement-then-wire walkthrough: reads agents.json, then probes /mpp for a real 402 + WWW-Authenticate: Payment challenge composed by mppx. Tempo and/or Stripe methods activate per the credentials configured on the worker.' },
+            { url: 'https://agents-txt.com/demo/a2a',       title: 'A2A discovery demo',         description: 'A2A AgentCard discovery flow: reads the A2A: directive from agents.txt and the a2a[] block from agents.json, fetches the declared AgentCard, parses its capabilities and skills, then confirms cross-file consistency via the MCP audit_site tool.' },
+            { url: 'https://agents-txt.com/demo/ucp',       title: 'UCP discovery demo',         description: 'UCP profile discovery flow: reads the UCP: directive from agents.txt and the ucp[] block from agents.json, fetches the declared profile, parses its services / capabilities / payment_handlers (including the AP2 mandate extension) and signing keys, then confirms cross-file consistency via the MCP audit_site tool.' },
+            { url: 'https://agents-txt.com/demo/skills',    title: 'Skills demo',                description: 'agents.json skills index → MCP get_skill → installable skill package.' },
+            { url: 'https://agents-txt.com/demo/llms',      title: 'Discovery & content layers demo',  description: 'Fetches every discovery and content file served by this site: /robots.txt (Layer 1), /sitemap.xml (Layer 2), /llms.txt and /llms-full.txt (Layer 3), plus a §4.5 headers check that confirms /agents.txt and /agents.json serve with the right Content-Type, CORS, and Cache-Control.' },
+            { url: 'https://agents-txt.com/demo/generate',  title: 'File Generator',             description: 'Browser-only configurator that emits agents.txt + agents.json from form input.' },
           ],
         },
       ],
     },
     // Switch to firecrawl once deployed:
-    // fullTxt: { driver: { type: 'firecrawl', siteUrl: 'https://agentstxt.dev', apiKey: process.env.FIRECRAWL_API_KEY } },
+    // fullTxt: { driver: { type: 'firecrawl', siteUrl: 'https://agents-txt.com', apiKey: process.env.FIRECRAWL_API_KEY } },
   },
 
   authorization: {
@@ -200,7 +200,7 @@ export default {
 
   mcp: {
     endpoints: {
-      url: 'https://agentstxt.dev/mcp',
+      url: 'https://agents-txt.com/mcp',
       description: 'Exposes the agents.txt spec as structured resources: sections, directive reference, examples, and the JSON schema for agents.json.',
     },
     // SEP-2127 server-card metadata. herald emits
@@ -222,7 +222,7 @@ export default {
     // `sha256sum public/skills/adopt-agents-txt/SKILL.md` whenever the file
     // changes; herald otherwise omits the entry from the discovery index.
     urls: {
-      url: 'https://agentstxt.dev/skills/adopt-agents-txt/SKILL.md',
+      url: 'https://agents-txt.com/skills/adopt-agents-txt/SKILL.md',
       name: 'adopt-agents-txt',
       type: 'skill-md',
       digest: 'sha256:28b3b35c5f712e9d46d9e0f80d6dfadeec6dab6036179c292d53a47c15933a4a',
@@ -236,7 +236,7 @@ export default {
   // discovery demonstration, not an agent runtime).
   a2a: {
     cards: {
-      url: 'https://agentstxt.dev/.well-known/agent-card.json',
+      url: 'https://agents-txt.com/.well-known/agent-card.json',
       description: 'Reference A2A AgentCard describing a meta-agent that explains the agents.txt spec, validates discovery files, and points clients at the live MCP tools.',
     },
   },
@@ -248,7 +248,7 @@ export default {
   // the declared endpoint; the profile exists as a discovery artifact.
   ucp: {
     profiles: {
-      url: 'https://agentstxt.dev/.well-known/ucp',
+      url: 'https://agents-txt.com/.well-known/ucp',
       description: 'Reference UCP profile demonstrating the discovery shape: declared services, transport bindings, payment handlers including the AP2 mandate extension, and signing keys. No live UCP server runs at the declared endpoint; the profile exists as a discovery artifact.',
     },
   },
@@ -259,8 +259,8 @@ export default {
   // an independent, complementary standard; the file itself is generated by
   // herald and served as a static asset under public/.well-known/.
   security: {
-    contact: 'security@agentstxt.dev',
-    policy: 'https://github.com/agentstxtdev/agents.txt/security/policy',
+    contact: 'security@agents-txt.com',
+    policy: 'https://github.com/agents-txt/agents-txt/security/policy',
     preferredLanguages: ['en'],
   },
 

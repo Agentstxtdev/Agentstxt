@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://agentstxt.dev</loc>
+    <loc>https://agents-txt.com</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/spec</loc>
+    <loc>https://agents-txt.com/spec</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/registry</loc>
+    <loc>https://agents-txt.com/registry</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/demo</loc>
+    <loc>https://agents-txt.com/demo</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/demo/auth</loc>
+    <loc>https://agents-txt.com/demo/auth</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/demo/mcp</loc>
+    <loc>https://agents-txt.com/demo/mcp</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/demo/payments</loc>
+    <loc>https://agents-txt.com/demo/payments</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/demo/mpp</loc>
+    <loc>https://agents-txt.com/demo/mpp</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/demo/a2a</loc>
+    <loc>https://agents-txt.com/demo/a2a</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/demo/ucp</loc>
+    <loc>https://agents-txt.com/demo/ucp</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/demo/skills</loc>
+    <loc>https://agents-txt.com/demo/skills</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/demo/llms</loc>
+    <loc>https://agents-txt.com/demo/llms</loc>
   </url>
   <url>
-    <loc>https://agentstxt.dev/demo/generate</loc>
+    <loc>https://agents-txt.com/demo/generate</loc>
   </url>
 </urlset>

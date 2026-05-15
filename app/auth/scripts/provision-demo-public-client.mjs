@@ -46,7 +46,7 @@ const { subtle } = webcrypto
 // credentials. The demo page imports the same client_id and embeds the same
 // secret. If you change them here, change them in /demo/oauth.astro too.
 const DEMO_PUBLIC_CLIENT_ID     = 'demo-public'
-const DEMO_PUBLIC_CLIENT_SECRET = 'agentstxt-demo-public-credential-not-secret-by-design'
+const DEMO_PUBLIC_CLIENT_SECRET = 'agents-txt-demo-public-credential-not-secret-by-design'
 const DEMO_PUBLIC_SCOPES        = ['spec:read', 'mcp:tools']
 
 function b64urlEncode(bytes) {

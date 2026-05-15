@@ -8,7 +8,7 @@ import { SPEC_VERSION } from '../../config';
 <BaseLayout
   title="OAuth 2.0 Demo · agents.txt"
   description="Live demonstration of the OAuth 2.0 client-credentials grant. Discovery metadata, JWKS fetch, token issuance, ES256 verification, and introspection executed against this server in your browser."
-  canonicalUrl="https://agentstxt.dev/demo/oauth"
+  canonicalUrl="https://agents-txt.com/demo/oauth"
 >
   <!-- Nav -->
   <header class="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
@@ -124,7 +124,7 @@ import { SPEC_VERSION } from '../../config';
           <input
             id="client_secret"
             type="text"
-            value="agentstxt-demo-public-credential-not-secret-by-design"
+            value="agents-txt-demo-public-credential-not-secret-by-design"
             placeholder="(public demo credential, pre-filled)"
             class="border border-[#e5e5e5] bg-white px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#111] transition-colors"
             autocomplete="off"
@@ -424,7 +424,7 @@ async function run() {
         `POST ${disc.token_endpoint}\n` +
         `HTTP ${tokenRes.status}\n\n` +
         `${fmt(token)}\n\n` +
-        `Check the client_id and client_secret values above. If you have not provisioned the demo client on this server, see scripts/provision-oauth-client.mjs in the agentstxt repository.`,
+        `Check the client_id and client_secret values above. If you have not provisioned the demo client on this server, see scripts/provision-oauth-client.mjs in the agents-txt repository.`,
       );
       setSkipped('4', 'Token request failed; nothing to decode.');
       setSkipped('5', 'Token request failed; nothing to verify.');

@@ -20,7 +20,7 @@ function compliantTxt() {
 function compliantJson() {
   return JSON.stringify({
     version: '0.5',
-    standard: 'https://agentstxt.dev',
+    standard: 'https://agents-txt.com',
     site: { name: 'Example', url: 'https://example.com' },
     payments: { x402: {} },
     authorization: { protocols: ['agent-auth'], discovery: '/.well-known/agent-configuration' },
@@ -126,7 +126,7 @@ describe('runAudit — secret leak detection (§5.4 / §14)', () => {
   it('flags an EVM wallet address embedded in agents.json', async () => {
     const json = JSON.stringify({
       version: '0.5',
-      standard: 'https://agentstxt.dev',
+      standard: 'https://agents-txt.com',
       site: { name: 'X', url: 'https://example.com' },
       payments: { x402: { recipient: '0xAbCdEf0123456789aBcDeF0123456789AbCdEf01' } },
     });
@@ -143,7 +143,7 @@ describe('runAudit — secret leak detection (§5.4 / §14)', () => {
     const solanaAddress = '5eyXkSp4iJqzg8ckwiZmZWeWLwGbtmcPHo3DTbMpump';
     const json = JSON.stringify({
       version: '0.5',
-      standard: 'https://agentstxt.dev',
+      standard: 'https://agents-txt.com',
       site: { name: 'X', url: 'https://example.com' },
       payments: { x402: { recipient: solanaAddress } },
     });
@@ -160,7 +160,7 @@ describe('runAudit — secret leak detection (§5.4 / §14)', () => {
     const solanaAddress = '5eyXkSp4iJqzg8ckwiZmZWeWLwGbtmcPHo3DTbMpump';
     const json = JSON.stringify({
       version: '0.5',
-      standard: 'https://agentstxt.dev',
+      standard: 'https://agents-txt.com',
       site: { name: 'X', url: 'https://example.com' },
       payments: { x402: { chain: `solana:${solanaAddress}` } },
     });
@@ -176,7 +176,7 @@ describe('runAudit — secret leak detection (§5.4 / §14)', () => {
   it('flags Stripe-style secret keys', async () => {
     const leaky = JSON.stringify({
       version: '0.5',
-      standard: 'https://agentstxt.dev',
+      standard: 'https://agents-txt.com',
       site: { name: 'X', url: 'https://example.com' },
       payments: { x402: { key: 'sk_live_abcdefgh1234' } },
     });
@@ -217,7 +217,7 @@ describe('runAudit — agents.json schema violations', () => {
   it('warns when site.url origin differs from audited origin', async () => {
     const json = JSON.stringify({
       version: '0.5',
-      standard: 'https://agentstxt.dev',
+      standard: 'https://agents-txt.com',
       site: { name: 'X', url: 'https://different.com' },
     });
     installFetch((url) => {
@@ -235,7 +235,7 @@ describe('runAudit — cross-file consistency', () => {
     const txt = compliantTxt(); // declares x402
     const json = JSON.stringify({
       version: '0.5',
-      standard: 'https://agentstxt.dev',
+      standard: 'https://agents-txt.com',
       site: { name: 'X', url: 'https://example.com' },
       payments: { mpp: {} }, // declares mpp instead
       mcp: [{ url: 'https://example.com/mcp', type: 'streamable-http' }],
@@ -258,7 +258,7 @@ describe('runAudit — cross-file consistency', () => {
     const txt = 'Protocols: x402\nMCP: https://example.com/mcp\nAuthorization: agent-auth\n';
     const json = JSON.stringify({
       version: '0.5',
-      standard: 'https://agentstxt.dev',
+      standard: 'https://agents-txt.com',
       site: { name: 'X', url: 'https://example.com' },
       payments: { x402: {} },
       authorization: { protocols: ['agent-auth'] },

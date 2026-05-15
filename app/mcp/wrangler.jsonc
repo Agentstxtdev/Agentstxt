@@ -13,7 +13,7 @@
   // when an audit target's origin matches SITE_ORIGIN, the fetch routes via
   // env.SITE instead of public `fetch()`. This avoids Cloudflare's edge
   // loop-detection — when site → MCP (service binding) → public fetch back
-  // to agentstxt.dev (which IS site again), the edge sees a same-account
+  // to agents-txt.com (which IS site again), the edge sees a same-account
   // subrequest loop and returns 522. Going worker-to-worker through the
   // binding keeps the chain inside Cloudflare's internal routing and
   // bypasses the loop check.
@@ -38,7 +38,7 @@
     "production": {
       "name": "agents-txt-mcp-production",
       "vars": {
-        "SITE_ORIGIN": "https://agentstxt.dev"
+        "SITE_ORIGIN": "https://agents-txt.com"
       },
       "durable_objects": {
         "bindings": [{ "class_name": "AgentsTxtMCP", "name": "AgentsTxtMCP" }]
@@ -47,7 +47,7 @@
       "services": [
         { "binding": "SITE", "service": "agents-txt-site-production" }
       ],
-      "routes": [{ "pattern": "mcp.agentstxt.dev", "custom_domain": true }]
+      "routes": [{ "pattern": "mcp.agents-txt.com", "custom_domain": true }]
     }
   }
 }
