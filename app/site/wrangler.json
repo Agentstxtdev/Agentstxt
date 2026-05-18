@@ -20,11 +20,11 @@
 	"services": [
 		{
 			"binding": "MCP",
-			"service": "agents-txt-mcp-production"
+			"service": "agents-txt-mcp"
 		},
 		{
 			"binding": "AUTH",
-			"service": "agents-txt-auth-production"
+			"service": "agents-txt-auth"
 		}
 	],
 	"ratelimits": [
