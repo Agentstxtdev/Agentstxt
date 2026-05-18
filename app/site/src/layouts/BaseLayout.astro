@@ -27,11 +27,17 @@ const {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:site_name" content="agents.txt" />
+    <meta property="og:image" content="https://agents-txt.com/icon-512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@hsologarcia" />
+    <meta name="twitter:creator" content="@hsologarcia" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://agents-txt.com/icon-512.png" />
 
     <link rel="icon" type="image/svg+xml" href="/tab-icon.svg" />
     <link rel="icon" type="image/png" href="/apple-touch-icon.png" />
@@ -41,6 +47,21 @@ const {
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
+    />
+
+    <!-- Structured data: helps Google understand the site identity. -->
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'agents.txt',
+        alternateName: 'agents.txt Standard',
+        url: 'https://agents-txt.com',
+        description:
+          'The open specification for AI agent capability declarations. Layer 4 of the agent-readiness stack.',
+      })}
     />
   </head>
   <body class="bg-white text-[#111] antialiased">
