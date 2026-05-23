@@ -144,20 +144,26 @@ curl 'https://agents-txt.com/audit?url=https://example.com'`}</code></pre>
 </BaseLayout>
 
 <style>
-  /* Detail rows collapse to 3 lines by default with a "Show all" toggle.
-     CSS-only baseline; pretext-driven measure-then-clamp could come later. */
-  .audit-detail-clamped {
+  /* Issue rows are native <details> matched to the landing page's route-group
+     pattern: hide the default disclosure marker, rotate a custom chevron when
+     the issue is open, clamp the summary text to 3 lines while collapsed and
+     unclamp it while open. */
+  details.audit-issue > summary { list-style: none; }
+  details.audit-issue > summary::-webkit-details-marker { display: none; }
+  details.audit-issue > summary .chevron { transition: transform 200ms ease-out; }
+  details.audit-issue[open] > summary .chevron { transform: rotate(90deg); }
+  details.audit-issue > summary .audit-detail {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .audit-row[data-expanded="true"] .audit-detail-clamped {
+  details.audit-issue[open] > summary .audit-detail {
     display: block;
     -webkit-line-clamp: unset;
     overflow: visible;
   }
-  /* Long URLs in cross-check messages should wrap rather than horizontal-scroll. */
+  /* Long URLs in cross-check messages wrap rather than horizontal-scroll. */
   .audit-detail { word-break: break-word; overflow-wrap: anywhere; }
 </style>
 
@@ -176,16 +182,6 @@ curl 'https://agents-txt.com/audit?url=https://example.com'`}</code></pre>
   const params = new URLSearchParams(window.location.search);
   const initialTarget = params.get('url');
   if (initialTarget && input) input.value = initialTarget;
-
-  // Render immediately from the worker-injected envelope (if any).
-  if (dataEl) {
-    try {
-      const parsed = JSON.parse(dataEl.textContent ?? '{}');
-      if (parsed && typeof parsed === 'object' && 'ok' in parsed) {
-        renderEnvelope(parsed as AuditEnvelope);
-      }
-    } catch {}
-  }
 
   // Submit → navigate to /audit?url=… so the result URL is shareable.
   form?.addEventListener('submit', (e) => {
@@ -225,10 +221,28 @@ curl 'https://agents-txt.com/audit?url=https://example.com'`}</code></pre>
       });
     });
 
-    // Per-file sections
-    renderFileSection(result, '/agents.txt',  report.agentsTxt);
-    renderFileSection(result, '/agents.json', report.agentsJson);
-    renderFileSection(result, '/robots.txt',  report.robotsTxt);
+    // Per-file sections. Wrapped in try/catch so a render bug on one block
+    // doesn't kill the rest of the report. Each block also synthesises a
+    // not-found placeholder if missing entirely from the upstream report.
+    const safeRender = (label: string, key: string) => {
+      try {
+        const block = report[key] ?? { found: false, status: 0, validation: { valid: false, errors: [], warnings: [] } };
+        renderFileSection(result, label, block);
+      } catch (err) {
+        console.error('renderFileSection failed', label, err);
+        result.appendChild(card(label, `<p class="text-xs text-[#c00]">Render error: ${escape(String(err))}</p>`, true));
+      }
+    };
+    safeRender('/agents.txt',  'agentsTxt');
+    safeRender('/agents.json', 'agentsJson');
+    safeRender('/robots.txt',  'robotsTxt');
+
+    // Capabilities: per-block detail card. Doesn't contribute to the score
+    // (per the "informational" rule on the score card), but surfaces what
+    // the site actually declared in each block so the audit doubles as a
+    // discovery summary.
+    try { renderCapabilitiesSection(result, report); }
+    catch (err) { console.error('renderCapabilitiesSection failed', err); }
 
     const consistency = report.consistency as { valid?: boolean; issues?: string[]; note?: string } | undefined;
     if (consistency) {
@@ -385,23 +399,28 @@ curl 'https://agents-txt.com/audit?url=https://example.com'`}</code></pre>
     return cells;
   }
 
-  // Full-circle progress ring with the score centred. Like the bars, it
-  // renders empty (dashoffset = full circumference) and carries `data-target`
-  // so the caller can sweep it closed on the next frame. Starts at 12 o'clock
-  // via the -90° rotation.
+  // Semi-circle gauge. Top-half arc from (10,60) to (110,60) via radius 50,
+  // animated via stroke-dashoffset the same way the segment bars are. The
+  // percentage sits inside the arc with a tiny "/100" hint underneath; the
+  // arc starts empty (dashoffset = arc length) and sweeps to `data-target`
+  // on the next frame.
   function ring(pct: number, color: string): string {
-    const r = 32;
-    const circ = 2 * Math.PI * r;
-    const target = (circ * (1 - Math.max(0, Math.min(100, pct)) / 100)).toFixed(2);
+    const r = 50;
+    const arcLen = Math.PI * r;                          // semi-circle = πr
+    const clamped = Math.max(0, Math.min(100, pct));
+    const target = (arcLen * (1 - clamped / 100)).toFixed(2);
+    const arcPath = `M 10 60 A ${r} ${r} 0 0 1 110 60`;  // top-half arc
     return `
-      <svg viewBox="0 0 80 80" class="w-[76px] h-[76px] shrink-0" role="img" aria-label="${pct} of 100 agent readiness">
-        <circle cx="40" cy="40" r="${r}" fill="none" stroke="#ededed" stroke-width="7" />
-        <circle cx="40" cy="40" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-linecap="round"
-                data-ring data-target="${target}" transform="rotate(-90 40 40)"
-                stroke-dasharray="${circ.toFixed(2)}" stroke-dashoffset="${circ.toFixed(2)}"
-                style="transition:stroke-dashoffset .9s cubic-bezier(.2,.7,.2,1)" />
-        <text x="40" y="40" text-anchor="middle" dominant-baseline="central" font-size="21" font-weight="700"
+      <svg viewBox="0 0 120 70" class="w-[120px] h-[70px] shrink-0" role="img" aria-label="${pct} of 100 agent readiness">
+        <path d="${arcPath}" fill="none" stroke="#ededed" stroke-width="8" stroke-linecap="round" />
+        <path d="${arcPath}" fill="none" stroke="${color}" stroke-width="8" stroke-linecap="round"
+              data-ring data-target="${target}"
+              stroke-dasharray="${arcLen.toFixed(2)}" stroke-dashoffset="${arcLen.toFixed(2)}"
+              style="transition:stroke-dashoffset .9s cubic-bezier(.2,.7,.2,1)" />
+        <text x="60" y="52" text-anchor="middle" font-size="22" font-weight="700"
               fill="${color}" font-family="ui-sans-serif,system-ui,sans-serif">${pct}</text>
+        <text x="60" y="65" text-anchor="middle" font-size="8" font-weight="500"
+              fill="#999" font-family="ui-sans-serif,system-ui,sans-serif" letter-spacing="0.5">/ 100</text>
       </svg>`;
   }
 
@@ -462,17 +481,81 @@ curl 'https://agents-txt.com/audit?url=https://example.com'`}</code></pre>
     const b = block as Record<string, unknown>;
     const found = b.found === true;
     const status = typeof b.status === 'number' ? b.status : null;
-    const validation = (b.validation as { errors?: string[]; warnings?: string[] } | undefined) ?? {};
+    const validation = (b.validation as { valid?: boolean; errors?: string[]; warnings?: string[] } | undefined) ?? {};
     const errors   = validation.errors ?? [];
     const warnings = validation.warnings ?? [];
 
-    const meta = found
-      ? `<span class="text-xs text-[#555]">served${status ? ` · HTTP ${status}` : ''}</span>`
-      : `<span class="text-xs text-[#c00]">not found${status ? ` · HTTP ${status}` : ''}</span>`;
+    // Header pills: served / not found, HTTP status, and a validation badge
+    // when the file was actually fetched. The validation badge replaces the
+    // bare HTTP code with what the validator concluded — "valid", "N errors",
+    // or "N warnings" — so the row is informative even on a clean 200.
+    const pill = (text: string, opts: { tone: 'ok' | 'warn' | 'err' | 'mute' }): string => {
+      const palette = {
+        ok:   { border: '#16a34a', text: '#16a34a', bg: '#f0fdf4' },
+        warn: { border: '#a16207', text: '#a16207', bg: '#fefce8' },
+        err:  { border: '#c00',    text: '#c00',    bg: '#fef2f2' },
+        mute: { border: '#e5e5e5', text: '#555',    bg: '#fafafa' },
+      }[opts.tone];
+      return `<span class="inline-flex items-center border px-2 py-0.5 text-[10px] font-mono"
+              style="border-color:${palette.border};color:${palette.text};background:${palette.bg}">${escape(text)}</span>`;
+    };
+    const pills: string[] = [];
+    if (found) {
+      pills.push(pill('served', { tone: 'ok' }));
+      if (status) pills.push(pill(`HTTP ${status}`, { tone: 'mute' }));
+      if (validation.valid === true && errors.length === 0 && warnings.length === 0) {
+        pills.push(pill('valid', { tone: 'ok' }));
+      } else if (errors.length > 0) {
+        pills.push(pill(`${errors.length} error${errors.length === 1 ? '' : 's'}`, { tone: 'err' }));
+        if (warnings.length > 0) pills.push(pill(`${warnings.length} warning${warnings.length === 1 ? '' : 's'}`, { tone: 'warn' }));
+      } else if (warnings.length > 0) {
+        pills.push(pill(`valid · ${warnings.length} warning${warnings.length === 1 ? '' : 's'}`, { tone: 'warn' }));
+      }
+    } else {
+      pills.push(pill('not found', { tone: 'err' }));
+      if (status) pills.push(pill(`HTTP ${status}`, { tone: 'err' }));
+    }
 
-    let body = `<div class="mb-3">${meta}</div>`;
-    if (errors.length === 0 && warnings.length === 0) {
-      body += `<p class="text-xs text-[#999]">No findings.</p>`;
+    let body = `<div class="mb-3 flex flex-wrap gap-1.5">${pills.join('')}</div>`;
+    if (!found) {
+      // Sourceless miss. Two things end up in the issue list: the real
+      // §-tagged validation errors / warnings emitted by the MCP audit
+      // (when present), plus a synthetic placeholder when MCP returned no
+      // findings of its own. Either way the path is informative — the audit
+      // can't validate what isn't there, but it points at the section that
+      // defines the path so the operator has a fix to act on.
+      const items: Array<{ level: 'error' | 'warning'; text: string }> = [
+        ...errors.map((e) => ({ level: 'error' as const, text: e })),
+        ...warnings.map((w) => ({ level: 'warning' as const, text: w })),
+      ];
+      if (items.length === 0) {
+        const synthetic = label === '/agents.txt'
+          ? '§4.1: /agents.txt MUST be served at the site origin (HTTP 200, text/plain)'
+          : label === '/agents.json'
+            ? '§4.1: /agents.json MUST be served at the site origin (HTTP 200, application/json)'
+            : label === '/robots.txt'
+              ? '§4.3: /robots.txt should be served at the site origin with an Allow: /agents.txt rule'
+              : `${label}: not served`;
+        items.push({ level: 'error', text: synthetic });
+      }
+      body += `<ul class="space-y-2">${items.map((i) => renderIssue(i.level, i.text)).join('')}</ul>`;
+    } else if (errors.length === 0 && warnings.length === 0) {
+      // Positive confirmation. Each file has a specific thing the audit just
+      // confirmed; saying so beats a generic "No findings."
+      const okMessage = label === '/agents.txt'
+        ? 'Valid against §3 directives, §4.5 serving headers, and §14 secret hygiene.'
+        : label === '/agents.json'
+          ? 'Valid against the §5 schema and §14 secret hygiene. Schema reference present.'
+          : label === '/robots.txt'
+            ? 'Allows /agents.txt per §4.3.'
+            : 'All checks passed.';
+      body += `
+        <div class="border border-[#e5e5e5] bg-[#fafafa] px-3 py-2.5">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#999] mb-0.5">
+            <span class="text-[#16a34a] mr-1">✓</span>All checks passed
+          </p>
+          <p class="text-xs text-[#555] leading-relaxed">${escape(okMessage)}</p>
+        </div>`;
     } else {
       body += `<ul class="space-y-2">`;
       errors.forEach(e => { body += renderIssue('error', e); });
@@ -482,19 +565,295 @@ curl 'https://agents-txt.com/audit?url=https://example.com'`}</code></pre>
     parent.appendChild(card(label, body, true));
   }
 
+  // ── Capabilities section ────────────────────────────────────────────────
+  // One card with a dropdown per declared block. Pulls from the parsed
+  // agents.json first (richer field set) and falls back to the parsed
+  // agents.txt when only the plain-text file was served. Skipped entirely
+  // when neither file parsed.
+  function renderCapabilitiesSection(parent: HTMLElement, report: Record<string, unknown>) {
+    const txt  = (report.agentsTxt  as Record<string, unknown>) ?? {};
+    const json = (report.agentsJson as Record<string, unknown>) ?? {};
+    const p = (json.parsed as Record<string, unknown> | undefined)
+            ?? (txt.parsed as Record<string, unknown> | undefined)
+            ?? null;
+    if (!p) return;
+
+    type Row = { label: string; href?: string; meta?: string };
+    interface Block { key: string; title: string; section: string; rows: Row[]; summary: string }
+    const blocks: Block[] = [];
+
+    // MCP — endpoints with optional descriptions
+    const mcp = asArray((p as Record<string, unknown>).mcp);
+    if (mcp.length) {
+      blocks.push({
+        key: 'mcp', title: 'MCP', section: '§6',
+        summary: `${mcp.length} endpoint${mcp.length === 1 ? '' : 's'}`,
+        rows: mcp.map((m) => ({
+          label: stringField(m, 'url') ?? '(no url)',
+          href:  stringField(m, 'url'),
+          meta:  stringField(m, 'description'),
+        })),
+      });
+    }
+    // Skills — URLs (+ name/type/digest when present, from agentskills v0.2.0)
+    const skills = asArray((p as Record<string, unknown>).skills);
+    if (skills.length) {
+      blocks.push({
+        key: 'skills', title: 'Skills', section: '§7',
+        summary: `${skills.length} skill${skills.length === 1 ? '' : 's'}`,
+        rows: skills.map((s) => {
+          const url = stringField(s, 'url') ?? '(no url)';
+          const name = stringField(s, 'name');
+          const digest = stringField(s, 'digest');
+          const meta = [stringField(s, 'description'), digest && `digest: ${digest}`]
+            .filter(Boolean).join(' · ');
+          return { label: name ?? url, href: stringField(s, 'url'), meta };
+        }),
+      });
+    }
+    // A2A AgentCards
+    const a2a = asArray((p as Record<string, unknown>).a2a);
+    if (a2a.length) {
+      blocks.push({
+        key: 'a2a', title: 'A2A', section: '§9',
+        summary: `${a2a.length} card${a2a.length === 1 ? '' : 's'}`,
+        rows: a2a.map((c) => ({
+          label: stringField(c, 'url') ?? '(no url)',
+          href:  stringField(c, 'url'),
+          meta:  stringField(c, 'description'),
+        })),
+      });
+    }
+    // UCP profiles
+    const ucp = asArray((p as Record<string, unknown>).ucp);
+    if (ucp.length) {
+      blocks.push({
+        key: 'ucp', title: 'UCP', section: '§10',
+        summary: `${ucp.length} profile${ucp.length === 1 ? '' : 's'}`,
+        rows: ucp.map((u) => ({
+          label: stringField(u, 'url') ?? '(no url)',
+          href:  stringField(u, 'url'),
+          meta:  stringField(u, 'description'),
+        })),
+      });
+    }
+    // WebMCP pages
+    const webmcp = asArray((p as Record<string, unknown>).webmcp);
+    if (webmcp.length) {
+      blocks.push({
+        key: 'webmcp', title: 'WebMCP', section: '§6.6',
+        summary: `${webmcp.length} page${webmcp.length === 1 ? '' : 's'}`,
+        rows: webmcp.map((w) => ({
+          label: stringField(w, 'url') ?? '(no url)',
+          href:  stringField(w, 'url'),
+          meta:  stringField(w, 'description'),
+        })),
+      });
+    }
+    // Payments — per-protocol detail (pricing, chains, methods)
+    const payments = (p as Record<string, unknown>).payments as Record<string, unknown> | undefined;
+    if (payments) {
+      const rows: Row[] = [];
+      const required = payments.required === true;
+      if (required) rows.push({ label: 'Payments: required', meta: 'Every interaction requires payment.' });
+      const pricing = payments.pricing as Record<string, unknown> | undefined;
+      if (pricing && (pricing.amount || pricing.token || pricing.currency)) {
+        rows.push({
+          label: 'Pricing',
+          meta: [
+            pricing.amount ? String(pricing.amount) : null,
+            (pricing.token || pricing.currency) ? String(pricing.token ?? pricing.currency) : null,
+          ].filter(Boolean).join(' '),
+        });
+      }
+      for (const id of Object.keys(payments)) {
+        if (id === 'required' || id === 'pricing') continue;
+        const block = payments[id] as Record<string, unknown> | undefined;
+        if (!block || typeof block !== 'object') continue;
+        const parts: string[] = [];
+        if (Array.isArray(block.chains))        parts.push(`chains: ${(block.chains as unknown[]).join(', ')}`);
+        if (Array.isArray(block.methods))       parts.push(`methods: ${(block.methods as unknown[]).join(', ')}`);
+        if (Array.isArray(block.presentations)) parts.push(`presentations: ${(block.presentations as unknown[]).join(', ')}`);
+        if (typeof block.description === 'string') parts.push(block.description);
+        rows.push({ label: id, meta: parts.join(' · ') || undefined });
+      }
+      if (rows.length) {
+        const ids = Object.keys(payments).filter((k) => k !== 'required' && k !== 'pricing');
+        blocks.push({
+          key: 'payments', title: 'Payments', section: '§8',
+          summary: ids.length ? ids.join(', ') : 'declared',
+          rows,
+        });
+      }
+    }
+    // Authorization — protocols list, discovery pointer, identity flag
+    const auth = (p as Record<string, unknown>).authorization as Record<string, unknown> | undefined;
+    if (auth) {
+      const rows: Row[] = [];
+      const protocols = Array.isArray(auth.protocols) ? auth.protocols as string[] : [];
+      protocols.forEach((id) => rows.push({ label: id }));
+      if (typeof auth.discovery === 'string') {
+        rows.push({ label: 'Discovery', meta: auth.discovery });
+      }
+      if (auth.identity === 'required' || auth.identityRequired === true) {
+        rows.push({ label: 'Identity: required', meta: 'Authentication required before any interaction (§11.4).' });
+      }
+      if (rows.length) {
+        blocks.push({
+          key: 'auth', title: 'Authorization', section: '§11',
+          summary: protocols.length ? protocols.join(', ') : 'declared',
+          rows,
+        });
+      }
+    }
+
+    if (!blocks.length) return;
+
+    const body = blocks.map((b) => `
+      <details class="audit-issue border border-[#e5e5e5] bg-white mb-2 last:mb-0">
+        <summary class="grid grid-cols-[1fr_auto] gap-x-3 px-3 py-2.5 cursor-pointer hover:bg-[#fafafa] transition-colors items-center">
+          <span class="flex items-center gap-2 min-w-0">
+            <span class="chevron inline-block w-3 text-[#999] text-[10px] shrink-0">▸</span>
+            <span class="text-xs font-semibold text-[#111]">${escape(b.title)}</span>
+            <span class="font-mono text-[10px] text-[#999]">${escape(b.section)}</span>
+          </span>
+          <span class="text-[10px] font-mono text-[#777] truncate">${escape(b.summary)}</span>
+        </summary>
+        <ul class="ml-7 mr-3 pb-3 space-y-1.5 list-none p-0">
+          ${b.rows.map((r) => `
+            <li class="border-l-2 border-[#e5e5e5] pl-3 py-1">
+              <p class="text-xs text-[#111] break-all">
+                ${r.href
+                  ? `<a href="${escape(r.href)}" target="_blank" rel="noopener noreferrer" class="font-mono underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-colors">${escape(r.label)}</a>`
+                  : `<span class="font-mono">${escape(r.label)}</span>`}
+              </p>
+              ${r.meta ? `<p class="text-[11px] text-[#777] leading-relaxed mt-0.5">${escape(r.meta)}</p>` : ''}
+            </li>
+          `).join('')}
+        </ul>
+      </details>
+    `).join('');
+
+    const note = `<p class="text-[10px] text-[#bbb] mt-3 pt-3 border-t border-[#f0f0f0]">Informational. Capability coverage is never penalised in the score; this section reflects what the site declared, not what it must declare.</p>`;
+    parent.appendChild(card('Capabilities declared', body + note));
+  }
+
+  function asArray(v: unknown): Record<string, unknown>[] {
+    if (!Array.isArray(v)) return [];
+    return v.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object');
+  }
+  function stringField(o: unknown, k: string): string | undefined {
+    if (!o || typeof o !== 'object') return undefined;
+    const v = (o as Record<string, unknown>)[k];
+    return typeof v === 'string' && v ? v : undefined;
+  }
+
+  // ── Fix-hint lookup ──────────────────────────────────────────────────────
+  // The MCP audit tool prefixes every finding with the spec section it cites
+  // (e.g. "§4.5: missing Access-Control-Allow-Origin"). The lookup below maps
+  // section-keys (and a handful of high-value phrase keys) to a one-line fix
+  // and the canonical spec anchor. Falls back to a generic "see this section"
+  // hint when the key is unknown, so coverage is always non-empty.
+  interface FixHint { fix: string; href: string; anchor: string }
+  const SECTION_TITLES: Record<string, string> = {
+    '3':    '§3 File Format',
+    '3.1':  '§3.1 Directives',
+    '3.2':  '§3.2 Parsing Rules',
+    '4.1':  '§4.1 Well-Known Paths',
+    '4.2':  '§4.2 # JSON: comment',
+    '4.3':  '§4.3 robots.txt Discovery',
+    '4.5':  '§4.5 Serving Requirements',
+    '5':    '§5 agents.json Schema',
+    '5.2':  '§5.2 Schema',
+    '5.3':  '§5.3 Field Notes',
+    '5.4':  '§5.4 Secret Hygiene',
+    '6':    '§6 MCP',
+    '6.6':  '§6.6 WebMCP',
+    '7':    '§7 Skills',
+    '8':    '§8 Payments',
+    '9':    '§9 A2A',
+    '10':   '§10 UCP',
+    '11':   '§11 Authorization',
+    '12':   '§12 Existing Standards',
+    '14':   '§14 Security',
+  };
+  const PHRASE_FIXES: Array<{ match: RegExp; fix: string }> = [
+    { match: /allow.*agents\.txt|robots.*does not allow/i,
+      fix: 'Add `Allow: /agents.txt` to the default wildcard block in robots.txt.' },
+    { match: /Access-Control-Allow-Origin/i,
+      fix: 'Add `Access-Control-Allow-Origin: *` to the response headers for this path.' },
+    { match: /Content-Type.*charset|missing charset/i,
+      fix: 'Add `; charset=utf-8` to the Content-Type. Example: `text/plain; charset=utf-8`.' },
+    { match: /Content-Type/i,
+      fix: 'Set Content-Type to `text/plain; charset=utf-8` for /agents.txt or `application/json` for /agents.json.' },
+    { match: /Cache-Control/i,
+      fix: 'Set `Cache-Control: public, max-age=3600` on the response.' },
+    { match: /file MUST be served at the canonical path/i,
+      fix: 'Serve the file at its canonical well-known path. The audit fetches only the path defined by §4.1.' },
+    { match: /\$schema/i,
+      fix: 'Add `"$schema": "https://agents-txt.com/schema/agents-json/v1.0.json"` at the top of agents.json so editors and validators can resolve the canonical schema.' },
+    { match: /unknown directive|unrecognized directive/i,
+      fix: 'Either remove the directive or prefix it with `x-` to signal an experimental identifier (§3.1).' },
+    { match: /HTTPS/i,
+      fix: 'Replace the http:// URL with an https:// URL. agents.txt §3.1 requires HTTPS for every URL-valued directive.' },
+    { match: /secret|token|api[_-]?key|wallet/i,
+      fix: 'Remove the credential from the discovery file. Treasury addresses live in 402 responses; API keys and JWKs are server-side only (§5.4).' },
+    { match: /Identity: required/i,
+      fix: 'Emit `Identity: required` inside the Authorization block when site-level auth applies to every interaction (§11.4).' },
+    { match: /Payments: required/i,
+      fix: 'Emit `Payments: required` inside the Payments block when every interaction requires payment (§8.4).' },
+    { match: /cross-file|consistency/i,
+      fix: 'Make the URL sets in /agents.txt and /agents.json agree. The MCP audit_site tool reports which side carries which value.' },
+  ];
+
+  function fixHintFor(text: string): FixHint | null {
+    // Extract section key from the leading "§X[.Y]: …" prefix.
+    const m = text.match(/^§(\d+(?:\.\d+)?)/);
+    const sectionKey = m?.[1];
+    const phrase = PHRASE_FIXES.find((p) => p.match.test(text));
+    if (!sectionKey && !phrase) return null;
+    const anchor = sectionKey
+      ? (SECTION_TITLES[sectionKey] ?? `§${sectionKey}`)
+      : 'Spec';
+    const href = sectionKey
+      ? `/spec#${sectionKey.replace('.', '')}-${sectionAnchorSlug(SECTION_TITLES[sectionKey] ?? '')}`
+      : '/spec';
+    const fix = phrase?.fix ?? `Open the spec section for the canonical wording and example.`;
+    return { fix, href, anchor };
+  }
+
+  // Convert "§4.5 Serving Requirements" → "serving-requirements" for the
+  // Astro-generated anchor IDs on /spec.
+  function sectionAnchorSlug(title: string): string {
+    return title.replace(/^§[\d.]+\s+/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+
   function renderIssue(level: 'error' | 'warning', text: string): string {
     const isErr = level === 'error';
     const glyph = isErr ? '✗' : '!';
     const color = isErr ? '#c00' : '#a16207';
+    const hint = fixHintFor(text);
+    const hintFix    = hint?.fix    ?? 'Open the agents.txt spec for the canonical wording and example.';
+    const hintHref   = hint?.href   ?? '/spec';
+    const hintAnchor = hint?.anchor ?? 'Spec';
+    const hintBlock = `
+          <div class="border border-[#e5e5e5] bg-[#fafafa] px-3 py-2.5">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#999] mb-1">How to fix</p>
+            <p class="text-xs text-[#333] leading-relaxed">${escape(hintFix)}</p>
+            <p class="mt-2">
+              <a href="${escape(hintHref)}" class="font-mono text-[10px] underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] text-[#111] transition-colors">${escape(hintAnchor)} →</a>
+            </p>
+          </div>`;
     return `
-      <li class="audit-row" data-expanded="false">
-        <div class="flex items-start gap-3">
-          <span class="font-mono text-[11px] mt-0.5 shrink-0 w-4" style="color:${color}">${glyph}</span>
-          <div class="min-w-0 flex-1">
-            <p class="audit-detail audit-detail-clamped text-xs text-[#333] leading-relaxed">${escape(text)}</p>
-            <button type="button" class="cursor-pointer audit-toggle font-mono text-[10px] tracking-[0.06em] uppercase text-[#777] hover:text-[#111] transition-colors mt-1 hidden">Show all</button>
-          </div>
-        </div>
+      <li>
+        <details class="audit-issue border border-[#e5e5e5] bg-white">
+          <summary class="grid grid-cols-[auto_1fr_auto] gap-x-3 px-3 py-2.5 cursor-pointer hover:bg-[#fafafa] transition-colors items-start">
+            <span class="font-mono text-[11px] mt-0.5 shrink-0 w-4" style="color:${color}">${glyph}</span>
+            <p class="audit-detail text-xs text-[#333] leading-relaxed min-w-0">${escape(text)}</p>
+            <span class="chevron inline-block w-3 text-[#999] text-[10px] mt-0.5 shrink-0">▸</span>
+          </summary>
+          <div class="px-3 pb-3 pt-0 ml-7">${hintBlock}</div>
+        </details>
       </li>
     `;
   }
@@ -519,30 +878,18 @@ curl 'https://agents-txt.com/audit?url=https://example.com'`}</code></pre>
     return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
   }
 
-  // After every render: any clamped detail whose actual height exceeds the
-  // 3-line clamp gets its "Show all" button revealed. This is the CSS-only
-  // baseline for the inline-vs-expander decision; pretext can replace this
-  // with a measure-before-render pass later.
-  function rebindToggles() {
-    document.querySelectorAll<HTMLElement>('.audit-row').forEach(row => {
-      const detail = row.querySelector<HTMLElement>('.audit-detail-clamped');
-      const button = row.querySelector<HTMLElement>('.audit-toggle');
-      if (!detail || !button) return;
-      const overflows = detail.scrollHeight - detail.clientHeight > 1;
-      if (overflows) {
-        button.classList.remove('hidden');
-        button.addEventListener('click', () => {
-          const expanded = row.dataset.expanded === 'true';
-          row.dataset.expanded = expanded ? 'false' : 'true';
-          button.textContent = expanded ? 'Show all' : 'Show less';
-        });
+  // Initial render from the worker-injected envelope. Placed at the end of
+  // the script so that all `const`s referenced by the render path (e.g.
+  // SECTION_TITLES, PHRASE_FIXES) are past their temporal dead zone. Bundlers
+  // that mangle identifiers would otherwise throw "Cannot access 'X' before
+  // initialization" when the pre-rendered branch fires before the consts are
+  // reached in source order.
+  if (dataEl) {
+    try {
+      const parsed = JSON.parse(dataEl.textContent ?? '{}');
+      if (parsed && typeof parsed === 'object' && 'ok' in parsed) {
+        renderEnvelope(parsed as AuditEnvelope);
       }
-    });
+    } catch {}
   }
-  // Rebind on every render. Initial bind covers the worker-injected case.
-  rebindToggles();
-  // Also re-run after a microtask so dynamically created cards from a manual
-  // re-render (future feature) pick up their toggles.
-  const observer = new MutationObserver(() => rebindToggles());
-  if (result) observer.observe(result, { childList: true, subtree: true });
 </script>
