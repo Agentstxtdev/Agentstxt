@@ -5,7 +5,9 @@ description: Guides a developer through adopting the agents.txt standard on thei
 
 # Adopt agents.txt
 
-You are helping a developer make their existing website **agent-readable** by serving the four discovery files of the agent-readiness stack, most importantly the new Layer 4 file `/agents.txt` (with companion `/agents.json`).
+**You ship two files: `/agents.txt` and `/agents.json`.** That is everything spec §4.6 requires to call the site agents.txt-conformant. The rest of this skill exists to walk a developer through writing those two files, choosing what (if anything) to put inside them, and serving them with the right headers. Everything beyond the two files is optional ecosystem polish.
+
+You are helping a developer make their existing website **agent-readable**. The agents.txt standard sits at Layer 4 of the agent-readiness stack, above robots.txt (Layer 1), sitemap.xml (Layer 2), and llms.txt (Layer 3). The lower layers are governed by other specs; the developer may already have them, may want to add them at the same time, or may want to skip them. None of them are part of agents.txt itself.
 
 This skill is **not** for working on the agents.txt spec itself, and it is **not** for setup tasks inside the spec's reference repository. It is for *external* sites that want to adopt the standard.
 

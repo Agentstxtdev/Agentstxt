@@ -243,6 +243,23 @@ The site at `https://agents-txt.com` exercises both patterns within a single dep
 
 Three of the four routes share the same `_headers` configuration because they are all served as static files. The fourth is served by a route handler that emits its own response headers; adding an entry for it in `_headers` would have no effect on the response. Inspecting both the `_headers` file and the handler that responds to `/.well-known/agent-configuration` confirms that every agent-facing route in this deployment emits the headers required for cross-origin agent access, regardless of the mechanism used to set them.
 
+### 4.6 Conformance Levels
+
+A deployment is **agents.txt-conformant** when it satisfies the requirements below. The list is deliberately short. Adopters who want their site readable by an AI agent need only two files; everything else on `https://agents-txt.com` is optional ecosystem polish, not part of the agents.txt specification.
+
+| Level | What | Why |
+|---|---|---|
+| **MUST** | Serve `/agents.txt` at the site origin with the §4.5 headers (Content-Type, CORS, Cache-Control). | The canonical wire format and discovery surface. Without this file, the site does not implement agents.txt. |
+| **SHOULD** | Serve `/agents.json` at the site origin with the §4.5 headers. | The structured companion (§5). Agents that support JSON prefer it for richer per-block detail; the audit tool validates both files and reports either as missing. |
+| **SHOULD** | Include `Allow: /agents.txt` in the default wildcard block of `robots.txt` (§4.3). | Lets crawlers fetch the discovery file even under restrictive robots policies. |
+| **MAY** | Declare any subset of the capability blocks defined in §6–§11 (Payments, Authorization, MCP, Skills, A2A, UCP, WebMCP) — only the ones the site actually supports. | "Honest declarations" rule. A site that does not accept payments simply omits the Payments block; an agent does not see anything it cannot use. |
+
+Every other discovery surface a site may serve is **complementary**, not part of agents.txt. This includes `/.well-known/api-catalog` (RFC 9727), `/.well-known/mcp/server-card.json` (SEP-2127), `/.well-known/agent-skills/index.json` (agentskills.io), `/openapi.json` with `x-payment-info` (Payment Discovery draft), `/.well-known/http-message-signatures-directory` (Web Bot Auth IETF draft), `/schemamap.xml` (NLWeb), `/.well-known/x402` (x402 convention), `/.well-known/security.txt` (RFC 9116), `/.well-known/agent-configuration` (Agent Auth Protocol), and the OAuth metadata pair (RFC 9728 / RFC 8414). Each is an independent specification governed by its own working group. The reference deployment at `https://agents-txt.com` publishes them so the wider agent-readiness ecosystem can read this site; their presence is not required by agents.txt conformance, and their absence does not make a site less agents.txt-conformant.
+
+§12 (Relationship to Existing Standards) catalogues how each of those standards relates to agents.txt; this section names what is and is not part of agents.txt itself.
+
+The two-file minimum is deliberate. A site that wants an agent to discover a single capability, for example "accepts x402 payments at one route", needs only a `Payments:` line in `agents.txt` and a `payments.x402` block in `agents.json`. Everything else is an opt-in extension the site or its toolkit may add when the use case calls for it.
+
 ---
 
 ## 5. JSON Format (`/agents.json`)

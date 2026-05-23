@@ -322,8 +322,11 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
         <h2 class="text-xl font-bold tracking-tight text-[#111] mb-2">
           What this site serves right now
         </h2>
-        <p class="text-sm text-[#555] leading-relaxed max-w-[68ch]">
+        <p class="text-sm text-[#555] leading-relaxed max-w-[68ch] mb-3">
           Every route on the left column is live against this deployment. The discovery files, the well-known endpoints, the MCP server, and the live demos all execute against real production endpoints. The same set of routes are described in spec §4.5 as the worked self-proof for the static vs dynamic serving mechanism.
+        </p>
+        <p class="text-sm text-[#555] leading-relaxed max-w-[68ch]">
+          Conformance with agents.txt requires <strong>two files only</strong>: <span class="font-mono text-[#111]">/agents.txt</span> and <span class="font-mono text-[#111]">/agents.json</span>, served per spec <a href="/spec#46-conformance-levels" class="underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">§4.6</a>. The other groups below are tagged for what they actually are: complementary ecosystem standards governed by other working groups, adjacent layers of the agent-readiness stack, and synthetic demo routes specific to this deployment. None of them are required to be agents.txt-conformant.
         </p>
       </div>
 
@@ -334,17 +337,19 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
         </div>
         {[
           {
-            label: 'agents.txt spec surfaces',
-            note:  'spec §3 · §5',
+            label: 'agents.txt — required',
+            tier:  'required',
+            note:  'spec §3 · §5 · §4.6 MUST / SHOULD',
             open:  true,
             rows: [
-              ['/agents.txt',                       'Plain-text capability declaration (spec §3). Site identity plus the active capability blocks.',                                                                                       '/agents.txt',                       'text/plain'],
-              ['/agents.json',                      'Structured companion to agents.txt (spec §5). Same information in JSON with richer per-block detail.',                                                                              '/agents.json',                      'application/json'],
+              ['/agents.txt',                       'Plain-text capability declaration (spec §3). Site identity plus the active capability blocks. Required by §4.6.',                                                                  '/agents.txt',                       'text/plain'],
+              ['/agents.json',                      'Structured companion to agents.txt (spec §5). Same information in JSON with richer per-block detail. Strongly recommended by §4.6.',                                                '/agents.json',                      'application/json'],
             ],
           },
           {
-            label: 'Capability discovery',
-            note:  'spec §6 · §7 · §9 · §10 · §11',
+            label: 'agents.txt — optional capability blocks',
+            tier:  'optional',
+            note:  'spec §6 · §7 · §9 · §10 · §11 · MAY',
             open:  false,
             rows: [
               ['/mcp',                              'Model Context Protocol endpoint (spec §6). Exposes get_spec, parse_agents_txt, validate_agents_txt, validate_agents_json, audit_site, get_skill. Streamable HTTP transport.',         '/mcp',                              'application/json · streamable-http'],
@@ -355,7 +360,8 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
             ],
           },
           {
-            label: 'Ecosystem discovery surfaces',
+            label: 'Complementary ecosystem standards',
+            tier:  'complementary',
             note:  'RFC 8288 · RFC 9727 · SEP-2127 · agentskills.io v0.2.0 · Payment Discovery',
             open:  false,
             rows: [
@@ -366,7 +372,8 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
             ],
           },
           {
-            label: 'Adjacent standards',
+            label: 'Adjacent stack layers',
+            tier:  'adjacent',
             note:  'RFC 9309 · sitemaps.org · llmstxt.org · RFC 9116',
             open:  false,
             rows: [
@@ -379,6 +386,7 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
           },
           {
             label: 'Synthetic demo routes',
+            tier:  'demo',
             note:  'spec §8.1 · §8.2',
             open:  false,
             rows: [
@@ -386,15 +394,34 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
               ['/mpp',                              'Synthetic gated route demonstrating the MPP wire shape. Returns 402 with a WWW-Authenticate: Payment challenge composed by mppx. Tempo and Stripe methods activate per the credentials configured on the worker.',       '/mpp',  'application/json · 402'],
             ],
           },
-        ].map((group) => (
+        ].map((group) => {
+          // Tier vocabulary mirrors the spec §4.6 conformance table: required
+          // and optional belong to agents.txt itself; complementary and
+          // adjacent are external standards the site happens to publish; demo
+          // is site-specific. Colours stay subtle so the table still scans as
+          // one structure rather than a five-status traffic light.
+          const TIERS = {
+            required:      { label: 'Required',      cls: 'border-[#111] text-[#111] bg-[#fafafa]' },
+            optional:      { label: 'Optional',      cls: 'border-[#bbb] text-[#555] bg-[#fafafa]' },
+            complementary: { label: 'Complementary', cls: 'border-[#bbb] text-[#a16207] bg-[#fefce8]' },
+            adjacent:      { label: 'Adjacent',      cls: 'border-[#bbb] text-[#555] bg-[#fafafa]' },
+            demo:          { label: 'Demo',          cls: 'border-[#bbb] text-[#999] bg-[#fafafa]' },
+          } as const;
+          const tierKey = (group.tier ?? 'demo') as keyof typeof TIERS;
+          const tierPill = TIERS[tierKey] ?? TIERS.demo;
+          return (
           <details open={group.open} class="route-group border-t border-[#e5e5e5] first:border-t-0">
-            <summary class="grid grid-cols-[1fr_auto] gap-x-6 px-5 py-3 cursor-pointer list-none hover:bg-[#f5f5f5] transition-colors">
-              <span class="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#555] flex items-center">
-                <span class="chevron inline-block w-3 mr-2 text-[#999] text-[10px]">▸</span>
-                {group.label}
-                <span class="ml-2 text-[#999] font-normal normal-case tracking-normal text-[10px]">· {group.rows.length} route{group.rows.length === 1 ? '' : 's'}</span>
+            <summary class="grid grid-cols-[1fr_auto_auto] gap-x-4 px-5 py-3 cursor-pointer list-none hover:bg-[#f5f5f5] transition-colors items-center">
+              <span class="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#555] flex items-center min-w-0">
+                <span class="chevron inline-block w-3 mr-2 text-[#999] text-[10px] shrink-0">▸</span>
+                <span class="truncate">{group.label}</span>
+                <span class="ml-2 text-[#999] font-normal normal-case tracking-normal text-[10px] shrink-0">· {group.rows.length} route{group.rows.length === 1 ? '' : 's'}</span>
               </span>
-              <span class="text-right text-[10px] uppercase tracking-[0.08em] text-[#999] self-center font-mono">{group.note}</span>
+              <span class:list={[
+                'inline-flex items-center border px-2 py-0.5 text-[9px] font-mono uppercase tracking-[0.06em] shrink-0',
+                tierPill.cls,
+              ]}>{tierPill.label}</span>
+              <span class="text-right text-[10px] uppercase tracking-[0.08em] text-[#999] font-mono hidden md:inline-block shrink-0">{group.note}</span>
             </summary>
             <ul class="divide-y divide-[#e5e5e5] m-0 p-0 list-none border-t border-[#e5e5e5] bg-white">
               {group.rows.map(([path, description, href, contentType]) => (
@@ -411,7 +438,8 @@ const agentsTxt = readFileSync('public/agents.txt', 'utf-8').replace(/\n+$/, '')
               ))}
             </ul>
           </details>
-        ))}
+          );
+        })}
       </div>
 
       <p class="text-xs text-[#999] mt-4 leading-relaxed max-w-[68ch]">
