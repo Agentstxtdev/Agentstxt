@@ -179,6 +179,11 @@ export default {
               description: 'Working group, governance, licensing (CC0 spec / Apache 2.0 code), adoption paths, and contact channels. Trust anchor page covering the questions agents and developers ask before adopting the spec.',
             },
             {
+              url: 'https://agents-txt.com/compare',
+              title: 'agents.txt vs other agent-readiness standards',
+              description: 'Side-by-side comparison of agents.txt against MCP, A2A, UCP, OpenAPI, OAuth 2.0, llms.txt, robots.txt, ACP, WebMCP, and Agent Skills Discovery. agents.txt is the discovery layer that lets agents find which capabilities a site exposes before negotiating any single protocol.',
+            },
+            {
               url: 'https://agents-txt.com/AGENTS.md',
               title: 'AGENTS.md (agent instructions)',
               description: 'When-to-use instructions for AI agents working against this repository: scope of the spec, boundary with the herald toolkit, where each capability lives. Same content as the AGENTS.md at the repo root, served at the agents.md convention path.',

@@ -540,7 +540,7 @@ export default {
     // `assets.run_worker_first: true` to ensure / and other static-asset pages
     // reach this handler. Without the page-path allowlist below we'd shadow
     // future no-extension routes (e.g. /pay or /api/foo) with markdown content.
-    const PAGE_PATHS = /^\/(spec|demo(\/[^/]+)?|about)?$/;
+    const PAGE_PATHS = /^\/(spec|demo(\/[^/]+)?|about|compare)?$/;
     const accept     = request.headers.get('accept') ?? '';
     const url        = new URL(request.url);
     const modeAgent  = url.searchParams.get('mode') === 'agent';
@@ -737,6 +737,64 @@ export default {
       }
     }
 
-    return env.ASSETS.fetch(request);
+    // Static-asset fallback. Wrap the response so any 4xx / 5xx that bubbles
+    // up to clients that prefer JSON (Accept: application/json) or that hit
+    // an API-shaped path (/api/*, /v1/*, /v2/*) gets an RFC 7807 Problem
+    // Details payload instead of Cloudflare's default HTML 404 page. Agents
+    // (and AEO scanners) cannot parse the HTML response, so the rewrite
+    // turns every unmatched API-like request into a structured error.
+    const assetRes = await env.ASSETS.fetch(request);
+    if (assetRes.status < 400) return assetRes;
+    const acceptH      = request.headers.get('accept') ?? '';
+    const wantsJson    = /application\/json/i.test(acceptH) || /application\/problem\+json/i.test(acceptH);
+    const apiShaped    = /^\/(api|v\d+)(\/|$)/.test(pathname);
+    if (!wantsJson && !apiShaped) return assetRes;
+    const problem = {
+      type:     `https://agents-txt.com/spec#${assetRes.status}`,
+      title:    statusTitle(assetRes.status),
+      status:   assetRes.status,
+      detail:   problemDetail(assetRes.status, pathname),
+      instance: pathname,
+      code:     statusCode(assetRes.status),
+    };
+    return new Response(JSON.stringify(problem, null, 2) + '\n', {
+      status: assetRes.status,
+      headers: {
+        'Content-Type':  'application/problem+json; charset=utf-8',
+        'Cache-Control': 'no-store',
+        ...CORS,
+      },
+    });
   },
 } satisfies ExportedHandler<Env>;
+
+// ── RFC 7807 helpers ────────────────────────────────────────────────────────
+// Map HTTP status to short titles + machine codes + resolution hints. Used by
+// the API-shaped 4xx / 5xx rewrite path above so every unmatched API request
+// gets a structured Problem Details payload an agent can act on.
+function statusTitle(status: number): string {
+  if (status === 404) return 'Not Found';
+  if (status === 405) return 'Method Not Allowed';
+  if (status === 410) return 'Gone';
+  if (status === 429) return 'Too Many Requests';
+  if (status >= 500) return 'Server Error';
+  if (status >= 400) return 'Client Error';
+  return 'Error';
+}
+function statusCode(status: number): string {
+  if (status === 404) return 'not_found';
+  if (status === 405) return 'method_not_allowed';
+  if (status === 410) return 'gone';
+  if (status === 429) return 'rate_limited';
+  if (status >= 500) return 'server_error';
+  return 'client_error';
+}
+function problemDetail(status: number, pathname: string): string {
+  if (status === 404) {
+    return `No resource is served at "${pathname}". agents-txt.com is a specification site, not a per-tenant API; published surfaces are listed in /agents.json, /.well-known/api-catalog, and /openapi.json. Start there to discover what the site exposes.`;
+  }
+  if (status === 405) return `The HTTP method is not allowed on "${pathname}". Check /openapi.json for the verbs each path accepts.`;
+  if (status === 429) return `Rate limit exceeded on "${pathname}". Honour the Retry-After and RateLimit-* response headers and try again after the window resets.`;
+  if (status >= 500) return `An upstream error occurred while serving "${pathname}". This is server-side; retry with exponential backoff.`;
+  return `The request to "${pathname}" was rejected with HTTP ${status}.`;
+}

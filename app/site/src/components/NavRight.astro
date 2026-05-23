@@ -7,7 +7,7 @@
 // need a mobile TOC hamburger (spec, registry) pass it via the default slot.
 
 interface Props {
-  current?: 'spec' | 'registry' | 'demo' | 'audit' | 'about' | null;
+  current?: 'spec' | 'registry' | 'demo' | 'audit' | 'about' | 'compare' | null;
 }
 const { current = null } = Astro.props;
 
@@ -16,6 +16,7 @@ const pages = [
   { href: '/registry', label: 'Registry', key: 'registry' as const },
   { href: '/demo',     label: 'Demo',     key: 'demo' as const     },
   { href: '/audit',    label: 'Audit',    key: 'audit' as const    },
+  { href: '/compare',  label: 'Compare',  key: 'compare' as const  },
   { href: '/about',    label: 'About',    key: 'about' as const    },
 ];
 ---

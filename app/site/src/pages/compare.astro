@@ -1,0 +1,219 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NavRight from '../components/NavRight.astro';
+import '../styles/global.css';
+import { SPEC_VERSION } from '../config';
+
+// Comparison rows. Each entry: name, what it is (one sentence), what agents
+// use it for, where agents.txt overlaps / complements / differs. Pulled from
+// the spec's §12 Relationship to Existing Standards table and condensed.
+const protocols = [
+  {
+    name:     'MCP (Model Context Protocol)',
+    spec:     'modelcontextprotocol.io',
+    role:     'In-session tool / resource / prompt API for a single agent ⇄ server connection',
+    overlap:  'agents.txt advertises MCP endpoints via the `MCP:` directive (§6); MCP itself defines no standard well-known path, so agents.txt is the discovery file that lets an agent find your server in the first place. Once connected, MCP takes over.',
+    posture:  'complement',
+  },
+  {
+    name:     'A2A (Agent2Agent Protocol)',
+    spec:     'a2a-protocol.org',
+    role:     'Agent-to-agent messaging via signed AgentCard discovery + JSON-RPC',
+    overlap:  'agents.txt advertises A2A AgentCards via the `A2A:` directive (§9) for sites with multiple agents or non-canonical card paths. The canonical `/.well-known/agent-card.json` still works for single-agent sites; agents.txt fills the multi-card gap.',
+    posture:  'complement',
+  },
+  {
+    name:     'UCP (Universal Commerce Protocol)',
+    spec:     'ucp.dev',
+    role:     'Profile-based commerce discovery (services, capabilities, payment handlers, signing keys)',
+    overlap:  'agents.txt advertises UCP profiles via the `UCP:` directive (§10). The canonical `/.well-known/ucp` path covers single-profile sites; agents.txt covers multi-profile and non-canonical paths.',
+    posture:  'complement',
+  },
+  {
+    name:     'OpenAPI 3.x',
+    spec:     'spec.openapis.org',
+    role:     'Per-operation HTTP API description (paths, schemas, security)',
+    overlap:  'OpenAPI describes individual API operations; agents.txt declares which capability families a site speaks (payments, auth, MCP, skills, A2A, UCP, WebMCP). The two layers stack: an agent reads `agents.txt` to know what the site offers, then reads the OpenAPI document for per-operation detail. The `payments.openapi` block in agents.json points at the OpenAPI document directly.',
+    posture:  'complement',
+  },
+  {
+    name:     'OAuth 2.0 + RFC 9728 PRM',
+    spec:     'rfc-editor.org/rfc/rfc6749',
+    role:     'Token-based authorization framework with Protected Resource Metadata for discovery',
+    overlap:  'OAuth 2.0 covers identity, token issuance, and scope grants. agents.txt advertises `oauth2` (and `auth-md` for agentic registration on top of RFC 9728) as one of the authorization protocols a site speaks; the OAuth metadata pair stays the canonical OAuth discovery surface.',
+    posture:  'complement',
+  },
+  {
+    name:     'llms.txt',
+    spec:     'llmstxt.org',
+    role:     'Curated markdown index of site content for LLM inference',
+    overlap:  'llms.txt is content discovery for LLM context windows. agents.txt is capability discovery for agents that act on the site. The two files coexist at the site root and do not overlap; the agents.txt spec recommends publishing both.',
+    posture:  'complement',
+  },
+  {
+    name:     'robots.txt (RFC 9309)',
+    spec:     'rfc-editor.org/rfc/rfc9309',
+    role:     'Crawler access control via path-level allow / disallow rules',
+    overlap:  'robots.txt governs crawl access; agents.txt declares runtime agent capabilities. agents.txt spec §4.3 recommends `Allow: /agents.txt` in robots.txt so crawlers can reach the discovery file. Neither file replaces the other.',
+    posture:  'complement',
+  },
+  {
+    name:     'sitemap.xml',
+    spec:     'sitemaps.org',
+    role:     'Inventory of crawlable URLs with last-modified / change-frequency hints',
+    overlap:  'sitemap.xml is a URL index; agents.txt is a capability declaration. Unrelated formats serving unrelated needs; both should be published.',
+    posture:  'unrelated',
+  },
+  {
+    name:     'ACP (IBM Agent Communication Protocol)',
+    spec:     'agentcommunicationprotocol.dev',
+    role:     'BeeAI-led agent-to-agent message-passing protocol with discovery + capability negotiation',
+    overlap:  'ACP overlaps A2A semantically and is its own discovery + transport spec. agents.txt is protocol-agnostic at the discovery layer: an `ACP:` block could be registered via the spec\'s §17.2 process if ACP adoption warrants it. Until then, sites speaking ACP can advertise it via the `x-acp` experimental identifier per §3.1.',
+    posture:  'orthogonal',
+  },
+  {
+    name:     'Provider APIs (OpenAI, Anthropic, Google)',
+    spec:     'Vendor-specific',
+    role:     'Per-vendor HTTP APIs for LLM inference, tool use, function calling',
+    overlap:  'Provider APIs are the inference layer; agents.txt is the discovery layer for the sites those agents act on. They sit at different ends of the same agent-to-site interaction.',
+    posture:  'orthogonal',
+  },
+  {
+    name:     'WebMCP',
+    spec:     'webmachinelearning.github.io/webmcp',
+    role:     'In-browser tool registration via `navigator.modelContext.registerTool()`',
+    overlap:  'agents.txt advertises WebMCP-enabled pages via the `WebMCP:` directive (§6.6). The `MCP:` directive covers server-side endpoints for headless agents; `WebMCP:` covers pages an agent reads inside a browser tab. Same site can declare both.',
+    posture:  'complement',
+  },
+  {
+    name:     'Agent Skills Discovery (agentskills.io v0.2.0)',
+    spec:     'agentskills.io',
+    role:     'Indexed catalogue of installable skill packages with sha256 digests',
+    overlap:  'agents.txt advertises skill URLs via the `Skills:` directive (§7); the agentskills.io discovery index adds verification (sha256) and metadata (type) on top. Both list the same skill set.',
+    posture:  'complement',
+  },
+];
+
+const postureLabel = (p: string) =>
+  p === 'complement' ? 'Complementary' : p === 'orthogonal' ? 'Orthogonal' : 'Unrelated';
+const postureClass = (p: string) =>
+  p === 'complement' ? 'text-[#16a34a]' : p === 'orthogonal' ? 'text-[#a16207]' : 'text-[#999]';
+---
+
+<BaseLayout
+  title="Compare · agents.txt vs other agent-readiness standards"
+  description="Side-by-side comparison of agents.txt against MCP, A2A, UCP, OpenAPI, OAuth 2.0, llms.txt, robots.txt, ACP, WebMCP, and Agent Skills Discovery. agents.txt is the discovery layer that lets agents find which capabilities a site exposes before negotiating any single protocol."
+  canonicalUrl="https://agents-txt.com/compare"
+>
+  <header class="sticky top-0 z-50 bg-white border-b border-[#e5e5e5]">
+    <div class="max-w-[1280px] mx-auto px-6 sm:px-10 h-14 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <a href="/" class="flex items-center no-underline shrink-0" aria-label="agents.txt"><img src="/assets/mark-2.svg" alt="agents.txt" width="26" height="26" class="h-[26px] w-[26px]" /></a>
+        <span class="hidden sm:inline text-[#ccc] select-none">/</span>
+        <span class="hidden sm:inline text-sm text-[#555] whitespace-nowrap">Compare</span>
+      </div>
+      <NavRight current="compare" />
+    </div>
+  </header>
+
+  <div class="max-w-[1280px] mx-auto px-6 sm:px-10 pt-12 pb-24">
+    <main class="max-w-3xl mx-auto">
+
+      <!-- Cover -->
+      <div class="mb-10 pb-8 border-b border-[#e5e5e5]">
+        <h1 class="text-2xl font-bold tracking-tight text-[#111] mb-1">
+          agents.txt vs other agent-readiness standards
+        </h1>
+        <p class="text-sm text-[#777] font-mono mb-6">v{SPEC_VERSION} · discovery layer · CC0</p>
+        <p class="text-sm text-[#555] leading-relaxed mb-3">
+          agents.txt is the <strong>first open standard for agent capability declaration at the site root</strong>: one plain-text file plus a structured JSON companion that tells an agent which payment rails, authorization protocols, MCP servers, skill packages, and AgentCards a site speaks, in one fetch, before negotiating any individual protocol. It does not replace any of the standards on this page; it slots above them, on the discovery axis.
+        </p>
+        <p class="text-sm text-[#555] leading-relaxed">
+          The full <a href="/spec#12-relationship-to-existing-standards" class="underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">§12 Relationship to Existing Standards</a> table in the spec is the canonical reference; this page reframes it for fast scanning.
+        </p>
+      </div>
+
+      <!-- Positioning summary -->
+      <div class="mb-12 border border-[#e5e5e5] bg-[#fafafa] px-5 py-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999] mb-3">Where agents.txt fits</p>
+        <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+          <dt class="text-[#999] font-medium">Layer</dt>
+          <dd class="text-[#111]">4 (discovery) — above robots.txt (1), sitemap.xml (2), llms.txt (3).</dd>
+          <dt class="text-[#999] font-medium">Output</dt>
+          <dd class="text-[#111]"><span class="font-mono">/agents.txt</span> (plain text) + <span class="font-mono">/agents.json</span> (structured JSON companion).</dd>
+          <dt class="text-[#999] font-medium">Scope</dt>
+          <dd class="text-[#111]">Capability declaration only. The protocols declared (MCP, A2A, x402, OAuth 2.0, auth.md, …) are independent specifications; agents.txt is the index, not the runtime.</dd>
+          <dt class="text-[#999] font-medium">License</dt>
+          <dd class="text-[#111]">CC0 (public domain). No royalties, no patents, no vendor lock-in.</dd>
+          <dt class="text-[#999] font-medium">Governance</dt>
+          <dd class="text-[#111]">RFC-style PR review on GitHub. Spec changes need RFC discussion + two reviewer approvals (<a href="/spec#171-registration-policy" class="underline underline-offset-2 decoration-[#bbb] hover:decoration-[#111] transition-all">§17.1</a>).</dd>
+        </dl>
+      </div>
+
+      <!-- Comparison table -->
+      <div class="border border-[#e5e5e5] divide-y divide-[#e5e5e5]">
+        <div class="px-5 py-3 bg-[#fafafa]">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999]">Comparison ({protocols.length} standards)</p>
+        </div>
+        {protocols.map((p) => (
+          <details class="group">
+            <summary class="grid grid-cols-[1fr_auto_auto] gap-x-4 items-center px-5 py-3 cursor-pointer hover:bg-[#fafafa] transition-colors list-none">
+              <div class="min-w-0">
+                <p class="text-sm font-semibold text-[#111]">{p.name}</p>
+                <p class="font-mono text-[11px] text-[#999] mt-0.5">{p.spec}</p>
+              </div>
+              <span class={`font-mono text-[10px] tracking-[0.06em] uppercase ${postureClass(p.posture)} shrink-0`}>
+                {postureLabel(p.posture)}
+              </span>
+              <span class="chevron inline-block w-3 text-[#999] text-[10px] shrink-0">▸</span>
+            </summary>
+            <div class="px-5 pb-4 ml-0 space-y-2">
+              <p class="text-xs text-[#777]"><span class="font-semibold text-[#555]">What it is</span> · {p.role}</p>
+              <p class="text-xs text-[#333] leading-relaxed"><span class="font-semibold text-[#555]">Relationship to agents.txt</span> · {p.overlap}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+
+      <!-- Differentiators -->
+      <div class="mt-12 prose max-w-none">
+        <h2>Why agents.txt instead of inventing your own discovery file</h2>
+        <ul>
+          <li><strong>Discovery layer is empty without it.</strong> MCP, A2A, OAuth all define their own well-known paths but assume an agent already knows the site supports them. agents.txt is the file an agent reads first to learn that.</li>
+          <li><strong>One fetch, complete capability map.</strong> An agent does not need to probe every well-known path on every site; the two files at the root declare every protocol the site speaks, with structured detail in the JSON companion.</li>
+          <li><strong>Open, CC0, vendor-neutral.</strong> No SDK lock-in, no per-vendor extension fields. Any of three adoption paths (hand-write, generator, library) produces a valid file.</li>
+          <li><strong>Designed to absorb new protocols.</strong> The `x-` prefix lets a site advertise an unregistered protocol today; the <a href="/spec#171-registration-policy">§17.1 registration policy</a> brings it into the spec when adoption stabilises. AP2 and auth.md both landed this way.</li>
+          <li><strong>Live reference deployment.</strong> agents-txt.com itself publishes every surface the spec defines, including every ecosystem discovery file (RFC 9727 API catalog, SEP-2127 MCP server card, agentskills.io index, OpenAPI with x-payment-info, Web Bot Auth JWKSet, NLWeb schemamap, x402 well-known). <a href="/audit?url=https://agents-txt.com">Audit it yourself</a>.</li>
+        </ul>
+      </div>
+
+      <!-- Footer note -->
+      <p class="text-xs text-[#999] mt-12 leading-relaxed">
+        Posture key: <span class="text-[#16a34a] font-medium">Complementary</span> = different layer, both files should ship. <span class="text-[#a16207] font-medium">Orthogonal</span> = different concern, no overlap to resolve. <span class="text-[#999] font-medium">Unrelated</span> = listed for completeness; not in the same problem space.
+      </p>
+
+    </main>
+  </div>
+
+  <footer class="border-t border-[#e5e5e5] mt-4">
+    <div class="max-w-[1280px] mx-auto px-6 sm:px-10 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="text-xs text-[#999]">
+        <img src="/assets/wordmark.svg" alt="agents.txt" class="inline-block h-[16px] w-auto align-middle" />
+        {' '}
+        <a href="/spec" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">Spec</a>
+        {' '}·{' '}
+        <a href="/registry" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">Registry</a>
+        {' '}·{' '}
+        <a href="/demo" class="underline underline-offset-2 decoration-[#ccc] hover:decoration-[#999] transition-all">Demos</a>
+      </div>
+      <p class="text-xs text-[#bbb]">CC0 (spec) · Apache 2.0 (code).</p>
+    </div>
+  </footer>
+</BaseLayout>
+
+<style>
+  details.group > summary { list-style: none; }
+  details.group > summary::-webkit-details-marker { display: none; }
+  details.group > summary .chevron { transition: transform 200ms ease-out; }
+  details.group[open] > summary .chevron { transform: rotate(90deg); }
+</style>
