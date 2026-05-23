@@ -147,6 +147,122 @@ import '../../styles/global.css';
         <p>
           The agent does not call a revoke endpoint. ID-JAG flows can be revoked by the provider posting an OIDC backchannel <code>logout+jwt</code> to <code>agent_auth.revocation_uri</code>; email and anonymous flows surface revocation as a 401 on a previously-working credential. Either way the agent's recovery path is the same: drop the credential and restart at the Protected Resource Metadata fetch.
         </p>
+
+        <h2>Use it in your own agent</h2>
+        <p>
+          The demo walks the discovery half and renders the register / claim / use shapes against this site. To run the full flow from your own agent against any agents.txt-compliant deployment that advertises <code>auth-md</code>, follow the steps below. Reference: <a href="/spec#113-auth-md--agentic-registration">spec §11.3</a> and <a href="https://github.com/workos/auth.md" target="_blank" rel="noopener noreferrer">github.com/workos/auth.md</a>.
+        </p>
+
+        <h3>1. Discover the activation surfaces</h3>
+<pre class="text-[12px]"><code>{`$ curl -s https://agents-txt.com/.well-known/oauth-protected-resource | jq .
+{
+  "resource": "https://agents-txt.com",
+  "authorization_servers": ["https://agents-txt.com"],
+  "scopes_supported": ["spec:read", "mcp:tools", "mcp:resources"],
+  "bearer_methods_supported": ["header"]
+}
+
+$ curl -s https://agents-txt.com/.well-known/oauth-authorization-server | jq .agent_auth
+{
+  "skill": "https://agents-txt.com/auth.md",
+  "register_uri": "https://agents-txt.com/agent/auth",
+  "claim_uri": "https://agents-txt.com/agent/auth/claim",
+  "revocation_uri": "https://agents-txt.com/agent/auth/revoke",
+  "identity_types_supported": ["anonymous", "identity_assertion"]
+}
+
+# Read the per-service walkthrough (always start here)
+$ curl -s https://agents-txt.com/auth.md`}</code></pre>
+
+        <h3>2a. Register anonymously (fastest path; no prior relationship)</h3>
+<pre class="text-[12px]"><code>{`# curl
+$ curl -s -X POST https://agents-txt.com/agent/auth \\
+    -H 'Content-Type: application/json' \\
+    -d '{"type": "anonymous", "requested_credential_type": "api_key"}'
+
+# Response (200):
+{
+  "registration_id":    "reg_<id>",
+  "credential_type":    "api_key",
+  "credential":         "sk_demo_<token>",
+  "credential_expires": null,
+  "scopes":             ["spec:read"],
+  "claim_url":          "https://agents-txt.com/agent/auth/claim",
+  "claim_token":        "clm_<token>",
+  "post_claim_scopes":  ["spec:read", "mcp:tools"]
+}`}</code></pre>
+
+<pre class="text-[12px]"><code>{`// Node 20+
+const res = await fetch('https://agents-txt.com/agent/auth', {
+  method:  'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body:    JSON.stringify({ type: 'anonymous', requested_credential_type: 'api_key' }),
+});
+const { credential, claim_token, post_claim_scopes } = await res.json();`}</code></pre>
+
+<pre class="text-[12px]"><code>{`# Python (stdlib)
+import urllib.request, json
+req = urllib.request.Request(
+    'https://agents-txt.com/agent/auth',
+    data=json.dumps({'type': 'anonymous', 'requested_credential_type': 'api_key'}).encode(),
+    headers={'Content-Type': 'application/json'},
+)
+with urllib.request.urlopen(req) as r:
+    credential = json.load(r)['credential']`}</code></pre>
+
+        <p>
+          The credential is immediately usable at the <code>scopes</code> returned in the response. <code>claim_token</code> is returned exactly once; hold it in memory if you intend to claim, otherwise discard.
+        </p>
+
+        <h3>2b. Register with a verified email (alternative)</h3>
+<pre class="text-[12px]"><code>{`$ curl -s -X POST https://agents-txt.com/agent/auth \\
+    -H 'Content-Type: application/json' \\
+    -d '{"type": "identity_assertion",
+         "assertion_type": "verified_email",
+         "assertion": "user@example.com",
+         "requested_credential_type": "api_key"}'`}</code></pre>
+        <p>
+          The service emails the user a 6-digit OTP. There is no credential in the response yet; keep the <code>claim_token</code> and proceed to step 3.
+        </p>
+
+        <h3>3. (Optional) Claim ceremony — upgrade the scope set</h3>
+<pre class="text-[12px]"><code>{`# 3a. Trigger the claim email (anonymous registrations only)
+$ curl -s -X POST https://agents-txt.com/agent/auth/claim \\
+    -H 'Content-Type: application/json' \\
+    -d '{"claim_token": "clm_<token>", "email": "user@example.com"}'
+
+# 3b. User reads the OTP from email and reads it back to your agent
+# 3c. Submit the OTP
+$ curl -s -X POST https://agents-txt.com/agent/auth/claim/complete \\
+    -H 'Content-Type: application/json' \\
+    -d '{"claim_token": "clm_<token>", "otp": "123456"}'
+
+# Response: { "registration_id": "reg_<id>", "status": "claimed" }
+# Anonymous registrations: the existing api_key keeps working, scopes are upgraded in place.
+# Email registrations: a credential is returned here for the first time.`}</code></pre>
+
+        <h3>4. Present the credential</h3>
+<pre class="text-[12px]"><code>{`$ curl -s https://agents-txt.com/<protected-resource> \\
+    -H "Authorization: Bearer <credential>"`}</code></pre>
+
+        <h3>Error recovery</h3>
+        <table>
+          <thead>
+            <tr><th>HTTP</th><th>Body <code>error</code></th><th>What to do</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>400</td><td><code>anonymous_not_enabled</code></td><td>Service does not accept anonymous registration. Switch to <code>verified_email</code> or <code>id-jag</code>.</td></tr>
+            <tr><td>400</td><td><code>invalid_claim_token</code></td><td>Wrong or expired <code>claim_token</code>. Restart at step 2.</td></tr>
+            <tr><td>400</td><td><code>otp_invalid</code> / <code>otp_expired</code></td><td>Ask the user to re-read the code; if the window passed, re-trigger the claim email (step 3a).</td></tr>
+            <tr><td>401</td><td>—</td><td>Credential revoked. Drop it and restart at step 1. Do not stash and retry.</td></tr>
+            <tr><td>429</td><td>—</td><td>Honour <code>Retry-After</code> and the <code>RateLimit-*</code> header set per RFC 9598.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Picking a different protocol</h3>
+        <p>
+          If pre-provisioned <code>client_id</code> + <code>client_secret</code> works for your agent, the <a href="/demo/oauth">OAuth 2.0 client-credentials demo</a> covers that flow end to end. If your agent has its own persistent Ed25519 identity registered with a host the service trusts, the <a href="/demo/auth">agent-auth demo</a> walks the per-agent identity flow.
+        </p>
       </div>
 
     </div>

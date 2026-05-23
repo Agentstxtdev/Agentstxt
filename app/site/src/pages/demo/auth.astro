@@ -149,6 +149,86 @@ import '../../styles/global.css';
         <p>
           The host's stable identity is a JWK thumbprint (RFC 7638): canonical JSON <code>{"{crv, kty, x}"}</code> → SHA-256 → base64url. This thumbprint is used as the <code>iss</code> claim in all host JWTs and as the KV key for host records.
         </p>
+
+        <h2>Use it in your own agent</h2>
+        <p>
+          The demo runs the protocol against this server's keys. To do the same from your own agent, follow these steps. All three authorization protocols this site supports (<code>agent-auth</code>, <code>oauth2</code>, <code>auth-md</code>) are listed in <code>/agents.txt</code>; pick the one your agent can satisfy. The full protocol reference lives in <a href="/spec#11-authorization-protocols">spec §11</a>; this section is the developer-side how-to.
+
+        </p>
+
+        <h3>1. Discover what the site supports</h3>
+<pre class="text-[12px]"><code>{`$ curl -s https://agents-txt.com/agents.txt | grep '^Authorization:'
+Authorization: agent-auth, oauth2, auth-md
+
+$ curl -s https://agents-txt.com/.well-known/agent-configuration | jq .
+{
+  "issuer": "https://agents-txt.com",
+  "agent_register_endpoint": "https://agents-txt.com/agent/register",
+  "capability_execute_endpoint": "https://agents-txt.com/capability/execute",
+  "algorithms": ["EdDSA"],
+  "modes": ["delegated", "autonomous"]
+}`}</code></pre>
+
+        <h3>2. Generate two Ed25519 keypairs (host + agent)</h3>
+<pre class="text-[12px]"><code>{`// Node 20+ (Web Crypto, no dependencies)
+const host  = await crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign', 'verify']);
+const agent = await crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign', 'verify']);
+
+# Python (cryptography)
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+host  = Ed25519PrivateKey.generate()
+agent = Ed25519PrivateKey.generate()`}</code></pre>
+
+        <h3>3. Register the agent (host JWT carries the agent's public key)</h3>
+<pre class="text-[12px]"><code>{`$ curl -s -X POST https://agents-txt.com/agent/register \\
+    -H "Authorization: Bearer <host JWT>" \\
+    -H "Content-Type: application/json" \\
+    -d '{"agent_public_key": "<base64url-encoded Ed25519 public key>"}'
+
+# Response:
+{ "agent_id": "agt_...", "grants": [{"capability": "/auth", "scope": "read"}] }`}</code></pre>
+
+        <h3>4. Sign requests with the agent JWT</h3>
+<pre class="text-[12px]"><code>{`# Mint an agent JWT (header: { alg: "EdDSA", typ: "agent+jwt" })
+# Payload: { iss: <agent_id>, aud: "https://agents-txt.com/auth", jti: <uuid>, iat, exp }
+
+$ curl -s https://agents-txt.com/auth \\
+    -H "Authorization: Bearer <agent JWT>"`}</code></pre>
+
+        <p>
+          Each JWT carries a fresh <code>jti</code>. Reusing a <code>jti</code> within the 90-second replay window returns <code>token_replay_detected</code>; drop the token and mint a new one.
+        </p>
+
+        <h3>Token format on the wire</h3>
+        <ul>
+          <li><strong>Algorithm</strong>: <code>EdDSA</code> over Ed25519 (RFC 8037).</li>
+          <li><strong>Header</strong>: <code>{"{ alg: \"EdDSA\", typ: \"host+jwt\" | \"agent+jwt\" }"}</code> — the <code>typ</code> distinguishes management JWTs from execution JWTs and is checked before signature verification.</li>
+          <li><strong>Audience</strong>: the absolute URL of the capability the JWT is presented at (e.g. <code>https://agents-txt.com/auth</code>). Mismatches return <code>audience_mismatch</code>.</li>
+        </ul>
+
+        <h3>Error recovery</h3>
+        <table>
+          <thead>
+            <tr><th>HTTP</th><th>Body <code>error</code></th><th>What to do</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>401</td><td><code>invalid_signature</code></td><td>JWT did not verify against the registered public key. Re-register the agent or fix the signing code.</td></tr>
+            <tr><td>401</td><td><code>token_replay_detected</code></td><td>The <code>jti</code> was already used within the 90-second window. Mint a fresh JWT with a new <code>jti</code>.</td></tr>
+            <tr><td>401</td><td><code>audience_mismatch</code></td><td>The <code>aud</code> claim does not match the requested URL. Mint with the exact resource URL as <code>aud</code>.</td></tr>
+            <tr><td>404</td><td><code>agent_not_found</code></td><td>The <code>iss</code> (agent_id) is not registered. Re-run step 3.</td></tr>
+            <tr><td>429</td><td>—</td><td>Rate limited. Honour <code>Retry-After</code> and the <code>RateLimit-*</code> headers (RFC 9598) and self-throttle.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Revocation</h3>
+        <p>
+          The host can revoke any agent it registered. The next execution request with that agent's JWT returns 401; the agent must re-register before continuing. There is no agent-facing revoke endpoint; revocation is always initiated by the host.
+        </p>
+
+        <h3>Picking a different protocol</h3>
+        <p>
+          If pre-provisioned <code>client_id</code> + <code>client_secret</code> works for your agent, the <a href="/demo/oauth">OAuth 2.0 client-credentials demo</a> covers that flow end to end (token endpoint, JWKS verification, introspection). If your agent has no prior relationship with the service and needs to self-register on first contact, the <a href="/demo/authmd">auth.md demo</a> walks the agentic-registration flow including the optional 6-digit OTP claim ceremony.
+        </p>
       </div>
 
     </div>

@@ -215,6 +215,101 @@ import '../../styles/global.css';
         <p>
           Token introspection consults a KV deny set at <code>oauth:revoked:&lt;jti&gt;</code> with TTL equal to the token lifetime. Writing a revocation entry rejects the token within its remaining lifetime, then the entry expires alongside the token itself, so KV does not grow indefinitely.
         </p>
+
+        <h2>Use it in your own agent</h2>
+        <p>
+          The demo runs the flow against this server's <code>demo-public</code> client. To do the same from your own agent against any agents.txt-compliant deployment that advertises <code>oauth2</code> in its <code>Authorization:</code> directive, follow these steps. Reference: <a href="/spec#112-oauth2--oauth-20">spec §11.2</a> and <a href="https://www.rfc-editor.org/rfc/rfc6749#section-4.4" target="_blank" rel="noopener noreferrer">RFC 6749 §4.4</a>.
+        </p>
+
+        <h3>1. Discover the authorization server</h3>
+<pre class="text-[12px]"><code>{`$ curl -s https://agents-txt.com/.well-known/oauth-authorization-server | jq .
+{
+  "issuer": "https://agents-txt.com",
+  "token_endpoint": "https://agents-txt.com/oauth/token",
+  "introspection_endpoint": "https://agents-txt.com/oauth/introspect",
+  "jwks_uri": "https://agents-txt.com/.well-known/jwks.json",
+  "grant_types_supported": ["client_credentials"],
+  "scopes_supported": ["spec:read", "mcp:tools", "mcp:resources"]
+}`}</code></pre>
+
+        <h3>2. Request an access token</h3>
+<pre class="text-[12px]"><code>{`# curl — Basic auth
+$ curl -s -X POST https://agents-txt.com/oauth/token \\
+    -H 'Content-Type: application/x-www-form-urlencoded' \\
+    -u '<client_id>:<client_secret>' \\
+    -d 'grant_type=client_credentials&scope=spec:read mcp:tools'
+
+# Response:
+{
+  "access_token": "eyJhbGciOiJFUzI1NiIsImtpZCI6Ii4uLiJ9...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "spec:read mcp:tools"
+}`}</code></pre>
+
+<pre class="text-[12px]"><code>{`// Node 20+ (no dependencies)
+const body = new URLSearchParams({
+  grant_type:    'client_credentials',
+  client_id:     CLIENT_ID,
+  client_secret: CLIENT_SECRET,
+  scope:         'spec:read mcp:tools',
+});
+const res = await fetch('https://agents-txt.com/oauth/token', {
+  method:  'POST',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  body,
+});
+const { access_token, expires_in } = await res.json();`}</code></pre>
+
+<pre class="text-[12px]"><code>{`# Python (stdlib)
+import urllib.parse, urllib.request, json
+data = urllib.parse.urlencode({
+    'grant_type':    'client_credentials',
+    'client_id':     CLIENT_ID,
+    'client_secret': CLIENT_SECRET,
+    'scope':         'spec:read mcp:tools',
+}).encode()
+req = urllib.request.Request(
+    'https://agents-txt.com/oauth/token',
+    data=data,
+    headers={'Content-Type': 'application/x-www-form-urlencoded'},
+)
+with urllib.request.urlopen(req) as r:
+    token = json.load(r)['access_token']`}</code></pre>
+
+        <h3>3. Present the token on every request</h3>
+<pre class="text-[12px]"><code>{`$ curl -s https://agents-txt.com/<protected-resource> \\
+    -H "Authorization: Bearer $ACCESS_TOKEN"`}</code></pre>
+
+        <h3>4. (Optional) verify the token locally against the published JWKS</h3>
+        <p>
+          Resource servers that want to validate tokens without a round-trip to the introspection endpoint fetch <code>/.well-known/jwks.json</code> once, cache the public key, and verify the ES256 signature locally. The demo runs exactly this verification path in your browser using <code>crypto.subtle.verify</code>.
+        </p>
+
+        <h3>Scope intersection</h3>
+        <p>
+          The token endpoint intersects the requested <code>scope</code> with the client's granted scopes and the server's supported scopes. A client granted only <code>spec:read</code> that requests <code>spec:read mcp:tools mcp:resources</code> receives a token scoped to <code>spec:read</code>. No privilege escalation; over-requesting is silently downgraded, not rejected.
+        </p>
+
+        <h3>Error recovery</h3>
+        <table>
+          <thead>
+            <tr><th>HTTP</th><th>Body <code>error</code></th><th>What to do</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>400</td><td><code>invalid_request</code></td><td>Missing or duplicated form field. Re-read the request body.</td></tr>
+            <tr><td>400</td><td><code>unsupported_grant_type</code></td><td>Grant other than <code>client_credentials</code>. This server only supports that one grant.</td></tr>
+            <tr><td>401</td><td><code>invalid_client</code></td><td>Wrong <code>client_id</code> / <code>client_secret</code>. Re-provision the client record if persistent.</td></tr>
+            <tr><td>401</td><td><code>invalid_token</code></td><td>Token expired or revoked. Drop it; mint a fresh one with a new token request.</td></tr>
+            <tr><td>403</td><td><code>insufficient_scope</code></td><td>Token lacks the scope the resource requires. Request the scope explicitly.</td></tr>
+            <tr><td>429</td><td>—</td><td>Honour <code>Retry-After</code> and the <code>RateLimit-*</code> header set per RFC 9598.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Picking a different protocol</h3>
+        <p>
+          If your agent has its own persistent Ed25519 identity registered with a host the service trusts, the <a href="/demo/auth">agent-auth demo</a> walks that flow. If your agent has no prior relationship with the service and needs to self-register on first contact, the <a href="/demo/authmd">auth.md demo</a> covers agentic registration including the optional OTP claim ceremony.
+        </p>
       </div>
 
     </div>
